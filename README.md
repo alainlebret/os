@@ -1,6 +1,6 @@
 ## Systèmes d'exploitation
 
-L'ensemble des documents proviennent du cours de systèmes d'exploitation présenté de 2012 à 2014 à l'université [Paris-Est Créteil](http://www.u-pec.fr/) puis en 2016 à l'[ENSICAEN](http://www.ensicaen.fr).
+L'ensemble des documents proviennent du cours de systèmes d'exploitation présenté de 2012 à 2014 à l'université [Paris-Est Créteil](http://www.u-pec.fr/) puis depuis 2016 à l'[ENSICAEN](http://www.ensicaen.fr).
 
 ### Licence
 
