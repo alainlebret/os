@@ -36,5 +36,4 @@ qui peut servir à préciser la nature des informations contenues dans le corps.
 Au moment de la réception, il est possible de choisir de ne sélectionner que
 les messages d'un type donné.
 
-Fichiers : `file_producteur.c`, `file_consommateur.c
-
+Fichiers : `file_producteur.c`, `file_consommateur.c`
