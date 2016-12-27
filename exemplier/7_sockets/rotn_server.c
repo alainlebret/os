@@ -38,7 +38,7 @@ void child(int fd) {
 	for (EVER) {
 		char ch;
 
-		/* Read the character from the client */
+		/* Read each character from the client */
 		result = recv(fd, &ch, 1, 0);
 		if (result == 0) {
 			break;
