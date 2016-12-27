@@ -38,7 +38,7 @@ void child(int fd) {
 	for (EVER) {
 		char ch;
 
-		/* Read the message from the client into the buffer */
+		/* Read the character from the client */
 		result = recv(fd, &ch, 1, 0);
 		if (result == 0) {
 			break;
@@ -47,7 +47,7 @@ void child(int fd) {
 			break;
 		}
 
-		/* Test not to overflowing the buffer. */
+		/* Test not to overflowing the output buffer. */
 		if (outbuf_used < sizeof(outbuf)) {
 			outbuf[outbuf_used++] = rot_char(ch, 3);
 		}
