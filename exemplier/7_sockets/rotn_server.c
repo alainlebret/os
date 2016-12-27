@@ -3,10 +3,10 @@
 /**
  * @file rotn_server.c
  *
- * A trivial server that listens for TCP connections on port 6789. It reads
- * data from its input one line at a time, and writes out the ROTn obfuscation
- * of lines. It uses the Unix fork() call to create a new process for each
- * incoming connection.
+ * A TCP server that listens for connections on port 6789. It reads data
+ * from its input (one line at a time), and writes out the ROTn obfuscation
+ * of lines. It uses the Unix fork() primitive to create a new process for
+ * each incoming connection.
  */
 
 #include <unistd.h>
@@ -30,7 +30,7 @@ char rot_char(char c, int rot) {
 	return result;
 }
 
-void child(int fd) {
+void handle_child(int fd) {
 	char outbuf[MAX_LINE + 1];
 	size_t outbuf_used = 0;
 	ssize_t result;
@@ -101,7 +101,7 @@ void run(void) {
 			perror("accept");
 		} else {
 			if (fork() == 0) {
-				child(fd);
+				handle_child(fd);
 				exit(EXIT_SUCCESS);
 			}
 		}
