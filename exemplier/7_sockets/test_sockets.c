@@ -18,7 +18,7 @@
  * @version	1.0
  * @date 2012-04-10
  */
-
+#include <stdio.h>
 #include <stdlib.h>     /* exit() */
 #include <unistd.h>     /* close() */
 #include <sys/types.h>  
