@@ -6,4 +6,4 @@ L'ensemble des documents proviennent du cours de systèmes d'exploitation prése
 
 Les documents (cours, sujets de travaux pratiques, exemplier et images) sont fournis sous licence Creative Commons [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 
-[![Creative Commons License](http://i.creativecommons.org/l/by-nc-nd/3.0/88x31.png)](https://creativecommons.org/licenses/by-sa/4.0/)
+[![Creative Commons License](http://i.creativecommons.org/l/by-sa/3.0/88x31.png)](https://creativecommons.org/licenses/by-sa/4.0/)
