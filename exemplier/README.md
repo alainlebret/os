@@ -21,5 +21,3 @@ different courses:
 * ENSICAEN, France, since 2016
 
 These codes are provided under the [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0) License.
-
-Contact : alain(dot)lebret(at)ensicaen(dot)fr
