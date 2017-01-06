@@ -33,10 +33,10 @@
  * A simple program that shows using the \c open primitive to create a new file.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
+#include <stdio.h>      /* printf() */
+#include <stdlib.h>     /* exit() */
+#include <fcntl.h>      /* open() opening flags and file modes */
+#include <unistd.h>     /* close() */
 #include <sys/stat.h>
 #include <sys/types.h>
 

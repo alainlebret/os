@@ -34,10 +34,10 @@
  * a file.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
+#include <stdio.h>      /* printf() */
+#include <stdlib.h>     /* exit() */
+#include <fcntl.h>      /* open() opening flags and file modes */
+#include <unistd.h>     /* read() and close() */
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -51,8 +51,8 @@ void handle_fatal_error(char *msg) {
 	exit(EXIT_FAILURE);
 }
 
-int main (int argc, char* argv[]) {
-	int fd;
+int main(int argc, char* argv[]) {
+	int fd; /* file descriptor */
 	char *filename;
 	unsigned char buffer[BUFFER_SIZE];
 	size_t offset;

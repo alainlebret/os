@@ -33,14 +33,15 @@
  * A simple example that uses the \c lseek primitive to create a huge file.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
+#include <stdio.h>      /* printf() */
+#include <stdlib.h>     /* exit() */
+#include <fcntl.h>      /* open() opening flags and file modes */
+#include <unistd.h>     /* close() */
 #include <sys/stat.h>
 #include <sys/types.h>
 
 #define GIGABYTE 1024*1024*1024
+
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
@@ -74,7 +75,7 @@ int main(int argc, char *argv[]) {
 	/* Jump to 1 byte of where we want the file to end. */
 	lseek(fd, length - 1, SEEK_SET);
 
-	/* Write a single 0 byte.  */
+	/* Write a single 0 byte. */
 	write(fd, &zero, 1);
 
 	close(fd);
