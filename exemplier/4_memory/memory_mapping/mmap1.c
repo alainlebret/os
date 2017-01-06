@@ -33,14 +33,14 @@
  * A memmory mapping example using the \c mmap primitive.
  */
 
-#include <stdio.h>  /* pour printf() */
-#include <stdlib.h> /* pour exit() et execl()*/
-#include <unistd.h> /* pour fork() */
-#include <fcntl.h> /* pour open() */
-#include <sys/mman.h> /* pour mmap() */
-#include <sys/stat.h> /* pour stat() */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() and execl()*/
+#include <unistd.h>    /* fork(), close() */
+#include <fcntl.h>     /* open() opening flags and file modes */
+#include <sys/mman.h>  /* mmap() */
+#include <sys/stat.h>  /* stat() */
 #include <sys/types.h>
-#include <ctype.h> /* pour isalpha(), isspace() */
+#include <ctype.h>     /* isalpha(), isspace() */
 #include <assert.h>
 
 #define TERMINAL 1
