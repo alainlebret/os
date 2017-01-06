@@ -35,9 +35,9 @@
  * orphean.
  */
 
-#include <stdio.h>  /* printf() */
-#include <stdlib.h> /* exit() */
-#include <unistd.h> /* fork() and sleep() */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() */
+#include <unistd.h>    /* fork() and sleep() */
 #include <sys/types.h> /* pid_t */
 
 #define DURATION 20

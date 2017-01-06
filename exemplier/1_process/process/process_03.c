@@ -34,11 +34,11 @@
  * sleep() to block parent and child processes.
  */
 
-#include <stdio.h>  /* printf() */
-#include <stdlib.h> /* exit() */
-#include <unistd.h> /* fork() and sleep() */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() */
+#include <unistd.h>    /* fork() and sleep() */
 #include <sys/types.h> /* pid_t */
-#include <sys/wait.h> /* pour wait() */
+#include <sys/wait.h>  /* wait() */
 
 #define DURATION 5
 

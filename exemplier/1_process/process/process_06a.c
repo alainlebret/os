@@ -34,11 +34,11 @@
  * child is overlayed by a new program using the \c exec() family functions.
  */
 
-#include <stdio.h>  /* printf() */
-#include <stdlib.h> /* exit() and execl()*/
-#include <unistd.h> /* fork() */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() and execl()*/
+#include <unistd.h>    /* fork() */
 #include <sys/types.h> /* pid_t */
-#include <sys/wait.h> /* wait() */
+#include <sys/wait.h>  /* wait() */
 
 /**
  * Handles a fatal error. It displays a message, then exits.

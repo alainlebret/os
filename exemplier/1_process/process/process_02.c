@@ -34,11 +34,11 @@
  * shows the evolution of a variable in parent and child processes.
  */
 
-#include <stdio.h>  /* pour printf() */
-#include <stdlib.h> /* pour exit() */
-#include <unistd.h> /* pour fork() */
-#include <sys/types.h> /* pour pid_t */
-#include <sys/wait.h> /* pour wait() */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() */
+#include <unistd.h>    /* fork() */
+#include <sys/types.h> /* pid_t */
+#include <sys/wait.h>  /* wait() */
 
 /**
  * Handles a fatal error. It displays a message, then exits.

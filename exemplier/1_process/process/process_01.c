@@ -33,9 +33,9 @@
  * A simple program that clones a process using the \c fork() primitive.
  */
 
-#include <stdio.h>  /* printf() */
-#include <stdlib.h> /* exit() */
-#include <unistd.h> /* fork() */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() */
+#include <unistd.h>    /* fork() */
 #include <sys/types.h> /* pid_t */
 
 /**

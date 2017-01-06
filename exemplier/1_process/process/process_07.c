@@ -33,9 +33,9 @@
  * A simple program about a process and its group.
  */
 
-#include <stdio.h>  /* printf() */
-#include <stdlib.h> /* exit() and execl()*/
-#include <unistd.h> /* getpid() and getpgrp() */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() and execl()*/
+#include <unistd.h>    /* getpid() and getpgrp() */
 #include <sys/types.h> /* pid_t */
 
 /**

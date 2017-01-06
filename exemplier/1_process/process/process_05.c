@@ -34,11 +34,11 @@
  * parent is waiting for his child to finish.
  */
 
-#include <stdio.h>  /* printf() */
-#include <stdlib.h> /* exit() */
-#include <unistd.h> /* fork() and sleep() */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() */
+#include <unistd.h>    /* fork() and sleep() */
 #include <sys/types.h> /* pid_t */
-#include <sys/wait.h> /* wait() */
+#include <sys/wait.h>  /* wait() */
 
 #define DURATION 20
 
