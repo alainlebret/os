@@ -34,11 +34,11 @@
  * child.
  */
 
-#include <stdio.h>  /* pour printf() */
-#include <stdlib.h> /* pour exit() et execl()*/
-#include <unistd.h> /* pour fork() */
-#include <sys/types.h> /* necessary for wait */
-#include <sys/wait.h> /* necessary for wait */
+#include <stdio.h>  /* printf() */
+#include <stdlib.h> /* exit() and execl()*/
+#include <unistd.h> /* fork() */
+#include <sys/types.h> /* wait() */
+#include <sys/wait.h> /* wait() */
 #include <ctype.h>
 
 #define INPUT 1

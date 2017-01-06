@@ -34,11 +34,11 @@
  * a producer.
  */
 
-#include <stdio.h>  /* pour printf() */
-#include <stdlib.h> /* pour exit() et execl()*/
+#include <stdio.h>  /* printf() */
+#include <stdlib.h> /* exit() and execl()*/
 #include <unistd.h> /* pour fork() */
-#include <sys/types.h> /* pour pid_t et mkfifo() */
-#include <sys/stat.h> /* pour mkfifo() */
+#include <sys/types.h> /* pid_t and mkfifo() */
+#include <sys/stat.h> /* mkfifo() */
 #include <ctype.h>
 #include <fcntl.h>
 #include <string.h>
