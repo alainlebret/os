@@ -33,12 +33,12 @@
  * A simple program that uses POSIX signals and handles the SIGUSR1 signal.
  */
 
-#include <stdio.h>  /* printf() */
-#include <stdlib.h> /* exit() */
-#include <unistd.h> /* fork() */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() */
+#include <unistd.h>    /* fork() */
 #include <sys/types.h> /* pid_t */
-#include <sys/wait.h> /* wait() */
-#include <signal.h> /* sigaction */
+#include <sys/wait.h>  /* wait() */
+#include <signal.h>    /* sigaction */
 
 unsigned char nbCalls = 7;
 
