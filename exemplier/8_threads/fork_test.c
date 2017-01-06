@@ -27,10 +27,13 @@
  * @date 2012-04-10
  */
 
+
 /**
  * @file fork_test.c
- * 
- * Test de fork() pour comparaison avec les threads.
+ *
+ * A simple program to test fork vs threads (see \c thread_test.c).
+ *
+ * Compile using gcc -Wall -Wextra fork_test.c
  */
 
 #include <stdio.h>
@@ -41,14 +44,6 @@
 #include <sys/wait.h> /* necessary for wait */
 
 #define NB_FORKS 50000
-
-/**
- * @file fork_test.c
- *
- * A simple program to test fork vs threads (see \c thread_test.c).
- *
- * Compile using gcc -Wall -Wextra fork_test.c
- */
 
 /**
  * Handles a fatal error. It displays a message, then exits.
