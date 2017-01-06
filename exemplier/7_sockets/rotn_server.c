@@ -35,8 +35,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/socket.h> /* socket functions */
-#include <netinet/in.h> /* sockaddr_in */
+#include <netinet/in.h> /* Internet structures and functions. */
+#include <sys/socket.h> /* Socket functions. */
 
 #define EVER ;;
 #define MAX_LINE 16384

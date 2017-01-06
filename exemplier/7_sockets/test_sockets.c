@@ -31,8 +31,8 @@
 #include <stdlib.h>     /* exit() */
 #include <unistd.h>     /* close() */
 #include <sys/types.h>  
-#include <sys/socket.h> /* socket() */
-#include <netinet/in.h> /* IPPROTO_XX */
+#include <netinet/in.h> /* Internet structures and functions. */
+#include <sys/socket.h> /* Socket functions. */
 
 #define EVER ;;
 
