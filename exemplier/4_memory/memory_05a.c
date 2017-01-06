@@ -34,10 +34,10 @@
  * option and run the valgring program
  */
 
-#include <stdio.h>  /* pour printf() */
-#include <stdlib.h> /* pour exit() et execl()*/
-#include <unistd.h> /* pour fork() */
-#include <sys/types.h> /* pour pid_t et mkfifo() */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() and execl()*/
+#include <unistd.h>    /* fork() */
+#include <sys/types.h> /* pid_t and mkfifo() */
 
 int main(void) {
 	int *p;

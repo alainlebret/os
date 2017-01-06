@@ -37,11 +37,11 @@
  * \endcode
  */
 
-#include <stdio.h>  /* pour printf() */
-#include <stdlib.h> /* pour random(), exit() et execl()*/
-#include <unistd.h> /* pour fork() */
-#include <sys/types.h> /* pour pid_t et mkfifo() */
-#include <math.h>
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* random(), exit() and execl()*/
+#include <unistd.h>    /* fork() */
+#include <sys/types.h> /* pid_t and mkfifo() */
+#include <math.h>      /* sqrt() -- don't forget to link with -lm */
 
 #define EVER ;;
 

@@ -40,10 +40,10 @@
  * with \em -g and run valgrind.
  */
 
-#include <stdio.h>  /* pour printf() */
-#include <stdlib.h> /* pour random(), exit() et execl()*/
-#include <unistd.h> /* pour fork() */
-#include <sys/types.h> /* pour pid_t et mkfifo() */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* random(), exit() and execl()*/
+#include <unistd.h>    /* fork() */
+#include <sys/types.h> /* pid_t and mkfifo() */
 
 #define EVER ;;
 
