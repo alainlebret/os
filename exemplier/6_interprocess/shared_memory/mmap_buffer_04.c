@@ -40,8 +40,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <sys/types.h> /* necessary for wait */
-#include <sys/wait.h> /* necessary for wait */
+#include <sys/types.h> /* wait() */
+#include <sys/wait.h> /* wait() */
 #include <sys/mman.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>

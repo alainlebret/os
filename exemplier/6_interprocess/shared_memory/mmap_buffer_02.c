@@ -39,8 +39,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/types.h> /* necessary for wait */
-#include <sys/wait.h> /* necessary for wait */
+#include <sys/types.h> /* wait() */
+#include <sys/wait.h> /* wait() */
 #include <sys/mman.h>
 
 #define INTEGER_SIZE sizeof(int)
