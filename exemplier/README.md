@@ -13,7 +13,7 @@ Ces exemples de code sont fournis sous licence [Apache 2.0](http://www.apache.or
 
 ----
 
-This repository contains some Unix system programming examples used in 
+This repository contains some UNIX system programming examples used in 
 different courses:
 
 * Paris-Est University, France, from 2011 to 2014
