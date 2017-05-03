@@ -38,19 +38,19 @@
 #define EVER ;;
 
 /*
- * Application using POSIX mqueue
+ * Receiver application using POSIX mqueue
  * Compile using: gcc -lrt -o posix_msg_receiver posix_msg_receiver.c
  */
 int main(int argc,char * argv[]){
 	mqd_t mq;
 	char * buffer;
 	struct mq_attr attr;
-	struct timeval heure, *recue;
-	int taille, nb_messages;
-	long int duree, duree_max, duree_min, somme_durees;
+	struct timeval hour, *received_hour;
+	int size, nb_messages;
+	long int duration, max_duration, min_duration, sum_durations;
 
 	if (argc != 2) {
-		fprintf(stderr, "usage: %s nom_file_message\n", argv[0]);
+		fprintf(stderr, "usage: %s mqueue_name\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
 
@@ -64,41 +64,41 @@ int main(int argc,char * argv[]){
 		perror("mq_getattr"); exit(EXIT_FAILURE);
 	}
 
-	taille = attr.mq_msgsize;
-	buffer = malloc(taille);
+	size = attr.mq_msgsize;
+	buffer = (char *)malloc(size);
 	if (buffer == NULL) {
 		perror("malloc");
 		exit(EXIT_FAILURE);
 	}
 
-	recue = (struct timeval *) buffer;
+	received_hour = (struct timeval *) buffer;
 
 	for (EVER) {
 		nb_messages = 0;
-		duree_max = 0;
-		duree_min = -1;
-		somme_durees = 0;
+		max_duration = 0;
+		min_duration = -1;
+		sum_durations = 0;
 
 		do {
-			mq_receive(mq, buffer, taille, NULL);
-			gettimeofday(& heure, NULL);
-			duree  = heure.tv_sec - recue->tv_sec;
-			duree *= 1000000;
-			duree += heure.tv_usec - recue->tv_usec;
+			mq_receive(mq, buffer, size, NULL);
+			gettimeofday(& hour, NULL);
+			duration  = hour.tv_sec - received_hour->tv_sec;
+			duration *= 1000000;
+			duration += hour.tv_usec - received_hour->tv_usec;
 			if (nb_messages > 0) { /* Ignore first message */
-				if (duree_max < duree) {
-					duree_max = duree;
-					if ((duree_min == -1) || (duree_min > duree)) {
-						duree_min = duree;
-						somme_durees += duree;
+				if (max_duration < duration) {
+					max_duration = duration;
+					if ((min_duration == -1) || (min_duration > duration)) {
+						min_duration = duration;
+						sum_durations += duration;
 					}
 				}
 			}
 			nb_messages ++;
 		} while (nb_messages < 100000); /* approximately 1 sec */
 
-		fprintf(stdout, "min =%3ld   max =%3ld moy=%5.1f\n",
-				  duree_min, duree_max, ((float) somme_durees) / (nb_messages - 1));
+		fprintf(stdout, "min = %3ld   max = %3ld moy= %5.1f\n",
+				  min_duration, max_duration, ((float) sum_durations) / (nb_messages - 1));
 	}
 	return EXIT_SUCCESS;
 }

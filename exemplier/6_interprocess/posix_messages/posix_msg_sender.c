@@ -38,15 +38,15 @@
 #define EVER ;;
 
 /*
- * Application using POSIX mqueue
+ * Sender application using POSIX mqueue
  * Compile using: gcc -lrt -o posix_msg_sender posix_msg_sender.c
  */
 int main(int argc,char * argv[]) {
 	mqd_t mq;
-	struct timeval heure;
+	struct timeval hour;
 
 	if (argc != 2) {
-		fprintf(stderr, "usage: %s message_queue\n", argv[0]);
+		fprintf(stderr, "usage: %s mqueue_name\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
 
@@ -57,8 +57,8 @@ int main(int argc,char * argv[]) {
 	}
 
 	for (EVER) {
-		gettimeofday(& heure, NULL);
-		mq_send(mq, (char *) & heure, sizeof(heure), 1);
+		gettimeofday(& hour, NULL);
+		mq_send(mq, (char *) & hour, sizeof(hour), 1);
 	}
 	return EXIT_SUCCESS;
 }
