@@ -63,10 +63,10 @@ int main(int argc, char **argv) {
 	}
 	name.sin_addr = *(struct in_addr *) hostinfo->h_addr;
 
-   if (bind(sd, (struct sockaddr *) &name, sizeof(name)) < 0) {
+	if (bind(sd, (struct sockaddr *) &name, sizeof(name)) < 0) {
 		fprintf(stderr, "bind() failed\n");
 		exit(EXIT_FAILURE);
-   }
+	}
 
    exit(EXIT_SUCCESS);
 }
