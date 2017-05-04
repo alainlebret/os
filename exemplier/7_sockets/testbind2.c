@@ -37,8 +37,8 @@
  * A simple test that creates a stream socket and gives it a name.
  */
 int main(int argc, char **argv) {
-   int sd, port = 6543;
-   struct sockaddr_in name;
+	int sd, port = 6543;
+	struct sockaddr_in name;
 	struct hostent *hostinfo;
 
 	if (argc < 2) {
@@ -46,14 +46,14 @@ int main(int argc, char **argv) {
 		exit(EXIT_FAILURE);
 	}
 
-   /* Create the socket */
+	/* Create the socket */
    sd = socket(PF_INET, SOCK_STREAM, 0);
    if (sd < 0) {
 		fprintf(stderr, "socket() failed\n");
       exit(EXIT_FAILURE);
    }
 
-   /* Give a name to the socket */
+	/* Give a name to the socket */
 	name.sin_family = AF_INET;
 	name.sin_port = htons(port);
 	hostinfo = gethostbyname(argv[1]);
@@ -62,7 +62,6 @@ int main(int argc, char **argv) {
 		exit(EXIT_FAILURE);
 	}
 	name.sin_addr = *(struct in_addr *) hostinfo->h_addr;
-	printf("%u\n", name.sin_addr.s_addr);
 
    if (bind(sd, (struct sockaddr *) &name, sizeof(name)) < 0) {
 		fprintf(stderr, "bind() failed\n");
