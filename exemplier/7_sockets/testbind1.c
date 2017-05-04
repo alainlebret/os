@@ -45,13 +45,14 @@ int main(void) {
    sd = socket(PF_INET, SOCK_STREAM, 0);
    if (sd < 0) {
 		fprintf(stderr, "socket() failed\n");
-      exit(EXIT_FAILURE);
+		exit(EXIT_FAILURE);
    }
 
    /* Give a name to the socket */
    name.sin_family = AF_INET;
    name.sin_port = htons(port);
    name.sin_addr.s_addr = htonl(INADDR_ANY);
+
    if (bind(sd, (struct sockaddr *) &name, sizeof(name)) < 0) {
 		fprintf(stderr, "bind() failed\n");
 		exit(EXIT_FAILURE);
