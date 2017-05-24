@@ -41,7 +41,8 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg) {
+void handle_fatal_error(char *msg)
+{
 	perror(msg);
 	exit(EXIT_FAILURE);
 }
@@ -49,7 +50,8 @@ void handle_fatal_error(char *msg) {
 /**
  * Manages the parent process.
  */
-void manage_parent() {
+void manage_parent()
+{
 	printf("Parent process (PID %d)\n", getpid());
 	printf("Instructions of parent process...\n");
 }
@@ -57,12 +59,14 @@ void manage_parent() {
 /**
  * Manages the child process.
  */
-void manage_child() {
+void manage_child()
+{
 	printf("Child process (PID %d)\n", getpid());
 	printf("Instructions of child process...\n");
 }
 
-int main(void) {
+int main(void)
+{
 	pid_t pid;
 
 	pid = fork();

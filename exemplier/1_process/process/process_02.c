@@ -43,7 +43,8 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg) {
+void handle_fatal_error(char *msg)
+{
 	perror(msg);
 	exit(EXIT_FAILURE);
 }
@@ -51,7 +52,8 @@ void handle_fatal_error(char *msg) {
 /**
  * Manages the parent process by modifying value of the parameter.
  */
-void manage_parent(int *parameter) {
+void manage_parent(int *parameter)
+{
 	printf("Parent process (PID %d)\n", getpid());
 	printf("Parent modifies its own variable...\n");
 	*(parameter) = 10;
@@ -61,13 +63,15 @@ void manage_parent(int *parameter) {
 /**
  * Manages the child process by modifying value of the parameter.
  */
-void manage_child(int *parameter) {
+void manage_child(int *parameter)
+{
 	printf("Child process (PID %d)\n", getpid());
 	printf("Child modifies its own variable...\n");
 	*parameter = 20;
 }
 
-int main(void) {
+int main(void)
+{
 	pid_t pid;
 	int own_variable = 0;
 

@@ -45,7 +45,8 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg) {
+void handle_fatal_error(char *msg)
+{
 	perror(msg);
 	exit(EXIT_FAILURE);
 }
@@ -53,7 +54,8 @@ void handle_fatal_error(char *msg) {
 /**
  * Manages the parent process. Parent is blocked during \em DURATION seconds.
  */
-void manage_parent() {
+void manage_parent()
+{
 	printf("Parent process (PID %d)\n", getpid());
 	printf("Parent will be blocked during %d seconds...\n", DURATION);
 
@@ -66,7 +68,8 @@ void manage_parent() {
 /**
  * Manages the child process. Child is blocked during \em DURATION seconds.
  */
-void manage_child() {
+void manage_child()
+{
 	printf("Child process (PID %d)\n", getpid());
 	printf("Child will be blocked during %d seconds...\n", DURATION);
 
@@ -75,7 +78,8 @@ void manage_child() {
 	printf("Child has finished to sleep.\n");
 }
 
-int main(void) {
+int main(void)
+{
 	pid_t pid;
 
 	pid = fork();

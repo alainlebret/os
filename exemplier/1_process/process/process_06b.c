@@ -43,7 +43,8 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg) {
+void handle_fatal_error(char *msg)
+{
 	perror(msg);
 	exit(EXIT_FAILURE);
 }
@@ -51,7 +52,8 @@ void handle_fatal_error(char *msg) {
 /**
  * Manages the parent process. Parent is waiting for his child.
  */
-void manage_parent() {
+void manage_parent()
+{
 	pid_t child;
 	int status;
 
@@ -60,7 +62,7 @@ void manage_parent() {
 	child = wait(&status);
 	if (WIFEXITED(status)) {
 		printf("%d : child %d has finished is work (code: %d)\n", getpid(), child,
-				 WEXITSTATUS(status));
+		       WEXITSTATUS(status));
 	}
 }
 
@@ -68,14 +70,16 @@ void manage_parent() {
  * Manages the child process. Child is calling the exec function to execute the
  * \em gnuplot program.
  */
-void manage_child() {
+void manage_child()
+{
 	printf("Child process (PID %d)\n", getpid());
 	printf("Child is going to be overlayed by the gnuplot program. Oups!!!\n");
 
 	execlp("gnuplot", "gnuplot", "-persist", "command.gp", 0);
 }
 
-int main(void) {
+int main(void)
+{
 	pid_t pid;
 
 	pid = fork();
