@@ -46,7 +46,8 @@
  * New handler of the SIGCHLD signal that suppress zombies.
  * @param signal Number of the signal.
  */
-void handleSigChild(int signal) {
+void handleSigChild(int signal)
+{
 	pid_t child;
 	int status;
 
@@ -59,16 +60,17 @@ void handleSigChild(int signal) {
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg) {
+void handle_fatal_error(char *msg)
+{
 	perror(msg);
 	exit(EXIT_FAILURE);
 }
 
-
 /**
  * Manages the parent process.
  */
-void manage_parent() {
+void manage_parent()
+{
 	struct sigaction action;
 
 	printf("Parent process (PID %d)\n", getpid());
@@ -86,7 +88,8 @@ void manage_parent() {
 /**
  * Manages the child process. It just does some stuff for 10 seconds.
  */
-void manage_child() {
+void manage_child()
+{
 	printf("Child process (PID %d)\n", getpid());
 	printf("Child: I am doing some stuff for 10 seconds...\n");
 
@@ -95,7 +98,8 @@ void manage_child() {
 	exit(EXIT_SUCCESS);
 }
 
-int main(void) {
+int main(void)
+{
 	pid_t pid;
 
 	pid = fork();

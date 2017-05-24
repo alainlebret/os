@@ -46,12 +46,14 @@
  * A naive handler to display the received signal number.
  * @param signal Number of the signal.
  */
-void handle(int signal) {
+void handle(int signal)
+{
 	printf("Signal number %d has been received.\n", signal);
 	fflush(stdout);
 }
 
-int main(void) {
+int main(void)
+{
 	struct sigaction action;
 
 	action.sa_handler = &handle;
@@ -65,8 +67,7 @@ int main(void) {
 	sigaction(SIGQUIT, &action, 0);
 	sigaction(SIGTERM, &action, 0);
 
-	for (EVER)
-		;
+	for (EVER);
 
 	exit(EXIT_SUCCESS); /* unreachable code */
 }

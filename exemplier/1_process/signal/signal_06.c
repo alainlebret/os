@@ -43,18 +43,19 @@
 #define NBR_SIGNALS 2
 
 /** A group of signals to be blocked by the process */
-int signals[NBR_SIGNALS] = { SIGINT, SIGTERM };
+int signals[NBR_SIGNALS] = {SIGINT, SIGTERM};
 
 /** An array to store the old signal handlers */
 struct sigaction old_handlers[NBR_SIGNALS];
 
-int main(void) {
+int main(void)
+{
 	sigset_t new_mask;
 	sigset_t old_mask;
 	sigset_t pending_signals;
 	int i;
 
-	/* 
+	/*
 	 * Create a mask to block the two signals.
 	 */
 	sigemptyset(&new_mask);
@@ -62,12 +63,12 @@ int main(void) {
 		sigaddset(&new_mask, signals[i]);
 	}
 
-	/* 
+	/*
 	 * Exchange old and new masks
 	 */
 	sigprocmask(SIG_SETMASK, &new_mask, &old_mask);
 
-	/* 
+	/*
 	 * Sleep for 20 seconds (maybe enough to try sending CTRL-C and SIGTERM and
 	 * SIGHUP signals)...
 	 */

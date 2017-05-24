@@ -50,7 +50,8 @@ unsigned int s = 0; /* Seconds */
  * New handler of the SIGALRM signal.
  * @param signal Number of the signal
  */
-void tick(int signal) {
+void tick(int signal)
+{
 	s++;
 	if (s == 60) {
 		s = 0;
@@ -68,7 +69,8 @@ void tick(int signal) {
 	alarm(1);
 }
 
-int main(void) {
+int main(void)
+{
 	struct sigaction action;
 
 	action.sa_handler = &tick;
@@ -78,8 +80,7 @@ int main(void) {
 	alarm(1);
 
 	/* Waiting for SIGALRM signals */
-	for (EVER)
-		;
+	for (EVER);
 
 	exit(EXIT_SUCCESS); /* unreachable code */
 }

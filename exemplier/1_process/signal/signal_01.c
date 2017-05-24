@@ -40,18 +40,19 @@
 #include <sys/types.h> /* pid_t */
 #include <sys/wait.h>  /* wait() */
 
-
-/** 
+/**
  * New handler of the SIGINT signal.
  * @param signal Number of the signal
  */
-void handle(int signal) {
+void handle(int signal)
+{
 	printf("SIGINT signal received!\n");
 
 	exit(EXIT_SUCCESS);
 }
 
-int main(void) {
+int main(void)
+{
 	struct sigaction action;
 	action.sa_handler = &handle;
 

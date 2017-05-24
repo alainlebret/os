@@ -46,13 +46,15 @@
  * New handler of the SIGALRM signal.
  * @param signal Number of the signal
  */
-void handleAlarm(int signal) {
+void handleAlarm(int signal)
+{
 	printf("Too late!\n");
 
 	exit(EXIT_FAILURE);
 }
 
-int main(void) {
+int main(void)
+{
 	struct sigaction action;
 	int value;
 	int remaining_time;
