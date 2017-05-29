@@ -58,7 +58,7 @@ void handle_error(char *message)
 }
 
 /**
- * Unlinks the shared memory when receiving SIGINT signal.
+ * Unlinks the shared memory when receiving the SIGINT signal.
  */
 void handle_sigint(int signum)
 {
@@ -111,8 +111,8 @@ int main(int argc, char *argv[])
 		memory_size);
 
 	for (EVER) {
-		printf("value is %d ...", memory->value);
-		printf(" and its square root is %f \n", memory->square_root);
+		printf("Value is %d ... ", memory->value);
+		printf("and its square root is %f \n", memory->square_root);
 		sleep(3);
 	}
 
