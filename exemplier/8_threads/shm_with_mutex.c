@@ -34,7 +34,7 @@
  * share a memory using a mutex.
  *
  * On Mac OS X, compile with gcc -Wall -Wextra shm_without_mutex.c
- * On Linux, compile with gcc -Wall -Wextra shm_without_mutex.c -lpthread
+ * On Linux, compile with gcc -Wall -Wextra shm_without_mutex.c -pthread
  */
 #include <stdio.h>
 #include <stdlib.h>
