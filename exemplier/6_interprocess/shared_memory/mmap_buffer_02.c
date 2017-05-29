@@ -51,7 +51,8 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg) {
+void handle_fatal_error(char *msg)
+{
 	perror(msg);
 	exit(EXIT_FAILURE);
 }
@@ -59,7 +60,8 @@ void handle_fatal_error(char *msg) {
 /**
  * Writes the square of a serie of integers onto the shared memory.
  */
-void write_memory(int *buffer, int *begin, int *end) {
+void write_memory(int *buffer, int *begin, int *end)
+{
 	int i;
 
 	for (i = 0; i < ITERATIONS; i++) {
@@ -74,7 +76,8 @@ void write_memory(int *buffer, int *begin, int *end) {
  * Manages the parent process. It writes data to the shared memory and waits
  * for his child to finish.
  */
-void manage_parent(int *buffer, int *begin, int *end) {
+void manage_parent(int *buffer, int *begin, int *end)
+{
 	pid_t child;
 	int status;
 
@@ -85,14 +88,15 @@ void manage_parent(int *buffer, int *begin, int *end) {
 	child = wait(&status);
 	if (WIFEXITED(status)) {
 		printf("Parent: child %d has finished (code %d)\n", child,
-				 WEXITSTATUS(status));
+		       WEXITSTATUS(status));
 	}
 }
 
 /**
  * Reads a serie of integers from the shared memory and displays them.
  */
-void read_memory(int *buffer, int *in, int *out) {
+void read_memory(int *buffer, int *in, int *out)
+{
 	int i;
 	int value;
 
@@ -108,7 +112,8 @@ void read_memory(int *buffer, int *in, int *out) {
 /**
  * Manages the child process that reads all data from shared memory.
  */
-void manage_child(int *buffer, int *in, int *out) {
+void manage_child(int *buffer, int *in, int *out)
+{
 	printf("Child process (PID %d)\n", getpid());
 	read_memory(buffer, in, out);
 	printf("Child: memory has been consumed.\n");
@@ -118,14 +123,15 @@ void manage_child(int *buffer, int *in, int *out) {
  * Creates and initializes a new shared memory using mmap.
  * @return Pointer on the shared memory
  */
-void *create_shared_memory() {
+void *create_shared_memory()
+{
 	/* initialize shared memory using mmap */
 	void *shared_memory = mmap(0, /* beginning (starting address is ignored) */
-										MEMORY_SIZE, /* size of the shared memory */
-										PROT_READ | PROT_WRITE, /* protection */
-										MAP_SHARED | MAP_ANONYMOUS,
-										-1, /* the shared memory do not use a file */
-										0);  /* ignored: set when using a file */
+		MEMORY_SIZE, /* size of the shared memory */
+		PROT_READ | PROT_WRITE, /* protection */
+		MAP_SHARED | MAP_ANONYMOUS,
+		-1, /* the shared memory do not use a file */
+		0);  /* ignored: set when using a file */
 
 	if (shared_memory == (void *) -1) {
 		handle_fatal_error("Error allocating shared memory using mmap!\n");
@@ -133,7 +139,8 @@ void *create_shared_memory() {
 	return shared_memory;
 }
 
-int main(void) {
+int main(void)
+{
 	pid_t pid;
 
 	void *shared_memory; /* shared memory base address */

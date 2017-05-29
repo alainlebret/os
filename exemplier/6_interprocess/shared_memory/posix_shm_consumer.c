@@ -25,7 +25,8 @@
 
 void display(char *prog, char *bytes, int n);
 
-int main(void) {
+int main(void)
+{
 	const char *name = "/shm-example";   // file name
 	const int SIZE = 4096;      // file size
 
@@ -36,7 +37,7 @@ int main(void) {
 	shm_fd = shm_open(name, O_RDONLY, 0666);
 	if (shm_fd == -1) {
 		printf("cons: Shared memory failed: %s\n", strerror(errno));
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	/* map the shared memory segment to the address space of the process */
@@ -44,7 +45,7 @@ int main(void) {
 	if (shm_base == MAP_FAILED) {
 		printf("cons: Map failed: %s\n", strerror(errno));
 		// close and unlink?
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	/* read from the mapped shared memory segment */
@@ -54,27 +55,30 @@ int main(void) {
 	/* remove the mapped shared memory segment from the address space of the process */
 	if (munmap(shm_base, SIZE) == -1) {
 		printf("cons: Unmap failed: %s\n", strerror(errno));
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	/* close the shared memory segment as if it was a file */
 	if (close(shm_fd) == -1) {
 		printf("cons: Close failed: %s\n", strerror(errno));
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	/* remove the shared memory segment from the file system */
 	if (shm_unlink(name) == -1) {
 		printf("cons: Error removing %s: %s\n", name, strerror(errno));
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
-	return 0;
+	exit(EXIT_SUCCESS);
 }
 
-void display(char *prog, char *bytes, int n) {
+void display(char *prog, char *bytes, int n)
+{
+	int i;
+
 	printf("display: %s\n", prog);
-	for (int i = 0; i < n; i++) {
+	for (i = 0; i < n; i++) {
 		printf("%02x%c", bytes[i], ((i + 1) % 16) ? ' ' : '\n');
 	}
 	printf("\n");

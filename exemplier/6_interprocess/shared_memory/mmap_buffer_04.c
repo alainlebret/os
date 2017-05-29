@@ -64,22 +64,24 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg) {
+void handle_fatal_error(char *msg)
+{
 	perror(msg);
 	exit(EXIT_FAILURE);
 }
-
 
 /**
  * Creates a set of semaphores.
  * @param nbr_semaphores The number of semaphores to create.
  * @return Identifier of the set of semaphores
  */
-int create_semaphores(int nbr_semaphores) {
+int create_semaphores(int nbr_semaphores)
+{
 	int semid;
 
 	/* permission 0600 = lecture/modification by user */
-	if ((semid = semget(IPC_PRIVATE, nbr_semaphores, IPC_CREAT | 0600)) < 0) {
+	if ((semid = semget(IPC_PRIVATE, nbr_semaphores, IPC_CREAT | 0600))
+	    < 0) {
 		handle_fatal_error("Error when creating semaphores!\n");
 	}
 
@@ -89,7 +91,8 @@ int create_semaphores(int nbr_semaphores) {
 /**
  * Initializes a specific semaphore.
  */
-void initialize_semaphore(int semid, int index, int valeur) {
+void initialize_semaphore(int semid, int index, int valeur)
+{
 	if (semctl(semid, index, SETVAL, valeur) < 0) {
 		handle_fatal_error("Error when initializing semaphore.\n");
 	}
@@ -100,7 +103,8 @@ void initialize_semaphore(int semid, int index, int valeur) {
  * @param semid Identifier of the group of semaphores.
  * @param index Index of the semaphore in the group.
  */
-void sem_wait(int semid, int index) {
+void sem_wait(int semid, int index)
+{
 	struct sembuf sops[1];
 
 	sops[0].sem_num = index;
@@ -117,7 +121,8 @@ void sem_wait(int semid, int index) {
  * @param semid Identifier of the group of semaphores.
  * @param index Index of the semaphore in the group.
  */
-void sem_signal(int semid, int index) {
+void sem_signal(int semid, int index)
+{
 	struct sembuf sops[1];
 
 	sops[0].sem_num = index;
@@ -132,7 +137,8 @@ void sem_signal(int semid, int index) {
 /**
  * Writes the square of a serie of integers onto the shared memory.
  */
-void write_memory(int id, int *buffer, int *in, int *out, int semid) {
+void write_memory(int id, int *buffer, int *in, int *out, int semid)
+{
 	int value;
 	int i;
 
@@ -150,7 +156,8 @@ void write_memory(int id, int *buffer, int *in, int *out, int semid) {
 /**
  * Writes data to the shared memory.
  */
-void produce(int id, int *buffer, int *in, int *out, int semid) {
+void produce(int id, int *buffer, int *in, int *out, int semid)
+{
 	printf("Producer of ID %d begins.\n", id);
 	write_memory(id, buffer, in, out, semid);
 	printf("Producer of ID %d has finished.\n", id);
@@ -159,7 +166,8 @@ void produce(int id, int *buffer, int *in, int *out, int semid) {
 /**
  * Reads and reports values from shared memory buffer.
  */
-void consume(int id, int *buffer, int *in, int *out, int semid) {
+void consume(int id, int *buffer, int *in, int *out, int semid)
+{
 	int i;
 	int value;
 
@@ -172,7 +180,7 @@ void consume(int id, int *buffer, int *in, int *out, int semid) {
 		*in = (*in + 1) % BUFFER_SIZE;
 		sem_signal(semid, MUTEX);     /* signal semaphore for buffer access */
 		sem_signal(semid,
-					  BUFFER_SPACE); /* signal semaphore for space available */
+			   BUFFER_SPACE); /* signal semaphore for space available */
 
 		printf("Consumer of ID %d : element %2d == %2d\n", id, i, value);
 
@@ -186,14 +194,15 @@ void consume(int id, int *buffer, int *in, int *out, int semid) {
  * Creates and initializes a new shared memory using mmap.
  * @return Pointer on the shared memory
  */
-void *create_shared_memory() {
+void *create_shared_memory()
+{
 	/* initialize shared memory using mmap */
 	void *shared_memory = mmap(0, /* beginning (starting address is ignored) */
-										MEMORY_SIZE, /* size of the shared memory */
-										PROT_READ | PROT_WRITE, /* protection */
-										MAP_SHARED | MAP_ANONYMOUS,
-										-1, /* the shared memory do not use a file */
-										0);  /* ignored: set when using a file */
+		MEMORY_SIZE, /* size of the shared memory */
+		PROT_READ | PROT_WRITE, /* protection */
+		MAP_SHARED | MAP_ANONYMOUS,
+		-1, /* the shared memory do not use a file */
+		0);  /* ignored: set when using a file */
 
 	if (shared_memory == (void *) -1) {
 		handle_fatal_error("Error allocating shared memory using mmap!\n");
@@ -201,7 +210,8 @@ void *create_shared_memory() {
 	return shared_memory;
 }
 
-int main(void) {
+int main(void)
+{
 	pid_t pid;
 
 	void *shared_memory; /* shared memory base address */
@@ -266,7 +276,7 @@ int main(void) {
 	printf("Parent process is waiting for them to end...\n");
 
 	for (counter = 0;
-		  counter < NBR_PRODUCTERS + NBR_CONSUMERS; counter++) {
+	     counter < NBR_PRODUCTERS + NBR_CONSUMERS; counter++) {
 		wait(NULL);
 	}
 

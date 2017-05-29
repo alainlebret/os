@@ -58,12 +58,14 @@ typedef struct data data_t;
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg) {
+void handle_fatal_error(char *msg)
+{
 	perror(msg);
 	exit(EXIT_FAILURE);
 }
 
-int main(void) {
+int main(void)
+{
 	key_t key;
 	int id;
 	struct data *shared_memory;
@@ -77,11 +79,11 @@ int main(void) {
 	id = shmget(key, sizeof(data_t), IPC_CREAT | IPC_EXCL | 0666);
 	if (id == -1) {
 		switch (errno) {
-			case EEXIST:
-				handle_fatal_error("Segment already exists.\n");
-				break;
-			default:
-				handle_fatal_error("Error using shmget() !\n");
+		case EEXIST:
+			handle_fatal_error("Segment already exists.\n");
+			break;
+		default:
+			handle_fatal_error("Error using shmget() !\n");
 		}
 	}
 
@@ -101,7 +103,7 @@ int main(void) {
 		shared_memory->nb++;
 		shared_memory->total += value;
 		printf("The sum of %d integers equals %d\n", shared_memory->nb,
-				 shared_memory->total);
+		       shared_memory->total);
 	}
 	printf("---\n");
 

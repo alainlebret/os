@@ -34,13 +34,13 @@ struct shared_memory {
 
 void error(char *msg);
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 	struct shared_memory *shared_mem_ptr;
 	sem_t *mutex_sem,
-			*buffer_count_sem,
-			*spool_signal_sem;
+		*buffer_count_sem,
+		*spool_signal_sem;
 	int fd_shm;
-/*	char mybuf[256]; */
 	char buf[200];
 	char *cp;
 
@@ -51,18 +51,20 @@ int main(int argc, char **argv) {
 	if ((fd_shm = shm_open(SHARED_MEM_NAME, O_RDWR, 0)) == -1)
 		error("shm_open");
 	if ((shared_mem_ptr = mmap(NULL, sizeof(struct shared_memory),
-										PROT_READ | PROT_WRITE, MAP_SHARED, fd_shm, 0)) ==
-		 MAP_FAILED)
+				   PROT_READ
+				   | PROT_WRITE, MAP_SHARED, fd_shm, 0))
+	    ==
+	    MAP_FAILED)
 		error("mmap");
 
 	/* counting semaphore, indicating the number of available buffers. */
 	if ((buffer_count_sem = sem_open(SEM_BUFFER_COUNT_NAME, 0, 0, 0)) ==
-		 SEM_FAILED)
+	    SEM_FAILED)
 		error("sem_open");
 
 	/* counting semaphore, indicating the number of strings to be printed. Initial value = 0 */
 	if ((spool_signal_sem = sem_open(SEM_SPOOL_SIGNAL_NAME, 0, 0, 0)) ==
-		 SEM_FAILED)
+	    SEM_FAILED)
 		error("sem_open");
 
 	printf("Please type a message: ");
@@ -88,7 +90,7 @@ int main(int argc, char **argv) {
 		if (*(cp + len - 1) == '\n')
 			*(cp + len - 1) = '\0';
 		sprintf (shared_mem_ptr->buf[shared_mem_ptr->buffer_index], "%d: %s %s\n",
-					getpid(), cp, buf);
+			 getpid(), cp, buf);
 
 		(shared_mem_ptr->buffer_index)++;
 		if (shared_mem_ptr->buffer_index == MAX_BUFFERS)
@@ -110,7 +112,8 @@ int main(int argc, char **argv) {
 }
 
 /* Print system error and exit */
-void error(char *msg) {
+void error(char *msg)
+{
 	perror(msg);
 	exit(EXIT_FAILURE);
 }

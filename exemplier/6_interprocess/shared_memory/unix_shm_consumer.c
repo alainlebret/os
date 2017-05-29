@@ -62,16 +62,19 @@ int loop = CONTINUE;
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg) {
+void handle_fatal_error(char *msg)
+{
 	perror(msg);
 	exit(EXIT_FAILURE);
 }
 
-void stop_loop(int signal) {
+void stop_loop(int signal)
+{
 	loop = STOP;
 }
 
-int main(void) {
+int main(void)
+{
 	key_t key;
 	int id;
 	data_t *shared_memory;
@@ -85,11 +88,11 @@ int main(void) {
 	id = shmget(key, sizeof(data_t), 0);
 	if (id == -1) {
 		switch (errno) {
-			case ENOENT:
-				handle_fatal_error("No existing segment!\n");
-				break;
-			default:
-				handle_fatal_error("Error using shmget()!\n");
+		case ENOENT:
+			handle_fatal_error("No existing segment!\n");
+			break;
+		default:
+			handle_fatal_error("Error using shmget()!\n");
 		}
 	}
 
@@ -108,7 +111,7 @@ int main(void) {
 	while (loop) {
 		sleep(DURATION);
 		printf("The sum of %d integers equals %d\n", shared_memory->nb,
-				 shared_memory->total);
+		       shared_memory->total);
 	}
 
 	printf("---\n");

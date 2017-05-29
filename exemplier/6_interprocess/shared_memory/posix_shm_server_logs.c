@@ -33,19 +33,22 @@ struct shared_memory {
 
 void error(char *msg);
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
 	struct shared_memory *shared_mem_ptr;
 	sem_t *mutex_sem, *buffer_count_sem, *spool_signal_sem;
 	int fd_shm, fd_log;
 	char mybuf[256];
 
 	/* Open log file */
-	if ((fd_log = open(LOGFILE, O_CREAT | O_WRONLY | O_APPEND | O_SYNC, 0666)) ==
-		 -1)
+	if ((fd_log = open(LOGFILE,
+		O_CREAT | O_WRONLY | O_APPEND | O_SYNC,
+		0666)) == -1)
 		error("fopen");
 
 	/* mutual exclusion semaphore, mutex_sem with an initial value 0. */
-	if ((mutex_sem = sem_open(SEM_MUTEX_NAME, O_CREAT, 0660, 0)) == SEM_FAILED)
+	if ((mutex_sem = sem_open(SEM_MUTEX_NAME, O_CREAT, 0660, 0))
+	    == SEM_FAILED)
 		error("sem_open");
 
 	/* Get shared memory */
@@ -55,22 +58,28 @@ int main(int argc, char **argv) {
 	if (ftruncate(fd_shm, sizeof(struct shared_memory)) == -1)
 		error("ftruncate");
 
-	if ((shared_mem_ptr = mmap(NULL, sizeof(struct shared_memory),
-										PROT_READ | PROT_WRITE, MAP_SHARED, fd_shm, 0)) ==
-		 MAP_FAILED)
+	if ((shared_mem_ptr = mmap(NULL,
+		sizeof(struct shared_memory),
+		PROT_READ | PROT_WRITE,
+		MAP_SHARED,
+		fd_shm,
+		0)) == MAP_FAILED)
 		error("mmap");
 
 	/* Initialize the shared memory */
 	shared_mem_ptr->buffer_index = shared_mem_ptr->buffer_print_index = 0;
 
 	/* counting semaphore, indicating the number of available buffers. Initial value = MAX_BUFFERS */
-	if ((buffer_count_sem = sem_open(SEM_BUFFER_COUNT_NAME, O_CREAT, 0660,
-												MAX_BUFFERS)) == SEM_FAILED)
+	if ((buffer_count_sem = sem_open(SEM_BUFFER_COUNT_NAME,
+		O_CREAT,
+		0660,
+		MAX_BUFFERS)) == SEM_FAILED)
 		error("sem_open");
 
 	/* counting semaphore, indicating the number of strings to be printed. Initial value = 0 */
-	if ((spool_signal_sem = sem_open(SEM_SPOOL_SIGNAL_NAME, O_CREAT, 0660, 0)) ==
-		 SEM_FAILED)
+	if ((spool_signal_sem = sem_open(SEM_SPOOL_SIGNAL_NAME, O_CREAT, 0660, 0))
+	    ==
+	    SEM_FAILED)
 		error("sem_open");
 
 	/* Initialization complete; now we can set mutex semaphore as 1 to indicate shared memory segment is available */
@@ -100,7 +109,8 @@ int main(int argc, char **argv) {
 }
 
 /* Print system error and exit */
-void error(char *msg) {
+void error(char *msg)
+{
 	perror(msg);
-	exit(1);
+	exit(EXIT_FAILURE);
 }

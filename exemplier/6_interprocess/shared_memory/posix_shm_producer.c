@@ -25,20 +25,22 @@
 #include <errno.h>
 
 void display(char *prog, char *bytes, int n);
+
 void handle_fatal_error(char *msg);
 
-int main(void) {
-	const char *name = "/shm-example";   // file name
-	const int SIZE = 4096;      // file size
+int main(void)
+{
+	const char *name = "/shm-example"; /* shared memory name */
+	const int SIZE = 4096; /* shared memory size */
 
 	const char *message0 = "Studying ";
 	const char *message1 = "Operating Systems ";
 	const char *message2 = "Is Fun!";
 	const char *msg_end = "\n";
 
-	int shm_fd;      // file descriptor, from shm_open()
-	char *shm_base;   // base address, from mmap()
-	char *ptr;      // shm_base is fixed, ptr is movable
+	int shm_fd;      /* file descriptor, from shm_open() */
+	char *shm_base;  /* base address, from mmap() */
+	char *ptr;       /* shm_base is fixed, ptr is movable */
 
 	/* create the shared memory segment as if it was a file */
 	shm_fd = shm_open(name, O_CREAT | O_RDWR, 0666);
@@ -85,15 +87,18 @@ int main(void) {
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg) {
+void handle_fatal_error(char *msg)
+{
 	printf(msg, strerror(errno));
 	exit(EXIT_FAILURE);
 }
 
-void display(char *prog, char *bytes, int n) {
-	printf("display: %s\n", prog);
+void display(char *prog, char *bytes, int n)
+{
+	int i;
 
-	for (int i = 0; i < n; i++) {
+	printf("display: %s\n", prog);
+	for (i = 0; i < n; i++) {
 		printf("%02x%c", bytes[i], ((i + 1) % 16) ? ' ' : '\n');
 	}
 	printf("\n");

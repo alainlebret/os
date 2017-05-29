@@ -38,65 +38,71 @@
 #include <sys/stat.h>
 
 #define EVER ;;
-#define CHEMIN_MEMOIRE "/memoire"
+#define MEMORY_PATH "/shm_name"
 
-struct memoire_t {
-	int valeur;
-	double racine;
+struct memory_t {
+	int value;
+	double square_root;
 };
 
-void traiter_erreur(char *message) {
+void handle_error(char *message)
+{
 	perror(message);
 	exit(EXIT_FAILURE);
 }
 
-void traiter_sigint(int signum) {
-	if (shm_unlink("CHEMIN_MEMOIRE") < 0) {
-		traiter_erreur("Erreur lors de l'appel à shm_unlink\n");
+void handle_sigint(int signum)
+{
+	if (shm_unlink("MEMORY_PATH") < 0) {
+		handle_error("Error calling shm_unlink\n");
 	}
 	exit(EXIT_SUCCESS);
 }
 
+int main(int argc, char *argv[])
+{
+	int memory_descriptor;
+	int value;
+	size_t memory_size = (1 * sizeof(struct memory_t));
+	struct memory_t *memory;
+	struct sigaction action;
+	action.sa_handler = &handle_sigint;
 
-int main(int argc, char *argv[]) {
-	int descripteur_memoire;
-	int entier;
-	size_t taille_memoire = (1 * sizeof(struct memoire_t));
-	struct memoire_t *memoire;
+	sigaction(SIGINT, &action, NULL);
 
-	signal(SIGINT, traiter_sigint);
-
-	descripteur_memoire = shm_open(CHEMIN_MEMOIRE, O_CREAT | O_RDWR, S_IRWXU | S_IRWXG);
-	if (descripteur_memoire < 0) {
-		traiter_erreur("Erreur lors de l'appel à shm_open\n");
+	memory_descriptor = shm_open(MEMORY_PATH,
+		O_CREAT | O_RDWR,
+		S_IRWXU | S_IRWXG);
+	if (memory_descriptor < 0) {
+		handle_error("Error calling shm_open\n");
 	}
 
-	fprintf(stderr, "Objet de mémoire partagée %s créé\n", CHEMIN_MEMOIRE);
+	fprintf(stderr, "Shared memory object %s has been created\n", MEMORY_PATH);
 
-	ftruncate(descripteur_memoire, taille_memoire);
+	ftruncate(memory_descriptor, memory_size);
 
-	memoire = (struct memoire_t *) mmap(NULL,
-													taille_memoire,
-													PROT_READ | PROT_WRITE,
-													MAP_SHARED,
-													descripteur_memoire,
-													0);
-	if (memoire == MAP_FAILED) {
-		traiter_erreur("Erreur lors de l'appel à mmap\n");;
+	memory = (struct memory_t *) mmap(NULL,
+		memory_size,
+		PROT_READ | PROT_WRITE,
+		MAP_SHARED,
+		memory_descriptor,
+		0);
+	if (memory == MAP_FAILED) {
+		handle_error("Error calling mmap\n");;
 	}
-	fprintf(stderr, "Mémoire de %d octets correctement allouée.\n", taille_memoire);
+	fprintf(stderr, "Memory of %zu bytes allocated.\n", memory_size);
 
-	entier = 1;
+	value = 1;
 	for (EVER) {
-		memoire->valeur = entier;
-		memoire->racine = sqrt(entier);
+		memory->value = value;
+		memory->square_root = sqrt(value);
 		sleep(5);
-		entier++;
+		value++;
 	}
 
 	/* unreachable code */
-	if (shm_unlink(CHEMIN_MEMOIRE) != 0) {
-		traiter_erreur("Erreur lors de l'appel à shm_unlink\n");
+	if (shm_unlink(MEMORY_PATH) != 0) {
+		handle_error("Error calling shm_unlink\n");
 	}
 
 	exit(EXIT_SUCCESS);
