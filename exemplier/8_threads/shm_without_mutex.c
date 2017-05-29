@@ -34,7 +34,7 @@
  * share a memory without using a mutex.
  *
  * On Mac OS X, compile with gcc -Wall -Wextra shm_without_mutex.c
- * On Linux, compile with gcc -Wall -Wextra shm_without_mutex.c -lpthread
+ * On Linux, compile with gcc -Wall -Wextra shm_without_mutex.c -pthread
  */
 
 #define _REENTRANT
