@@ -40,17 +40,26 @@
 #define EVER ;;
 #define MEMORY_PATH "/shm_name"
 
+/**
+ * Structure to store a value and its square root.
+ */
 struct memory_t {
 	int value;
 	double square_root;
 };
 
+/**
+ * Handles a fatal error. It displays a message, then exits.
+ */
 void handle_error(char *message)
 {
 	perror(message);
 	exit(EXIT_FAILURE);
 }
 
+/**
+ * Unlinks the shared memory when receiving SIGINT signal.
+ */
 void handle_sigint(int signum)
 {
 	if (shm_unlink("MEMORY_PATH") < 0) {
