@@ -40,7 +40,7 @@
 #include <sys/wait.h>  /* wait() */
 #include <signal.h>    /* sigaction */
 
-unsigned char nbCalls = 7;
+unsigned char nb_calls = 7;
 
 /**
  * Handles the signal SIGUSR1 by decrementing \em nbCalls.
@@ -48,8 +48,8 @@ unsigned char nbCalls = 7;
  */
 void handleSevenLifes(int signal)
 {
-	nbCalls--;
-	printf("Still have %d lifes.\n", (int) nbCalls);
+	nb_calls--;
+	printf("Still have %d lifes.\n", (int) nb_calls);
 }
 
 /**
@@ -69,7 +69,7 @@ void manage_parent(pid_t child)
 {
 	printf("Parent process (PID %d)\n", getpid());
 
-	while (nbCalls-- != 0) {
+	while (nb_calls-- != 0) {
 		sleep(2);
 		printf("Parent: sending SIGUSR1 to the child %d...\n", child);
 		kill(child, SIGUSR1);
@@ -91,7 +91,7 @@ void manage_child()
 	managingLifes.sa_handler = &handleSevenLifes;
 	sigaction(SIGUSR1, &managingLifes, NULL);
 
-	while (nbCalls != 0);
+	while (nb_calls != 0);
 
 	exit(EXIT_SUCCESS);
 }

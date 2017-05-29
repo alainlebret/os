@@ -44,7 +44,7 @@
  * New handler of the SIGINT signal.
  * @param signal Number of the signal
  */
-void handle(int signal)
+void handle_sigint(int signal)
 {
 	printf("SIGINT signal received!\n");
 
@@ -54,7 +54,7 @@ void handle(int signal)
 int main(void)
 {
 	struct sigaction action;
-	action.sa_handler = &handle;
+	action.sa_handler = &handle_sigint;
 
 	/* install the new handler of the SIGINT signal */
 	sigaction(SIGINT, &action, NULL);

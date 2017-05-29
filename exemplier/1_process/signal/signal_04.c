@@ -46,7 +46,7 @@
  * New handler of the SIGCHLD signal that suppress zombies.
  * @param signal Number of the signal.
  */
-void handleSigChild(int signal)
+void handle_sigchild(int signal)
 {
 	pid_t child;
 	int status;
@@ -75,7 +75,7 @@ void manage_parent()
 
 	printf("Parent process (PID %d)\n", getpid());
 
-	action.sa_handler = &handleSigChild;
+	action.sa_handler = &handle_sigchild;
 	sigaction(SIGCHLD, &action, NULL);
 	printf("Signal %d will be received and handled by the parent.\n", SIGCHLD);
 
