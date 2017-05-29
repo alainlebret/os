@@ -58,7 +58,7 @@ void handle_error(char *message)
 }
 
 /**
- * Unlinks the shared memory when receiving SIGINT signal.
+ * Unlinks the shared memory when receiving the SIGINT signal.
  */
 void handle_sigint(int signum)
 {
