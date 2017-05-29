@@ -33,7 +33,7 @@
  * A simple program using 2 POSIX threads.
  *
  * On Mac OS X, compile with gcc -Wall -Wextra -ansi -pedantic thread_01.c
- * On Linux, compile with gcc -Wall -Wextra -ansi -pedantic thread_01.c -lpthread
+ * On Linux, compile with gcc -Wall -Wextra -ansi -pedantic thread_01.c -pthread
  */
 
 #include <stdio.h>
