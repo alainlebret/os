@@ -33,8 +33,8 @@
  * A simple program that creates 4 producer threads and 1 consumer. They all
  * share a memory using a mutex.
  *
- * On Mac OS X, compile with gcc -Wall -Wextra shm_without_mutex.c
- * On Linux, compile with gcc -Wall -Wextra shm_without_mutex.c -pthread
+ * On Mac OS X, compile with gcc -DMUTEX -Wall -Wextra shm_without_mutex.c
+ * On Linux, compile with gcc -DMUTEX -lpthread -Wall -Wextra shm_without_mutex.c
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -57,7 +57,8 @@ struct {
 /**
  * Consumer task that reads the shared memory.
  */
-void *consume(void *pv) {
+void *consume(void *pv)
+{
 	for (EVER) {
 		pthread_mutex_lock(&mutex);
 
@@ -76,7 +77,8 @@ void *consume(void *pv) {
 /**
  * Producer task that writes on the shared memory.
  */
-void *produce(void *pv) {
+void *produce(void *pv)
+{
 	int i = 0;
 
 	while (i++ < ITERATIONS) {
@@ -92,7 +94,8 @@ void *produce(void *pv) {
 	pthread_exit(NULL);
 }
 
-int main(void) {
+int main(void)
+{
 	pthread_t th1, th2, th3, th4, th5;
 
 	/* Creation of the threads */
