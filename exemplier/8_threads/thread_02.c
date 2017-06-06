@@ -44,18 +44,19 @@
 #define _REENTRANT
 #define ITERATIONS 100000
 
-void display(int n, char lettre) {
+void display(int n, char letter)
+{
 	int i, j;
 
 	for (j = 1; j < n; j++) {
-		for (i = 1; i < ITERATIONS; i++)
-			;
-		printf("%c", lettre);
+		for (i = 1; i < ITERATIONS; i++);
+		printf("%c", letter);
 		fflush(stdout);
 	}
 }
 
-void *threadA(void *unused) {
+void *threadA(void *unused)
+{
 	display(100, 65);
 	printf("\n End of the thread A\n");
 	fflush(stdout);
@@ -63,7 +64,8 @@ void *threadA(void *unused) {
 	pthread_exit(NULL);
 }
 
-void *threadC(void *unused) {
+void *threadC(void *unused)
+{
 	display(150, 67);
 
 	printf("\n End of the thread C\n");
@@ -72,7 +74,8 @@ void *threadC(void *unused) {
 	pthread_exit(NULL);
 }
 
-void *threadB(void *unused) {
+void *threadB(void *unused)
+{
 	pthread_t thC;
 
 	pthread_create(&thC, NULL, threadC, NULL);
@@ -87,7 +90,8 @@ void *threadB(void *unused) {
 	pthread_exit(NULL);
 }
 
-int main(void) {
+int main(void)
+{
 	pthread_t thA, thB;
 
 	printf(" Creation of the thread A\n");
@@ -102,6 +106,4 @@ int main(void) {
 	pthread_join(thB, NULL);
 
 	pthread_exit(NULL);
-
-	exit(EXIT_SUCCESS); /* Unreachable code */
 }
