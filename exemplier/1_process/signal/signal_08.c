@@ -30,7 +30,9 @@
 /**
  * @file signal_08.c
  *
- * A simple program to handle the SIGUSR1 signal.
+ * A simple program to handle the SIGUSR1 signal. Just open another terminal
+ * while running this program and execute:
+ * kill -s SIGUSR1 <PID>
  */
 
 #include <stdio.h>
