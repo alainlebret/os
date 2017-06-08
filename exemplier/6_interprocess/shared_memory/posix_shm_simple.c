@@ -135,13 +135,16 @@ void handle_error(char *msg)
 	exit(EXIT_FAILURE);
 }
 
+/**
+ * Displays content of the specified integer values.
+ */
 void display(char *prog, int *values, int n)
 {
 	int i;
 
 	printf("display: %s\n", prog);
 	for (i = 0; i < n; i++) {
-		printf("%d", values[i]);
+		printf("%d ", values[i]);
 	}
 	printf("\n");
 }
