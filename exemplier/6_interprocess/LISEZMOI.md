@@ -4,7 +4,7 @@
 La communication entre processus peut être réalisée par plusieurs objets, 
 entre autres :
 
-* les tubes nommés ;
+* les tubes ;
 * les segments de mémoire partagée ;
 * les files de messages.
 
