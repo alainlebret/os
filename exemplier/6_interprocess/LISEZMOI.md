@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 #                         Communication interprocessus
 ------------------------------------------------------------------------------
-La communication entre processus peut être réalisée par plusieurs objets, 
+La communication entre processus peut être réalisée par plusieurs mécanismes, 
 entre autres :
 
 * les tubes ;
@@ -15,7 +15,8 @@ Que ce soient des tubes anonymes (entre processus avec filiation) ou nommés
 (entre processus quelconques), ces mécanismes permettent l'échange asynchrone
 et unidirectionnel de données entre processus. 
 
-Les tubes sous Ms-Windows permettent d'avantage de fonctionnalités.
+Les tubes sous Ms-Windows permettent davantage de fonctionnalités que les
+tubes sous UNIX.
 
 Fichiers : `anonymous_pipe_01.c`, `anonymous_pipe_02.c`, 
 `mkfifo_server.c`, `mkfifo_client.c`, `mkfifo_producer.c`, 
