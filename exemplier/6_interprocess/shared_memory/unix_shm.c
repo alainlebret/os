@@ -28,7 +28,7 @@
  */
 
 /**
- * @file posix_semaphore.c
+ * @file posix_shm.c
  *
  * Example using child processes sharing memory using POSIX semaphore.
  * Link with \c -lpthread.
@@ -51,9 +51,9 @@ int shmid;         /* shared memory id */
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg)
+void handle_fatal_error(char *message)
 {
-	perror(msg);
+	fprintf(stderr, "%s", message);
 	exit(EXIT_FAILURE);
 }
 

@@ -53,7 +53,7 @@ struct memory_t {
  */
 void handle_error(char *message)
 {
-	perror(message);
+	fprintf(stderr, "%s", message);
 	exit(EXIT_FAILURE);
 }
 
@@ -88,7 +88,18 @@ int main(int argc, char *argv[])
 
 	fprintf(stderr, "Shared memory object %s has been opened", MEMORY_PATH);
 
-	memory = (struct memory_t *) mmap(NULL,
+	if (MAC_OSX) { /* MAC OS X abnormality about ftruncate */
+		struct stat mapstat;
+		if (-1 != fstat(memory_descriptor, &mapstat)
+		    && mapstat.st_size == 0) {
+			ftruncate(memory_descriptor, memory_size);
+		}
+	} else {
+		ftruncate(memory_descriptor, memory_size);
+	}
+
+	memory = (struct memory_t *) mmap(
+		NULL,
 		memory_size,
 		PROT_READ | PROT_WRITE,
 		MAP_SHARED,

@@ -53,7 +53,7 @@ struct memory_t {
  */
 void handle_error(char *message)
 {
-	perror(message);
+	fprintf(stderr, "%s", message);
 	exit(EXIT_FAILURE);
 }
 
@@ -79,7 +79,8 @@ int main(int argc, char *argv[])
 
 	sigaction(SIGINT, &action, NULL);
 
-	memory_descriptor = shm_open(MEMORY_PATH,
+	memory_descriptor = shm_open(
+		MEMORY_PATH,
 		O_CREAT | O_RDWR,
 		S_IRWXU | S_IRWXG);
 	if (memory_descriptor < 0) {
@@ -90,7 +91,8 @@ int main(int argc, char *argv[])
 
 	ftruncate(memory_descriptor, memory_size);
 
-	memory = (struct memory_t *) mmap(NULL,
+	memory = (struct memory_t *) mmap(
+		NULL,
 		memory_size,
 		PROT_READ | PROT_WRITE,
 		MAP_SHARED,

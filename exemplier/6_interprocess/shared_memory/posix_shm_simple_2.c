@@ -51,7 +51,7 @@ typedef struct {
 
 void display(char *prog, int *bytes, int n);
 
-void handle_error(char *msg);
+void handle_error(char *message);
 
 int main(void)
 {
@@ -129,9 +129,9 @@ int main(void)
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_error(char *msg)
+void handle_error(char *message)
 {
-	printf(msg, strerror(errno));
+	printf(message, strerror(errno));
 	exit(EXIT_FAILURE);
 }
 
