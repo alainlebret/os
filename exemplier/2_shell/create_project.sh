@@ -217,6 +217,7 @@ function create_archive() {
    currentdate=$( date +%d−%m−%Y-%H-%M )
    
    if [ -n $PROJECT_PATH ]; then
+      cd "${PROJECT_PATH}" ; make distclean ; cd .. ;   
       tar czf "$PROJECT_PATH-$author1-$author2-$currentdate.tgz" `basename $PROJECT_PATH`
    else
       error "Projet courant inexistant !" 
@@ -281,3 +282,4 @@ then
 fi
 
 menu
+
