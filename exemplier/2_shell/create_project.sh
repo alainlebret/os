@@ -40,7 +40,7 @@ ENTETE_C="/*
 #
 # 
 #
-error() { 
+function error() { 
     echo "Erreur : $1!" >&2 
     exit 1 
 } 
@@ -48,8 +48,8 @@ error() {
 #
 # 
 #
-help() { 
-    echo "`basename $0` est un script bash pour créer des projets C."
+function help() { 
+    echo "`basename $0` est un script shell pour créer des projets C."
     exit 0
 } 
 
@@ -57,7 +57,7 @@ help() {
 # 
 #
 function initialize_rep() {
-   if [[ ! -e $PROJECT_PATH ]]; then
+   if [ ! -e $PROJECT_PATH ]; then
       mkdir $PROJECT_PATH
       for repertory in bin doc etc include lib object src
          do
@@ -198,6 +198,7 @@ function open_project() {
       if [ ! -d $PROJECT_PATH ] 
       then 
          echo "Un fichier porte déjà ce nom."
+	 PROJECT_PATH=""
          return 10
       else
          echo "Projet ouvert."	      
@@ -217,7 +218,7 @@ function create_archive() {
    currentdate=$( date +%d−%m−%Y-%H-%M )
    
    if [ -n $PROJECT_PATH ]; then
-      cd "${PROJECT_PATH}" ; make distclean ; cd .. ;   
+      cd "${PROJECT_PATH}" ; make distclean; cd .. ;   
       tar czf "$PROJECT_PATH-$author1-$author2-$currentdate.tgz" `basename $PROJECT_PATH`
    else
       error "Projet courant inexistant !" 
@@ -253,7 +254,8 @@ function menu() {
    clear ; loop=y
    while [ $loop = y ]
    do
-      echo "Menu";  echo "===="
+      echo "Générateur de squelette d'un projet C"  
+      echo "====================================="
       echo "N|n : créer un nouveau projet"
       echo "O|o : ouvrir un projet"
       echo "S|s : supprimer le projet courant"
