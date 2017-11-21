@@ -105,8 +105,7 @@ EOF
 # 
 #
 function create_Makefile() {
-   cat > "$PROJECT_PATH/Makefile"<<EOF
-CC       = gcc
+   echo "CC       = gcc
 RM       = rm
 CPPFLAGS = -Wall -Wextra -I./include
 CCFLAGS  = -pedantic -O2
@@ -117,18 +116,17 @@ LDFLAGS  = -L ./lib
 all: ./bin/main.exe
 
 ./bin/main.exe: ./object/main.o
-	\$(CC) \$< -o \$@ \$(LDFLAGS)
+\t\$(CC) \$< -o \$@ \$(LDFLAGS)
 
 ./object/%.o: ./src/%.c
-	\$(CC) \$(CCFLAGS) \$(CPPFLAGS) \$< -o \$@ -c
+\t\$(CC) \$(CCFLAGS) \$(CPPFLAGS) \$< -o \$@ -c
 
 clean:
-	-@\$(RM) ./src/*~ ./include/*~
-	-@\$(RM) ./object/*.o
+\t-@\$(RM) ./src/*~ ./include/*~
+\t-@\$(RM) ./object/*.o
 
 distclean: clean
-	-@\$(RM) ./bin/main.exe
-EOF
+\t-@\$(RM) ./bin/main.exe" > $PROJECT_PATH/Makefile
 }
 
 #
