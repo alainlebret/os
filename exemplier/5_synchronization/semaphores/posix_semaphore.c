@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
 	int loop = TRUE;
 	char choice;
 
-	sem = create_and_open_semaphore("./thesemaphore");
+	sem = create_and_open_semaphore("/thesemaphore");
 
 	while (loop) {
 		printf("p, v, x, q ? ");
@@ -150,7 +150,7 @@ int main(int argc, char *argv[]) {
 				printf("OK.\n");
 				break;
 			case 'X':
-				destroy_semaphore(sem, "./thesemaphore");
+				destroy_semaphore(sem, "/thesemaphore");
 				printf("V() -- Leave the critical section\n");
 				loop = FALSE;
 				break;
