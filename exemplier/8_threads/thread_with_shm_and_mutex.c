@@ -34,14 +34,13 @@
  * share a memory using a mutex.
  *
  * On Mac OS X, compile with gcc -DMUTEX -Wall -Wextra shm_without_mutex.c
- * On Linux, compile with gcc -DMUTEX -lpthread -Wall -Wextra shm_without_mutex.c
+ * On Linux, compile with gcc -Wall -Wextra shm_without_mutex.c -o shm_without_mutex -DMUTEX -pthread 
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
 
-#define _REENTRANT
 #define BUFFER_SPACE 0
 #define BUFFER_FULL 1
 #define ITERATIONS 100000
