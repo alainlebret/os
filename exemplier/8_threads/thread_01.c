@@ -41,8 +41,6 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#define _REENTRANT
-
 int global_value = -10;
 
 void *do_A(void *arg)
