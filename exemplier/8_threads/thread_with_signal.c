@@ -33,7 +33,7 @@
  * A simple program using threads and signal.
  *
  * On Mac OS X, compile with gcc -Wall -Wextra -ansi -pedantic thread_with_signal.c
- * On Linux, compile with gcc -Wall -Wextra -ansi -pedantic thread_with_signal.c -lpthread
+ * On Linux, compile with gcc -Wall -Wextra -ansi -pedantic thread_with_signal.c -pthread
  */
 
 #include <pthread.h>
@@ -60,7 +60,7 @@ void func(data_t *p)
 {
 	for (EVER) {
 		fprintf(stderr, "This is from thread function\n");
-		strcpy(p->name, "Mr. Linux");
+		strcpy(p->name, "Mr. Linux Cons");
 		p->age = 30;
 		sleep(2);
 	}
