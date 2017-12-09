@@ -31,7 +31,7 @@
  * @file posix_shm_simple_1.c
  *
  * Example using parent and child processes sharing memory.
- * Link with \c -pthread.
+ * Link with \c -lrt.
  */
 
 #include <stdio.h>
