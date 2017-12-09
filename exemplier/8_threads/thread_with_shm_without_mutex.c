@@ -37,8 +37,6 @@
  * On Linux, compile with gcc -Wall -Wextra shm_without_mutex.c -pthread
  */
 
-#define _REENTRANT
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
