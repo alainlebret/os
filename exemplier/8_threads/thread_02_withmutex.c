@@ -33,7 +33,7 @@
  * A simple program using 3 POSIX threads and a mutex.
  *
  * On Mac OS X, compile with gcc -DMUTEX -Wall -Wextra thread_02_withmutex.c
- * On Linux, compile with gcc -DMUTEX -Wall -Wextra thread_02_withmutex.c -lpthread
+ * On Linux, compile with gcc -DMUTEX -Wall -Wextra thread_02_withmutex.c -pthread
  */
 
 #include <stdio.h>
@@ -41,7 +41,6 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#define _REENTRANT
 #define ITERATIONS 100000
 
 pthread_mutex_t mutex ;
