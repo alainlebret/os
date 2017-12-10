@@ -50,7 +50,7 @@ typedef sem_t semaphore_t;
  * Handles a fatal error. It displays a message, then exits.
  */
 void handle_fatal_error(char message[]) {
-	perror(message);
+	fprintf(stderr, "%s\n", message);
 	exit(EXIT_FAILURE);
 }
 
