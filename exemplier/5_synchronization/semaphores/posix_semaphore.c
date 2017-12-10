@@ -77,7 +77,7 @@ semaphore_t *create_and_open_semaphore(char *name) {
 semaphore_t *open_semaphore(char *name) {
 	semaphore_t *sem = NULL;
 
-	sem = sem_open(name, O_CREAT|O_RDWR, S_IRUSR|S_IWUSR, 0);
+	sem = sem_open(name, O_RDWR, S_IRUSR|S_IWUSR, 0);
 	if (sem < 0) {
 		sem_unlink(name);
 		handle_fatal_error("Error trying to open semaphore\n");
