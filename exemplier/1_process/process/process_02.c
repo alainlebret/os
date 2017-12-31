@@ -53,32 +53,28 @@ void handle_fatal_error(char *msg)
 /**
  * Manages the parent process by modifying value of the parameter.
  */
-void manage_parent(void *parameter)
+void manage_parent(int32_t *parameter)
 {
-	uint8_t *parameter_ = parameter;
-	
 	printf("Parent process (PID %" PRId32 ")\n", getpid());
 	printf("Parent modifies its own variable...\n");
-	*parameter_ = 10;
+	*parameter = 10;
 	wait(NULL);
 }
 
 /**
  * Manages the child process by modifying value of the parameter.
  */
-void manage_child(void *parameter)
+void manage_child(int32_t *parameter)
 {
-	uint8_t *parameter_ = parameter;
-	
 	printf("Child process (PID %" PRId32 ")\n", getpid());
 	printf("Child modifies its own variable...\n");
-	*parameter_ = 20;
+	*parameter = 20;
 }
 
 int main(void)
 {
 	pid_t pid;
-	uint32_t own_variable = 0;
+	int32_t own_variable = 0;
 
 	pid = fork();
 	if (pid < 0) {
