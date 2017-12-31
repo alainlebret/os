@@ -6,7 +6,7 @@
  * Unix System Programming Examples / Exemplier de programmation système Unix
  * "Processes & signals" / "Processus et signaux"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2018 Alain Lebret (alain.lebret@ensicaen.fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@
 
 /**
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2011-12-01
+ * @version	1.1
+ * @date 2017-12-31
  */
 
 /**
@@ -33,7 +33,8 @@
  * A simple program that clones a process using the \c fork() primitive and uses
  * sleep() to block parent and child processes.
  */
-
+#include <stdint.h>    /* C11 int types */
+#include <inttypes.h>  /* C11 int types */
 #include <stdio.h>     /* printf() */
 #include <stdlib.h>    /* exit() */
 #include <unistd.h>    /* fork() and sleep() */
@@ -56,8 +57,8 @@ void handle_fatal_error(char *msg)
  */
 void manage_parent()
 {
-	printf("Parent process (PID %d)\n", getpid());
-	printf("Parent will be blocked during %d seconds...\n", DURATION);
+	printf("Parent process (PID %" PRId32 ")\n", getpid());
+	printf("Parent will be blocked during %" PRId32 " seconds...\n", DURATION);
 
 	sleep(DURATION);
 
@@ -70,8 +71,8 @@ void manage_parent()
  */
 void manage_child()
 {
-	printf("Child process (PID %d)\n", getpid());
-	printf("Child will be blocked during %d seconds...\n", DURATION);
+	printf("Child process (PID %" PRId32 ")\n", getpid());
+	printf("Child will be blocked during %" PRId32 " seconds...\n", DURATION);
 
 	sleep(DURATION);
 
