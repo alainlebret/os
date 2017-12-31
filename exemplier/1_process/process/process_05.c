@@ -6,7 +6,7 @@
  * Unix System Programming Examples / Exemplier de programmation système Unix
  * "Processes & signals" / "Processus et signaux"
  *
- * Copyright (C) 1995-2018 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@
 
 /**
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.1
- * @date 2017-12-31
+ * @version	1.0
+ * @date 2011-12-01
  */
 
 /**
@@ -33,8 +33,7 @@
  * A simple program that clones a process using the \c fork() primitive. The
  * parent is waiting for his child to finish.
  */
-#include <stdint.h>    /* C11 int types */
-#include <inttypes.h>  /* C11 int types */
+
 #include <stdio.h>     /* printf() */
 #include <stdlib.h>    /* exit() */
 #include <unistd.h>    /* fork() and sleep() */
@@ -58,12 +57,12 @@ void handle_fatal_error(char *msg)
 void manage_parent()
 {
 	pid_t child;
-	int32_t status;
+	int status;
 
 	printf("Parent process (PID %d)\n", getpid());
 	child = wait(&status);
 	if (WIFEXITED(status)) {
-		printf("%d : child %" PRId32 " has finished his work (code: %" PRId32 ")\n", getpid(), child,
+		printf("%d : child %d has finished his work (code: %d)\n", getpid(), child,
 		       WEXITSTATUS(status));
 	}
 }
@@ -73,13 +72,13 @@ void manage_parent()
  */
 void manage_child()
 {
-	printf("Child process (PID %" PRId32 ")\n", getpid());
-	printf("Child will be blocked during %" PRId32 " seconds...\n", DURATION);
+	printf("Child process (PID %d)\n", getpid());
+	printf("Child will be blocked during %d seconds...\n", DURATION);
 
 	sleep(DURATION);
 
 	printf("Child has finished to sleep.\n");
-	printf("The PID of my parent is %" PRId32 ".\n", getppid());
+	printf("The PID of my parent is %d.\n", getppid());
 }
 
 int main(void)
