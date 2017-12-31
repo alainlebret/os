@@ -33,8 +33,8 @@
  * A simple program that clones a process using the \c fork() primitive and
  * shows the evolution of a variable in parent and child processes.
  */
-#include <stdint.h>    /* C11 int types */
-#include <inttypes.h>  /* C11 int types */
+#include <stdint.h>    /* C99 int types */
+#include <inttypes.h>  /* C99 int types */
 #include <stdio.h>     /* printf() */
 #include <stdlib.h>    /* exit() */
 #include <unistd.h>    /* fork() */

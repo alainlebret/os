@@ -33,8 +33,8 @@
  * A simple program that clones a process using the \c fork() primitive. The
  * parent is waiting for his child to finish.
  */
-#include <stdint.h>    /* C11 int types */
-#include <inttypes.h>  /* C11 int types */
+#include <stdint.h>    /* C99 int types */
+#include <inttypes.h>  /* C99 int types */
 #include <stdio.h>     /* printf() */
 #include <stdlib.h>    /* exit() */
 #include <unistd.h>    /* fork() and sleep() */

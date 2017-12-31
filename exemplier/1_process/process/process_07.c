@@ -32,8 +32,8 @@
  *
  * A simple program about a process and its group.
  */
-#include <stdint.h>    /* C11 int types */
-#include <inttypes.h>  /* C11 int types */
+#include <stdint.h>    /* C99 int types */
+#include <inttypes.h>  /* C99 int types */
 #include <stdio.h>     /* printf() */
 #include <stdlib.h>    /* exit() and execl()*/
 #include <unistd.h>    /* getpid() and getpgrp() */

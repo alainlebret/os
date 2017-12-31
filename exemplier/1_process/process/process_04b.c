@@ -34,8 +34,8 @@
  * where the parent process dies before his child. The child process becomes
  * orphean.
  */
-#include <stdint.h>    /* C11 int types */
-#include <inttypes.h>  /* C11 int types */
+#include <stdint.h>    /* C99 int types */
+#include <inttypes.h>  /* C99 int types */
 #include <stdio.h>     /* printf() */
 #include <stdlib.h>    /* exit() */
 #include <unistd.h>    /* fork() and sleep() */

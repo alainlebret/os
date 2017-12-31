@@ -33,8 +33,8 @@
  * A simple program that clones a process using the \c fork() primitive. The
  * child is overlayed by a new program using the \c exec() family functions.
  */
-#include <stdint.h>    /* C11 int types */
-#include <inttypes.h>  /* C11 int types */
+#include <stdint.h>    /* C99 int types */
+#include <inttypes.h>  /* C99 int types */
 #include <stdio.h>     /* printf() */
 #include <stdlib.h>    /* exit() and execl()*/
 #include <unistd.h>    /* fork() */
@@ -73,9 +73,9 @@ void manage_parent()
  */
 void manage_child()
 {
-	const char *path = u8"/bin/ls";
-	const char *command = u8"ls";
-	const char *arguments = u8"-al";
+	const char *path = "/bin/ls";
+	const char *command = "ls";
+	const char *arguments = "-al";
 	
 	printf("Child process (PID %" PRId32 ")\n", getpid());
 	execl(path, command, arguments, 0);

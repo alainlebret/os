@@ -33,8 +33,8 @@
  * A simple program that clones a process using the \c fork() primitive. The
  * child is overlayed by a new program using the \c exec() family functions.
  */
-#include <stdint.h>    /* C11 int types */
-#include <inttypes.h>  /* C11 int types */
+#include <stdint.h>    /* C99 int types */
+#include <inttypes.h>  /* C99 int types */
 #include <stdio.h>     /* printf() */
 #include <stdlib.h>    /* exit() and execl()*/
 #include <unistd.h>    /* fork() */
@@ -73,10 +73,10 @@ void manage_parent()
  */
 void manage_child()
 {
-	const char *path = u8"gnuplot";
-	const char *command = u8"gnuplot";
-	const char *argument1 = u8"-persist";
-	const char *argument2 = u8"command.gp";
+	const char *path = "gnuplot";
+	const char *command = "gnuplot";
+	const char *argument1 = "-persist";
+	const char *argument2 = "command.gp";
 
 	printf("Child process (PID %" PRId32 ")\n", getpid());
 	printf("Child is going to be overlayed by the gnuplot program. Oups!!!\n");
