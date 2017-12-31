@@ -38,10 +38,11 @@
 ###########################################################################
 #
 PRG_SUFFIX_FLAG := 0
+CC := gcc
 #
 LDFLAGS := 
-CFLAGS_INC := -Wextra -ansi -pedantic
-CFLAGS := -g -Wall $(CFLAGS_INC)
+CFLAGS_INC := -Wextra -std=c11 -pedantic
+CFLAGS := -g -Wall -O2 $(CFLAGS_INC)
 #
 ## ==================- NOTHING TO CHANGE BELOW THIS LINE ===================
 ##

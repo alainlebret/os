@@ -6,7 +6,7 @@
  * Unix System Programming Examples / Exemplier de programmation système Unix
  * "Processes & signals" / "Processus et signaux"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2018 Alain Lebret (alain.lebret@ensicaen.fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@
 
 /**
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2011-12-01
+ * @version	1.1
+ * @date 2017-12-31
  */
 
 /**
@@ -32,7 +32,8 @@
  *
  * A simple program about a process and its group.
  */
-
+#include <stdint.h>    /* C11 int types */
+#include <inttypes.h>  /* C11 int types */
 #include <stdio.h>     /* printf() */
 #include <stdlib.h>    /* exit() and execl()*/
 #include <unistd.h>    /* getpid() and getpgrp() */
@@ -53,14 +54,14 @@ void handle_fatal_error(char *msg)
 void manage_parent()
 {
 	pid_t child;
-	int status;
+	int32_t status;
 
-	printf("Parent process: %d\n", getpid());
-	printf("Parent group: %d\n", getpgrp());
+	printf("Parent process: %" PRId32 "\n", getpid());
+	printf("Parent group: %" PRId32 "\n", getpgrp());
 	child = wait(&status);
 	if (WIFEXITED(status)) {
-		printf("%d : child %d has finished is work (code: %d)\n", getpid(), child,
-		       WEXITSTATUS(status));
+		printf("%d : child %" PRId32 " has finished is work (code: %" PRId32 ")\n", 
+			getpid(), child, WEXITSTATUS(status));
 	}
 }
 
@@ -70,8 +71,8 @@ void manage_parent()
  */
 void manage_child()
 {
-	printf("Child process: %d\n", getpid());
-	printf("Child group: %d\n", getpgrp());
+	printf("Child process: %" PRId32 "\n", getpid());
+	printf("Child group: %" PRId32 "\n", getpgrp());
 }
 
 int main(void)
