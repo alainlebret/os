@@ -5,7 +5,7 @@
 Ce sous-répertoire contient les exemples du cours de systèmes d'exploitation 
 présentés à :
 
-* L'université Paris-Est Créteil de 2011 à 2014
+* L'université Paris-Est de 2011 à 2014
 
 * L'ENSICAEN depuis 2016
 
