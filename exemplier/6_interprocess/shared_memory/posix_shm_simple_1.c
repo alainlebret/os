@@ -79,6 +79,8 @@ int main(void)
 		printf("\n");
 	}
 	munmap(ptr, SHM_SIZE);
-	shm_unlink("/blabla");
+	if (pid > 0) {
+		shm_unlink("/blabla");		
+	}
 	exit(EXIT_SUCCESS);
 }
