@@ -1,4 +1,4 @@
-<p align="center"><img src="figures/screenshot.jpg" alt="A scattered code" title="A scattered code" width="850"></p>
+<p align="center"><img src="figures/screenshot.jpg" alt="Interprocess communication using named pipes" title="Interprocess communication using named pipes" width="800"></p>
 
 ## Systèmes d'exploitation
 
