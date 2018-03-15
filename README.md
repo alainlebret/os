@@ -1,3 +1,5 @@
+<p align="center"><img src="figures/screenshot.png" alt="A scattered code" title="A scattered code" width="850"></p>
+
 ## Systèmes d'exploitation
 
 L'ensemble des documents proviennent du cours de systèmes d'exploitation présenté de 2012 à 2014 à l'université [Paris-Est Créteil](http://www.u-pec.fr/) et depuis 2016 à l'[ENSICAEN](http://www.ensicaen.fr).
