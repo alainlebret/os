@@ -44,9 +44,13 @@
 #define BUFFER_SIZE 20
 
 /**
- * Handles a fatal error. It displays a message, then exits.
+ * @brief Handles a fatal error and exit. 
+ *
+ * It displays the given error message, then exits.
+ * @param msg The error message to display before exiting.
  */
-void handle_fatal_error(char *msg) {
+void handle_fatal_error_and_exit(char *msg)
+{
 	printf(msg);
 	exit(EXIT_FAILURE);
 }
@@ -69,7 +73,7 @@ int main(int argc, char* argv[]) {
 	filename = argv[1];
 	fd = open(filename, O_RDONLY);
 	if (fd == -1) {
-		handle_fatal_error("Error opening a file.\n");
+		handle_fatal_error_and_exit("Error opening a file.\n");
 	}
 
 	offset = 0;
@@ -81,8 +85,9 @@ int main(int argc, char* argv[]) {
 		/* Display the offset in the file followed by the bytes themselves.  */
 		printf("0x%06x : ", offset);
 
-		for (i = 0; i < bytes_read; ++i)
+		for (i = 0; i < bytes_read; ++i) {
 			printf("%02x ", buffer[i]);
+		}
 		printf("\n");
 
 		/* Keep position in the file.  */
