@@ -41,7 +41,10 @@
 #include <sys/wait.h>  /* wait(), WIFEXITED and WEXITSTATUS */
 
 /**
- * Handles a fatal error. It displays a message, then exits.
+ * @brief Handles a fatal error and exit. 
+ *
+ * It displays the given error message, then exits.
+ * @param msg The error message to display before exiting.
  */
 void handle_fatal_error_and_exit(char *msg)
 {
@@ -50,7 +53,9 @@ void handle_fatal_error_and_exit(char *msg)
 }
 
 /**
- * Manages the parent process. Parent is waiting for his child.
+ * @brief Manages the parent process. 
+ *
+ * The parent is waiting for his child to exit.
  */
 void manage_parent()
 {
@@ -67,8 +72,7 @@ void manage_parent()
 }
 
 /**
- * Manages the child process. Child is calling the exec function to execute the
- * \em gnuplot program.
+ * @brief Manages the child process by just displaying its PID and group. 
  */
 void manage_child()
 {
