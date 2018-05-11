@@ -42,16 +42,19 @@
 #include <sys/wait.h>  /* wait() */
 
 /**
- * Handles a fatal error. It displays a message, then exits.
+ * @brief Handles a fatal error and exit. 
+ *
+ * It displays the given error message, then exits.
+ * @param msg The error message to display before exiting.
  */
-void handle_fatal_error(char *msg)
+void handle_fatal_error_and_exit(char *msg)
 {
 	perror(msg);
 	exit(EXIT_FAILURE);
 }
 
 /**
- * Manages the parent process by modifying value of the parameter.
+ * @brief Manages the parent process by modifying value of the given parameter.
  */
 void manage_parent(int32_t *parameter)
 {
@@ -62,7 +65,7 @@ void manage_parent(int32_t *parameter)
 }
 
 /**
- * Manages the child process by modifying value of the parameter.
+ * @brief Manages the child process by modifying value of the given parameter.
  */
 void manage_child(int32_t *parameter)
 {
@@ -78,7 +81,7 @@ int main(void)
 
 	pid = fork();
 	if (pid < 0) {
-		handle_fatal_error("Error using fork().\n");
+		handle_fatal_error_and_exit("Error using fork().\n");
 	}
 
 	if (pid > 0) {
