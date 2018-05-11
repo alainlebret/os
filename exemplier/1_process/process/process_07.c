@@ -38,6 +38,7 @@
 #include <stdlib.h>    /* exit() and execl()*/
 #include <unistd.h>    /* getpid() and getpgrp() */
 #include <sys/types.h> /* pid_t */
+#include <sys/wait.h>  /* wait() */
 
 /**
  * Handles a fatal error. It displays a message, then exits.
