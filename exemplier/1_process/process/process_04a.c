@@ -44,16 +44,21 @@
 #define DURATION 5
 
 /**
- * Handles a fatal error. It displays a message, then exits.
+ * @brief Handles a fatal error and exit. 
+ *
+ * It displays the given error message, then exits.
+ * @param msg The error message to display before exiting.
  */
-void handle_fatal_error(char *msg)
+void handle_fatal_error_and_exit(char *msg)
 {
 	perror(msg);
 	exit(EXIT_FAILURE);
 }
 
 /**
- * Manages the parent process. Parent is not waiting for his child to die.
+ * @brief Manages the parent process. 
+ *
+ * The parent process do not wait for his child and it dies.
  */
 void manage_parent()
 {
@@ -64,7 +69,9 @@ void manage_parent()
 }
 
 /**
- * Manages the child process. Child is blocked during \em DURATION seconds.
+ * @brief Manages the child process. 
+ *
+ * The child process is blocked during \em DURATION seconds.
  */
 void manage_child()
 {
@@ -82,7 +89,7 @@ int main(void)
 
 	pid = fork();
 	if (pid < 0) {
-		handle_fatal_error("Error using fork().\n");
+		handle_fatal_error_and_exit("Error using fork().\n");
 	}
 
 	if (pid > 0) {
