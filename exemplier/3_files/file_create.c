@@ -42,9 +42,13 @@
 
 
 /**
- * Handles a fatal error. It displays a message, then exits.
+ * @brief Handles a fatal error and exit. 
+ *
+ * It displays the given error message, then exits.
+ * @param msg The error message to display before exiting.
  */
-void handle_fatal_error(char *msg) {
+void handle_fatal_error_and_exit(char *msg)
+{
 	printf(msg);
 	exit(EXIT_FAILURE);
 }
@@ -65,7 +69,7 @@ int main (int argc, char* argv[]) {
 	/* Create the file.  */
 	int fd = open(filename, O_WRONLY | O_EXCL | O_CREAT, mode);
 	if (fd == -1) {
-		handle_fatal_error("Error opening a file.\n");
+		handle_fatal_error_and_exit("Error opening a file.\n");
 	}
 
 	close(fd);
