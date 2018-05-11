@@ -80,7 +80,7 @@ int main(void)
 	alarm(1);
 
 	/* Waiting for SIGALRM signals */
-	for (EVER);
+	for (EVER) ;
 
 	exit(EXIT_SUCCESS); /* unreachable code */
 }
