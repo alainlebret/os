@@ -43,7 +43,7 @@
 #define EVER ;;
 
 /**
- * A naive handler to display the received signal number.
+ * @brief Defines a naive handler to display the received signal number.
  * @param signal Number of the signal.
  */
 void handle(int signal)
@@ -67,7 +67,7 @@ int main(void)
 	sigaction(SIGQUIT, &action, 0);
 	sigaction(SIGTERM, &action, 0);
 
-	for (EVER);
+	for (EVER) ;
 
 	exit(EXIT_SUCCESS); /* unreachable code */
 }

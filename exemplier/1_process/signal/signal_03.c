@@ -47,7 +47,7 @@ unsigned int m = 0; /* Minutes */
 unsigned int s = 0; /* Seconds */
 
 /** 
- * New handler of the SIGALRM signal.
+ * @brief Defines the new handler of the SIGALRM signal.
  * @param signal Number of the signal
  */
 void tick(int signal)

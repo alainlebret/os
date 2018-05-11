@@ -43,7 +43,7 @@
 unsigned char nb_calls = 7;
 
 /**
- * Handles the signal SIGUSR1 by decrementing \em nbCalls.
+ * @brief Handles the signal SIGUSR1 by decrementing \em nbCalls.
  * @param signal Number of the received signal.
  */
 void handleSevenLifes(int signal)
@@ -53,17 +53,22 @@ void handleSevenLifes(int signal)
 }
 
 /**
- * Handles a fatal error. It displays a message, then exits.
+ * @brief Handles a fatal error and exit. 
+ *
+ * It displays the given error message, then exits.
+ * @param msg The error message to display before exiting.
  */
-void handle_fatal_error(char *msg)
+void handle_fatal_error_and_exit(char *msg)
 {
 	perror(msg);
 	exit(EXIT_FAILURE);
 }
 
 /**
- * Manages the parent process. Decrements the number of lifes before sending
- * the signal SIGUSR1 to his child.
+ * @brief Manages the parent process. 
+ *
+ * It decrements the number of lifes before sending the signal SIGUSR1 to 
+ * his child.
  */
 void manage_parent(pid_t child)
 {
@@ -79,8 +84,10 @@ void manage_parent(pid_t child)
 }
 
 /**
- * Manages the child process. Configures the handler to react to the signal
- * SIGUSR1. Child exits when \em nbCalls reaches 0.
+ * @brief Manages the child process. 
+ *
+ * It configures the handler to react to the signal SIGUSR1. The child process
+ * exits when \em nbCalls reaches 0.
  */
 void manage_child()
 {
@@ -91,7 +98,7 @@ void manage_child()
 	managingLifes.sa_handler = &handleSevenLifes;
 	sigaction(SIGUSR1, &managingLifes, NULL);
 
-	while (nb_calls != 0);
+	while (nb_calls != 0) ;
 
 	exit(EXIT_SUCCESS);
 }
@@ -102,7 +109,7 @@ int main(void)
 
 	pid = fork();
 	if (pid < 0) {
-		handle_fatal_error("Error using fork().\n");
+		handle_fatal_error_and_exit("Error using fork().\n");
 	}
 	if (pid > 0) {
 		manage_parent(pid);

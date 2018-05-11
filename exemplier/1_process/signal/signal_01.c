@@ -41,7 +41,7 @@
 #include <sys/wait.h>  /* wait() */
 
 /**
- * New handler of the SIGINT signal.
+ * @brief Defines the new handler of the SIGINT signal.
  * @param signal Number of the signal
  */
 void handle_sigint(int signal)

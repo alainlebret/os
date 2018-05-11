@@ -44,7 +44,7 @@
 volatile sig_atomic_t got_usr1;
 
 /**
- * Handles the signal SIGUSR1.
+ * @brief Handles the signal SIGUSR1.
  */
 void sigusr1_handler(int sig) {
 	got_usr1 = 1;

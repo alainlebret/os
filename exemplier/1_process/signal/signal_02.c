@@ -43,7 +43,7 @@
 #define DURATION 5
 
 /** 
- * New handler of the SIGALRM signal.
+ * @brief Defines the new handler of the SIGALRM signal.
  * @param signal Number of the signal
  */
 void handleAlarm(int signal)
