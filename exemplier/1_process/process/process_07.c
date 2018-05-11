@@ -43,7 +43,7 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg)
+void handle_fatal_error_and_exit(char *msg)
 {
 	perror(msg);
 	exit(EXIT_FAILURE);
@@ -82,7 +82,7 @@ int main(void)
 
 	pid = fork();
 	if (pid < 0) {
-		handle_fatal_error("Error using fork().\n");
+		handle_fatal_error_and_exit("Error using fork().\n");
 	}
 	if (pid > 0) {
 		manage_parent();
