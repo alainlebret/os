@@ -51,11 +51,12 @@
  */
 void handle_fatal_error_and_exit(char *msg)
 {
-	printf(msg);
+	perror(msg);
 	exit(EXIT_FAILURE);
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[])
+{
 	int fd; /* file descriptor */
 	char *filename;
 	unsigned char buffer[BUFFER_SIZE];
@@ -92,9 +93,9 @@ int main(int argc, char* argv[]) {
 
 		/* Keep position in the file.  */
 		offset += bytes_read;
-	} while (bytes_read == sizeof (buffer));
+	} while (bytes_read == sizeof(buffer));
 
-	close (fd);
+	close(fd);
 
 	exit(EXIT_SUCCESS);
 }

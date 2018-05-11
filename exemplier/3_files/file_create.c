@@ -40,7 +40,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-
 /**
  * @brief Handles a fatal error and exit. 
  *
@@ -49,12 +48,13 @@
  */
 void handle_fatal_error_and_exit(char *msg)
 {
-	printf(msg);
+	perror(msg);
 	exit(EXIT_FAILURE);
 }
 
-int main (int argc, char* argv[]) {
-	char* filename; /* The path at which to create the new file.  */
+int main(int argc, char *argv[])
+{
+	char *filename; /* The path at which to create the new file.  */
 	mode_t mode; /* The permissions for the new file.  */
 
 	/* argc should be 2 */

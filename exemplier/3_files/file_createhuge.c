@@ -50,12 +50,12 @@
  */
 void handle_fatal_error_and_exit(char *msg)
 {
-	printf(msg);
+	perror(msg);
 	exit(EXIT_FAILURE);
 }
 
-
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 	int fd;
 	int zero;
 	char *filename;
@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
 
 	zero = 0;
 	filename = argv[1];
-	length = ( size_t )atoi(argv[2]) * GIGABYTE;
+	length = (size_t) atoi(argv[2]) * GIGABYTE;
 
 	/* Open a new file. */
 	fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, 0666);
