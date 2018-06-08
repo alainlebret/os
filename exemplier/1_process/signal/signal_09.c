@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 {
 	struct sigaction action;
 
-	memset (&action, '\0', sizeof(act));
+	memset (&action, '\0', sizeof(action));
 
 	/* Use the sa_sigaction field because the handles has two additional parameters */
 	action.sa_sigaction = &hdl;
