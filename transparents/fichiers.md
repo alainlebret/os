@@ -480,6 +480,7 @@ Quelle est alors la taille maximale d'un fichier (1 Kio = $2^{10}$ octets) ?
 (e) aucune des réponses précédentes
 
 [//]: # (---------------------------------------------------------------------)
+
 ---
 ![bg original](./figures/logo/fond.png)
 # i-noeud
