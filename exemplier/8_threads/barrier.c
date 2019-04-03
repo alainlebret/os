@@ -40,35 +40,35 @@
 #include <pthread.h>
 #include <time.h>
 
-#define THREAD_COUNT 4
+#define THREAD_COUNT 10
 
 pthread_barrier_t barrier;
 
-void* threadFn(void *id_ptr) {
-  int thread_id = *(int*)id_ptr;
+void* doit(void *id) {
+  int tid = *(int *)id;
   int wait_sec = 1 + rand() % 5;
-  printf("thread %d: wait for %d seconds.\n", thread_id, wait_sec);
+  printf("thread %d: wait for %d seconds.\n", tid, wait_sec);
   sleep(wait_sec);
-  printf("thread %d: Ready...\n", thread_id);
+  printf("thread %d: Ready...\n", tid);
 
   pthread_barrier_wait(&barrier);
 
-  printf("thread %d: passed the barrier!\n", thread_id);
+  printf("thread %d: passed the barrier!\n", tid);
   return NULL;
 }
 
 int main(void) 
 {
 	int i;
-	pthread_t ids[THREAD_COUNT];
-	int short_ids[THREAD_COUNT];
+	pthread_t tid[THREAD_COUNT];
+	int tid_args[THREAD_COUNT];
 
 	srand(time(NULL));
 	pthread_barrier_init(&barrier, NULL, THREAD_COUNT + 1);
 
 	for (i = 0; i < THREAD_COUNT; i++) {
-		short_ids[i] = i;
-		pthread_create(&ids[i], NULL, threadFn, &short_ids[i]);
+		tid_args[i] = i;
+		pthread_create(&tid[i], NULL, doit, &tid_args[i]);
 	}
 
 	printf("The main thread is ready.\n");
@@ -78,7 +78,7 @@ int main(void)
 	printf("The main thread passed the barrier!\n");
 
 	for (i = 0; i < THREAD_COUNT; i++) {
-		pthread_join(ids[i], NULL);
+		pthread_join(tid[i], NULL);
 	}
 
 	pthread_barrier_destroy(&barrier);
