@@ -54,7 +54,7 @@ int main(int argc,char * argv[]){
 		exit(EXIT_FAILURE);
 	}
 
-	mq = mq_open(argv[1], O_RDONLY | O_CREAT, 0600, NULL);
+	mq = mq_open(argv[1], O_RDONLY, 0600, NULL);
 	if (mq == (mqd_t) -1) {
 		perror(argv[1]);
 		exit(EXIT_FAILURE);
