@@ -39,7 +39,7 @@
 
 /*
  * Receiver application using POSIX mqueue
- * Compilation: gcc -o mqueue_receiver posix_msg_receiver.c -lrt 
+ * Compilation: gcc -o mqueue_receiver posix_msg_receiver.c -lrt
  */
 int main(int argc,char * argv[]){
 	mqd_t mq;
