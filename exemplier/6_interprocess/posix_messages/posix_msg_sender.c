@@ -39,7 +39,7 @@
 
 /*
  * Sender application using POSIX mqueue
- * Compilation: gcc -lrt -o mqueue_sender posix_msg_sender.c
+ * Compilation: gcc -o mqueue_sender posix_msg_sender.c -lrt 
  */
 int main(int argc,char * argv[]) {
 	mqd_t mq;
