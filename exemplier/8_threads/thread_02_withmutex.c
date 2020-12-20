@@ -43,18 +43,18 @@
 
 #define ITERATIONS 100000
 
-pthread_mutex_t mutex ;
+pthread_mutex_t mutex;
 
 void display(int n, char letter)
 {
 	int i, j;
 
 	for (j = 1; j < n; j++) {
-		pthread_mutex_lock(&mutex) ;
-		for (i = 1; i < ITERATIONS; i++);
+		pthread_mutex_lock(&mutex);
+		for (i = 1; i < ITERATIONS; i++) ;
 		printf("%c", letter);
 		fflush(stdout);
-		pthread_mutex_unlock(&mutex) ;
+		pthread_mutex_unlock(&mutex);
 	}
 }
 
