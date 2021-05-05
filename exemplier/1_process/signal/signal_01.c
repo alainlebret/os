@@ -54,13 +54,19 @@ void handle_sigint(int signal)
 int main(void)
 {
 	struct sigaction action;
+	
+	/* Clean up the structure before using it */
+	memset(&action, '\0', sizeof(action));
+	
+	/* Set the new handler */
 	action.sa_handler = &handle_sigint;
 
-	/* install the new handler of the SIGINT signal */
+	/* Install the new handler of the SIGINT signal */
 	sigaction(SIGINT, &action, NULL);
 
-	/* wait for the signal */
+	/* Wait for the signal SIGINT (<Ctrl-C>) */
 	pause();
+	
 	printf("This will never be displayed.\n");
 
 	exit(EXIT_SUCCESS);
