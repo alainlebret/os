@@ -39,6 +39,7 @@
 #include <sys/types.h> /* pid_t */
 #include <sys/wait.h>  /* wait() */
 #include <signal.h>    /* sigaction */
+#include <string.h>    /* memset() */
 
 unsigned char nb_calls = 7;
 
@@ -46,10 +47,10 @@ unsigned char nb_calls = 7;
  * @brief Handles the signal SIGUSR1 by decrementing \em nbCalls.
  * @param signal Number of the received signal.
  */
-void handleSevenLifes(int signal)
+void handle_seven_lifes(int signal)
 {
 	nb_calls--;
-	printf("Still have %d lifes.\n", (int) nb_calls);
+	printf("Still have %d lifes....\n", (int) nb_calls);
 }
 
 /**
@@ -91,12 +92,18 @@ void manage_parent(pid_t child)
  */
 void manage_child()
 {
-	struct sigaction managingLifes;
+	struct sigaction managing_lifes;
 
 	printf("Child process (PID %d)\n", getpid());
 
-	managingLifes.sa_handler = &handleSevenLifes;
-	sigaction(SIGUSR1, &managingLifes, NULL);
+	/* Clean up the structure before using it */
+	memset(&managing_lifes, '\0', sizeof(managing_lifes));
+
+	/* Set the new handler */
+	managing_lifes.sa_handler = &handle_seven_lifes;
+
+	/* Install the new handler of the SIGUSR1 signal */
+	sigaction(SIGUSR1, &managing_lifes, NULL);
 
 	while (nb_calls != 0) ;
 
@@ -111,6 +118,7 @@ int main(void)
 	if (pid < 0) {
 		handle_fatal_error_and_exit("Error using fork().\n");
 	}
+	
 	if (pid > 0) {
 		manage_parent(pid);
 	} else {
