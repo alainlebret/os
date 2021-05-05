@@ -85,7 +85,7 @@ void manage_child()
 	const char *arguments = "-al";
 	
 	printf("Child process (PID %" PRId32 ")\n", getpid());
-	execl(path, command, arguments, 0);
+	execl(path, command, arguments, (void *)0);
 }
 
 int main(void)
