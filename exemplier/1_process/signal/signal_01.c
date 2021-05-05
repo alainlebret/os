@@ -39,6 +39,7 @@
 #include <signal.h>    /* sigaction() */
 #include <sys/types.h> /* pid_t */
 #include <sys/wait.h>  /* wait() */
+#include <string.h>    /* memset() */
 
 /**
  * @brief Defines the new handler of the SIGINT signal.
