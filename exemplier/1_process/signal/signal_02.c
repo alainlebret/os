@@ -48,8 +48,7 @@
  */
 void handleAlarm(int signal)
 {
-	printf("Too late!\n");
-
+	printf("\nToo late!\n");
 	exit(EXIT_FAILURE);
 }
 
