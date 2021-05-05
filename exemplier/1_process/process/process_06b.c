@@ -47,7 +47,7 @@
  * It displays the given error message, then exits.
  * @param msg The error message to display before exiting.
  */
-void handle_fatal_error(char *msg)
+void handle_fatal_error_and_exit(char *msg)
 {
 	perror(msg);
 	exit(EXIT_FAILURE);
@@ -88,7 +88,7 @@ void manage_child()
 	printf("Child process (PID %" PRId32 ")\n", getpid());
 	printf("Child is going to be overlayed by the gnuplot program. Oups!!!\n");
 
-	execlp(path, command, argument1, argument2, 0);
+	execlp(path, command, argument1, argument2, (void *)0);
 }
 
 int main(void)
