@@ -39,8 +39,9 @@
 #include <sys/types.h> /* pid_t */
 #include <sys/wait.h>  /* wait() */
 #include <signal.h>    /* sigaction */
+#include <string.h>    /* memset() */
 
-#define EVER ;;
+#define FOREVER for (;;)
 
 /**
  * @brief Defines a naive handler to display the received signal number.
@@ -56,8 +57,11 @@ int main(void)
 {
 	struct sigaction action;
 
+	/* Clean up the structure before using it */
+	memset(&action, '\0', sizeof(action));
+
+	/* Set the new handler */
 	action.sa_handler = &handle;
-	action.sa_flags = 0;
 
 	/* We do no block any specific signal */
 	sigemptyset(&action.sa_mask);
@@ -67,7 +71,7 @@ int main(void)
 	sigaction(SIGQUIT, &action, 0);
 	sigaction(SIGTERM, &action, 0);
 
-	for (EVER) ;
-
+	FOREVER {}
+	
 	exit(EXIT_SUCCESS); /* unreachable code */
 }
