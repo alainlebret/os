@@ -39,8 +39,9 @@
 #include <unistd.h>
 #include <errno.h>
 #include <signal.h>
+#include <string.h>
 
-#define EVER ;;
+#define FOREVER for (;;)
 
 void hdl(int signal, siginfo_t *siginfo, void *context)
 {
@@ -51,7 +52,8 @@ int main(int argc, char *argv[])
 {
 	struct sigaction action;
 
-	memset (&action, '\0', sizeof(action));
+	/* Clean up the structure before using it */
+	memset(&action, '\0', sizeof(action));
 
 	/* Use the sa_sigaction field because the handles has two additional parameters */
 	action.sa_sigaction = &hdl;
@@ -64,8 +66,8 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	for (EVER) {
-		sleep( 10 );
+	FOREVER {
+		sleep(10);
 	}
 
 	exit(EXIT_SUCCESS);
