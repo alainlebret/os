@@ -78,7 +78,7 @@ int main(void)
 	/* Deactivate the sending of an alarm signal by the OS */
 	remaining_time = alarm(0);
 
-	printf("Elapsed time: %d seconds.\n", 5 - remaining_time);
+	printf("\nElapsed time: %d seconds.\n", 5 - remaining_time);
 
 	exit(EXIT_SUCCESS);
 }
