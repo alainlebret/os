@@ -84,7 +84,7 @@ void manage_parent()
 	/* Set the new handler */
 	action.sa_handler = &handle_sigchild;
 
-	/* Install the new handler of the SIGALRM signal */
+	/* Install the new handler of the SIGCHLD signal */
 	sigaction(SIGCHLD, &action, NULL);
 
 	printf("Parent process (PID %d)\n", getpid());
