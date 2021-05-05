@@ -65,7 +65,7 @@ int main(void)
 	sigemptyset(&action.sa_mask);
 
 	if (sigaction(SIGUSR1, &action, NULL) == -1) {
-		perror("sigaction");
+		perror("Error using sigaction");
 		exit(EXIT_FAILURE);
 	}
 
