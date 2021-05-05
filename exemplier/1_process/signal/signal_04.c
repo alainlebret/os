@@ -105,9 +105,7 @@ void manage_child()
 {
 	printf("Child process (PID %d)\n", getpid());
 	printf("Child: I am doing some stuff for 10 seconds...\n");
-
 	sleep(10);
-
 	exit(EXIT_SUCCESS);
 }
 
