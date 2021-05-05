@@ -74,6 +74,7 @@ int main(void)
 	struct sigaction action;
 
 	action.sa_handler = &tick;
+	action.sa_flags = 0;
 	sigaction(SIGALRM, &action, NULL);
 
 	/* Ask the OS to send a SIGALRM signal every second */
