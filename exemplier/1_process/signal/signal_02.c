@@ -59,8 +59,15 @@ int main(void)
 	int value;
 	int remaining_time;
 
+	/* Clean up the structure before using it */
+	memset(&action, '\0', sizeof(action));
+	
+	/* Set the new handler */
 	action.sa_handler = &handleAlarm;
+
+	/* Install the new handler of the SIGINT signal */
 	sigaction(SIGALRM, &action, NULL);
+
 	printf("You have %d seconds to enter a number: ", DURATION);
 
 	/* The OS will send an alarm signal to the process in 'DURATION' sec. */
