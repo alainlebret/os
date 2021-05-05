@@ -64,7 +64,9 @@ void manage_parent()
 
 	printf("Parent process: %" PRId32 "\n", getpid());
 	printf("Parent group: %" PRId32 "\n", getpgrp());
+	
 	child = wait(&status);
+	
 	if (WIFEXITED(status)) {
 		printf("%d : child %" PRId32 " has finished is work (code: %" PRId32 ")\n", 
 			getpid(), child, WEXITSTATUS(status));
@@ -88,6 +90,7 @@ int main(void)
 	if (pid < 0) {
 		handle_fatal_error_and_exit("Error using fork().\n");
 	}
+	
 	if (pid > 0) {
 		manage_parent();
 	} else {
