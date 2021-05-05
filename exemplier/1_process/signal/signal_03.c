@@ -39,8 +39,9 @@
 #include <sys/types.h> /* pid_t */
 #include <sys/wait.h>  /* wait() */
 #include <signal.h>    /* sigaction() */
+#include <string.h>    /* memset() */
 
-#define EVER ;;
+#define FOREVER for (;;)
 
 unsigned int h = 0; /* Hours */
 unsigned int m = 0; /* Minutes */
@@ -73,15 +74,20 @@ int main(void)
 {
 	struct sigaction action;
 
+	/* Clean up the structure before using it */
+	memset(&action, '\0', sizeof(action));
+	
+	/* Set the new handler */
 	action.sa_handler = &tick;
-	action.sa_flags = 0;
+
+	/* Install the new handler of the SIGALRM signal */
 	sigaction(SIGALRM, &action, NULL);
 
-	/* Ask the OS to send a SIGALRM signal every second */
+	/* Ask the OS to send a SIGALRM signal in 1 second */
 	alarm(1);
 
-	/* Waiting for SIGALRM signals */
-	for (EVER) ;
+	/* Waiting for SIGALRM signal */
+	FOREVER {}
 
 	exit(EXIT_SUCCESS); /* unreachable code */
 }
