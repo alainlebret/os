@@ -64,7 +64,7 @@ int main(void)
 	/* Set the new handler */
 	action.sa_handler = &handleAlarm;
 
-	/* Install the new handler of the SIGINT signal */
+	/* Install the new handler of the SIGALRM signal */
 	sigaction(SIGALRM, &action, NULL);
 
 	printf("You have %d seconds to enter a number: ", DURATION);
