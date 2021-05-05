@@ -39,6 +39,7 @@
 #include <sys/types.h> /* pid_t */
 #include <sys/wait.h>  /* wait() */
 #include <signal.h>    /* sigaction() */
+#include <string.h>    /* memset() */
 
 #define DURATION 5
 
@@ -49,6 +50,7 @@
 void handleAlarm(int signal)
 {
 	printf("\nToo late!\n");
+
 	exit(EXIT_FAILURE);
 }
 
