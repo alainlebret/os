@@ -39,8 +39,9 @@
 #include <sys/types.h> /* pid_t */
 #include <sys/wait.h>  /* wait() */
 #include <signal.h>    /* sigaction */
+#include <string.h>    /* memset() */
 
-#define EVER ;;
+#define FOREVER for (;;)
 
 /** 
  * @brief Defines a new handler of the SIGCHLD signal in charge of suppressing
@@ -77,13 +78,19 @@ void manage_parent()
 {
 	struct sigaction action;
 
-	printf("Parent process (PID %d)\n", getpid());
+	/* Clean up the structure before using it */
+	memset(&action, '\0', sizeof(action));
 
+	/* Set the new handler */
 	action.sa_handler = &handle_sigchild;
+
+	/* Install the new handler of the SIGALRM signal */
 	sigaction(SIGCHLD, &action, NULL);
+
+	printf("Parent process (PID %d)\n", getpid());
 	printf("Signal %d will be received and handled by the parent.\n", SIGCHLD);
 
-	for (EVER) {
+	FOREVER {
 		printf("Parent: I am working...\n");
 		sleep(2);
 	}
@@ -109,6 +116,7 @@ int main(void)
 	pid_t pid;
 
 	pid = fork();
+	
 	if (pid < 0) {
 		handle_fatal_error_and_exit("Error using fork().\n");
 	}
