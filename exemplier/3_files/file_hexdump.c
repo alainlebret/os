@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 		bytes_read = read(fd, buffer, sizeof(buffer));
 
 		/* Display the offset in the file followed by the bytes themselves.  */
-		printf("0x%06x : ", offset);
+		printf("0x%06x : ", (unsigned int)offset);
 
 		for (i = 0; i < bytes_read; ++i) {
 			printf("%02x ", buffer[i]);
