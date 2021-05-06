@@ -37,12 +37,14 @@
 #include <stdlib.h>
 #include <sys/statvfs.h>
 
-int main() {
+int main(void) {
     struct statvfs stat;
     int result;
 
     result = statvfs("/", &stat);
-
+    if (result == -1) {
+        exit(EXIT_FAILURE);
+    }
     printf("FS block size: %d bytes \n", (int) (stat.f_bsize));
 
     exit(EXIT_SUCCESS);
