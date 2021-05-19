@@ -57,7 +57,7 @@ int main(void)
 {
 	memory_t mem;
 	mem.table = (int *) malloc(3 * sizeof(int));
-	const char *name = "/shm-example-1"; /* shared memory name */
+	const char *name = "/pipeautique2"; /* shared memory name */
 	const int SIZE = sizeof(mem); /* shared memory size */
 
 
@@ -123,6 +123,10 @@ int main(void)
 		handle_error("prod: Close failed: %s\n");
 	}
 
+	if (pid > 0) {
+		shm_unlink("/pipeautique2");		
+	}
+
 	exit(EXIT_SUCCESS);
 }
 
@@ -131,7 +135,7 @@ int main(void)
  */
 void handle_error(char *message)
 {
-	printf(message, strerror(errno));
+	fprintf(stderr, "%s", message);
 	exit(EXIT_FAILURE);
 }
 
@@ -143,7 +147,7 @@ void display(char *prog, int *values, int n)
 	int i;
 
 	printf("display: %s\n", prog);
-	for (i = 0; i < n; i++) {
+	for (i = 0; i < n; ++i) {
 		printf("%d ", values[i]);
 	}
 	printf("\n");
