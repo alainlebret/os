@@ -50,13 +50,13 @@
 int main(void)
 {
 	int fd;
-	int *ptr;
 	int i;
+	int *ptr;
 	pid_t pid;
 
 	srand(time(NULL));
 
-	fd = shm_open("/blabla", O_RDWR | O_CREAT, 0666);
+	fd = shm_open("/pipeautique1", O_CREAT | O_RDWR, 0644);
 	printf("shm_open returned %d (%d: %s)\n", fd, errno, strerror(errno));
 
 	ftruncate(fd, SHM_SIZE);
@@ -68,7 +68,7 @@ int main(void)
 
 	if (pid > 0) {
 		for (i = 0; i < SHM_SIZE; i++) {
-			ptr[i] = rand()%SHM_SIZE;
+			ptr[i] = rand() % SHM_SIZE;
 			printf("%d ", ptr[i]);
 		}
 		printf("\n");
@@ -80,7 +80,7 @@ int main(void)
 	}
 	munmap(ptr, SHM_SIZE);
 	if (pid > 0) {
-		shm_unlink("/blabla");		
+		shm_unlink("/pipeautique1");		
 	}
 	exit(EXIT_SUCCESS);
 }
