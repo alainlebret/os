@@ -4,6 +4,7 @@
 La communication entre processus peut être réalisée par plusieurs mécanismes, 
 entre autres :
 
+* les signaux (voir section processus) ;
 * les tubes ;
 * les segments de mémoire partagée ;
 * les files de messages.
