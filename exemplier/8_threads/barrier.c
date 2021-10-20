@@ -40,6 +40,10 @@
 #include <pthread.h>
 #include <time.h>
 
+#ifdef __APPLE__
+#include "pthread_barrier.h"
+#endif
+
 #define THREAD_COUNT 10
 
 pthread_barrier_t barrier;
@@ -70,9 +74,11 @@ int main(void)
 		tid_args[i] = i;
 		pthread_create(&tid[i], NULL, doit, &tid_args[i]);
 	}
+
 	printf("The main thread is ready.\n");
 
 	pthread_barrier_wait(&barrier);
+
 	printf("The main thread passed the barrier!\n");
 
 	for (i = 0; i < THREAD_COUNT; i++) {

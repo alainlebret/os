@@ -22,7 +22,7 @@
  */
 
 /**
- * @author Blaise Barney (03/07/2017)
+ * @author Blaise Barney -- Lawrence Livermore National Laboratory (03/07/2017)
  * @author Alain Lebret (06/08/2017)
  * @version	1.0
  * @date 2017-06-08
@@ -42,6 +42,7 @@
  * https://computing.llnl.gov/tutorials/pthreads/
  */
 
+#include <unistd.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>

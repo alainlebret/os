@@ -41,6 +41,7 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <signal.h>
+#include <string.h>
 
 #define EVER ;;
 
@@ -61,12 +62,12 @@ void func(data_t *p)
 	for (EVER) {
 		fprintf(stderr, "This is from thread function\n");
 		strcpy(p->name, "Mr. Linux Cons");
-		p->age = 30;
+		p->age = 50;
 		sleep(2);
 	}
 }
 
-int main()
+int main(void)
 {
 	pthread_t tid;
 	pthread_attr_t attr;

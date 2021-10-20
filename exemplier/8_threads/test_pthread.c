@@ -33,7 +33,7 @@
  * A simple program to test threads vs the fork one (see \c fork_test.c).
  *
  * On Mac OS X, compile using gcc -Wall -Wextra pthread_test.c
- * On Linux, compile using gcc -Wall -Wextra pthread_test.c -pthread
+ * On Linux, compile using gcc -Wall -Wextra pthread_test.c -o pthread_test -pthread
  */
 #include <pthread.h>
 #include <stdio.h>

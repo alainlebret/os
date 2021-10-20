@@ -39,9 +39,10 @@
 #
 PRG_SUFFIX_FLAG := 0
 #
+CC := gcc
 LDFLAGS := -pthread
-CFLAGS_INC := -Wextra -ansi -pedantic
-CFLAGS := -g -Wall $(CFLAGS_INC)
+CFLAGS_INC := -I.
+CFLAGS :=  $(CFLAGS_INC) -g -Wall -Wextra -pedantic -D_REENTRANT -DMUTEX
 #
 ## ==================- NOTHING TO CHANGE BELOW THIS LINE ===================
 ##
@@ -64,7 +65,7 @@ else
 endif
 ## Compile the executables
 %$(PRG_SUFFIX) : $(OBJS)
-	$(CC) $(OBJ)  $(LDFLAGS) -o $(BIN)
+	$(CC) $(OBJ) -o $(BIN) $(LDFLAGS)
 ##
 ## $(OBJS) should be automagically removed right after linking.
 ##
