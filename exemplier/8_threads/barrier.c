@@ -48,7 +48,7 @@
 
 pthread_barrier_t barrier;
 
-void* doit(void *id) 
+void *doit(void *id) 
 {
   int tid = *(int *)id;
   int wait_sec = 1 + rand() % 5;
