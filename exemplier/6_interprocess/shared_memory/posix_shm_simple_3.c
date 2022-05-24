@@ -1,15 +1,3 @@
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <string.h>
-#include <errno.h>
-#include <time.h>
-#include <sys/mman.h>
-
-/**
- * @file shm2.c *
- */
 /*
  * ENSICAEN
  * 6 Boulevard Maréchal Juin
