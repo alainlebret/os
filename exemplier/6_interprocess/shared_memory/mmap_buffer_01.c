@@ -52,8 +52,8 @@
  */
 void handle_fatal_error(char *message)
 {
-	fprintf(stderr, "%s", message);
-	exit(EXIT_FAILURE);
+    fprintf(stderr, "%s", message);
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -61,14 +61,14 @@ void handle_fatal_error(char *message)
  */
 void write_memory(void *shared_memory)
 {
-	int i;
+    int i;
 
-	for (i = 0; i < ITERATIONS; i++) {
-		*((int *) shared_memory) = i * i;
+    for (i = 0; i < ITERATIONS; i++) {
+        *((int *) shared_memory) = i * i;
 
-		printf("Parent: initial value = %2d\n", i);
-		sleep(1);  /* wait 1 sec. to allow his child to read the value */
-	}
+        printf("Parent: initial value = %2d\n", i);
+        sleep(1);  /* wait 1 sec. to allow his child to read the value */
+    }
 }
 
 /**
@@ -77,17 +77,17 @@ void write_memory(void *shared_memory)
  */
 void manage_parent(void *shared_memory)
 {
-	pid_t child;
-	int status;
+    pid_t child;
+    int status;
 
-	printf("Parent process (PID %d)\n", getpid());
-	write_memory(shared_memory);
+    printf("Parent process (PID %d)\n", getpid());
+    write_memory(shared_memory);
 
-	child = wait(&status);
-	if (WIFEXITED(status)) {
-		printf("Parent: child %d has finished (code %d)\n", child,
-		       WEXITSTATUS(status));
-	}
+    child = wait(&status);
+    if (WIFEXITED(status)) {
+        printf("Parent: child %d has finished (code %d)\n", child,
+               WEXITSTATUS(status));
+    }
 }
 
 /**
@@ -95,14 +95,14 @@ void manage_parent(void *shared_memory)
  */
 void read_memory(void *shared_memory)
 {
-	int i;
-	int value;
+    int i;
+    int value;
 
-	for (i = 0; i < ITERATIONS; i++) {
-		sleep(1);  /* waiting for the memory update (not as good as semaphore) */
-		value = *((int *) shared_memory);
-		printf("Child: read value = %2d\n", value);
-	}
+    for (i = 0; i < ITERATIONS; i++) {
+        sleep(1);  /* waiting for the memory update (not as good as semaphore) */
+        value = *((int *) shared_memory);
+        printf("Child: read value = %2d\n", value);
+    }
 }
 
 /**
@@ -110,9 +110,9 @@ void read_memory(void *shared_memory)
  */
 void manage_child(void *shared_memory)
 {
-	printf("Child process (PID %d)\n", getpid());
-	read_memory(shared_memory);
-	printf("Child: memory has been consumed.\n");
+    printf("Child process (PID %d)\n", getpid());
+    read_memory(shared_memory);
+    printf("Child: memory has been consumed.\n");
 }
 
 /**
@@ -121,36 +121,36 @@ void manage_child(void *shared_memory)
  */
 void *create_shared_memory()
 {
-	/* initialize shared memory using mmap */
-	void *shared_memory = mmap(0, /* beginning (starting address is ignored) */
-				   INTEGER_SIZE, /* size of the shared memory */
-				   PROT_READ | PROT_WRITE, /* protection */
-				   MAP_SHARED | MAP_ANONYMOUS,
-				   -1, /* the shared memory do not use a file */
-				   0);  /* ignored: only set when using a file */
+    /* initialize shared memory using mmap */
+    void *shared_memory = mmap(0, /* beginning (starting address is ignored) */
+                               INTEGER_SIZE, /* size of the shared memory */
+                               PROT_READ | PROT_WRITE, /* protection */
+                               MAP_SHARED | MAP_ANONYMOUS,
+                               -1, /* the shared memory do not use a file */
+                               0);  /* ignored: only set when using a file */
 
-	if (shared_memory == (void *) -1) {
-		handle_fatal_error("Error allocating shared memory using mmap!\n");
-	}
-	return shared_memory;
+    if (shared_memory == (void *) -1) {
+        handle_fatal_error("Error allocating shared memory using mmap!\n");
+    }
+    return shared_memory;
 }
 
 int main(void)
 {
-	pid_t pid;
-	void *shared_memory;
+    pid_t pid;
+    void *shared_memory;
 
-	shared_memory = create_shared_memory();
+    shared_memory = create_shared_memory();
 
-	pid = fork();
-	if (pid < 0) {
-		handle_fatal_error("Error using fork().\n");
-	}
-	if (pid > 0) {
-		manage_parent(shared_memory);
-	} else {
-		manage_child(shared_memory);
-	}
+    pid = fork();
+    if (pid < 0) {
+        handle_fatal_error("Error using fork().\n");
+    }
+    if (pid > 0) {
+        manage_parent(shared_memory);
+    } else {
+        manage_child(shared_memory);
+    }
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

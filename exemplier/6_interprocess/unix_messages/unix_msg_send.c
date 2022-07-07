@@ -43,51 +43,54 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg) {
-	perror(msg);
-	exit(EXIT_FAILURE);
+void handle_fatal_error(char *msg)
+{
+    perror(msg);
+    exit(EXIT_FAILURE);
 }
 
 /**
  * Returns the message queue ID for the given key
  */
-int get_msgq_id(key_t key) {
-	int msgq_id;
-	int msg_flag;
+int get_msgq_id(key_t key)
+{
+    int msgq_id;
+    int msg_flag;
 
-	msg_flag= IPC_CREAT | 0666;
+    msg_flag = IPC_CREAT | 0666;
 
-	msgq_id = msgget(key, msg_flag);
-	if (msgq_id < 0) {
-		handle_fatal_error("Error using msgget()\n");
-	}
+    msgq_id = msgget(key, msg_flag);
+    if (msgq_id < 0) {
+        handle_fatal_error("Error using msgget()\n");
+    }
 
-	return msgq_id;
+    return msgq_id;
 }
 
-int main(void) {
-	int msgq_id;
-	message_t message;
-	size_t length;
+int main(void)
+{
+    int msgq_id;
+    message_t message;
+    size_t length;
 
-	msgq_id = get_msgq_id(1234);
+    msgq_id = get_msgq_id(1234);
 
-	/* Message type */
-	message.type = MSG_TYPE_HANDOUT;
+    /* Message type */
+    message.type = MSG_TYPE_HANDOUT;
 
-	printf("Enter a message to add to message queue: ");
-	scanf("%[^\n]", message.content.buffer);
-	getchar();
+    printf("Enter a message to add to message queue: ");
+    scanf("%[^\n]", message.content.buffer);
+    getchar();
 
-	length = strlen(message.content.buffer) + 1;
+    length = strlen(message.content.buffer) + 1;
 
-	if (msgsnd(msgq_id, &message, length, IPC_NOWAIT) < 0) {
-		printf("%d, %ld, %s, %lu\n", msgq_id, message.type, message.content.buffer,
-				 length);
-		handle_fatal_error("Error using msgsnd()\n");
-	} else {
-		printf("Message sent\n");
-	}
+    if (msgsnd(msgq_id, &message, length, IPC_NOWAIT) < 0) {
+        printf("%d, %ld, %s, %lu\n", msgq_id, message.type, message.content.buffer,
+               length);
+        handle_fatal_error("Error using msgsnd()\n");
+    } else {
+        printf("Message sent\n");
+    }
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

@@ -40,12 +40,12 @@
 
 /** Structure of a message */
 typedef struct content {
-	char buffer[MESSAGE_SIZE];
+    char buffer[MESSAGE_SIZE];
 } content_t;
 
 typedef struct message {
-	long type;
-	content_t content;
+    long type;
+    content_t content;
 } message_t;
 
 /**

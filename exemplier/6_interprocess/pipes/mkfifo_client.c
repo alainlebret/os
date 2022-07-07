@@ -44,33 +44,35 @@
 
 #define QUESTION "cli2serv"
 #define REPONSE  "serv2cli"
-#define EVER ;;
+#define FOREVER for (;;)
 
 void traiter(int fdr, int fdq);  /* traitement par le client */
 
-int main(void) {
-	int fdq, fdr;
+int main(void)
+{
+    int fdq;
+    int fdr;
 
-	fdq = open(QUESTION, O_WRONLY);
-	if (fdq == -1) {
-		fprintf(stderr, "Impossible d\'ouvrir le tube %s\n", QUESTION);
-		fprintf(stderr, "Lancer le serveur d\'abord\n");
-		exit(EXIT_FAILURE);
-	}
+    fdq = open(QUESTION, O_WRONLY);
+    if (fdq == -1) {
+        fprintf(stderr, "Impossible d\'ouvrir le tube %s\n", QUESTION);
+        fprintf(stderr, "Lancer le serveur d\'abord\n");
+        exit(EXIT_FAILURE);
+    }
 
-	fdr = open(REPONSE, O_RDONLY);
-	if (fdr == -1) {
-		fprintf(stderr, "Impossible d\'ouvrir le tube %s\n", REPONSE);
-		fprintf(stderr, "Lancer le serveur d\'abord\n");
-		exit(EXIT_FAILURE);
-	}
+    fdr = open(REPONSE, O_RDONLY);
+    if (fdr == -1) {
+        fprintf(stderr, "Impossible d\'ouvrir le tube %s\n", REPONSE);
+        fprintf(stderr, "Lancer le serveur d\'abord\n");
+        exit(EXIT_FAILURE);
+    }
 
-	traiter(fdr, fdq);
+    traiter(fdr, fdq);
 
-	close(fdq);
-	close(fdr);
+    close(fdq);
+    close(fdr);
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }
 
 /**
@@ -79,22 +81,23 @@ int main(void) {
  * @param fdr descripteur du tube pour la réponse
  * @param fdq descripteur du tube pour la question
  */
-void traiter(int fdr, int fdq) {
-	char reponse[11];
-	char question[11];
+void traiter(int fdr, int fdq)
+{
+    char reponse[11];
+    char question[11];
 
-	for (EVER) {
-		if (gets(question) == NULL) {
-			exit(EXIT_FAILURE);
-		}
-		write(fdq, question, 10);
-		printf("Client -> %s \n", question);
+    FOREVER {
+        if (fgets(question, 11, stdin) == NULL) {
+            exit(EXIT_FAILURE);
+        }
+        write(fdq, question, 10);
+        printf("Client -> %s \n", question);
 
-		read(fdr, reponse, 10);
-		printf("Serveur -> %s \n", reponse);
-		if (strcmp(reponse, "OK") == 0) {
-			break;
-		}
-	}
+        read(fdr, reponse, 10);
+        printf("Serveur -> %s \n", reponse);
+        if (strcmp(reponse, "OK") == 0) {
+            break;
+        }
+    }
 }
 

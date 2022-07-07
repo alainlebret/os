@@ -40,24 +40,26 @@
 /**
  * Displays the type and content of the given message.
  */
-void msg_display(message_t *message) {
-	printf("\tType: %ld\n", message->type);
-	printf("\tContent: %s\n", message->content.buffer);
+void msg_display(message_t *message)
+{
+    printf("\tType: %ld\n", message->type);
+    printf("\tContent: %s\n", message->content.buffer);
 }
 
 /**
  * Fills the given message vith the specified character.
  */
-void msg_fill(message_t *message, char value) {
-	int i;
+void msg_fill(message_t *message, char value)
+{
+    int i;
 
-	/* Type of the message */
-	message->type = MSG_TYPE_HANDOUT;
+    /* Type of the message */
+    message->type = MSG_TYPE_HANDOUT;
 
-	/* Content */
-	for (i = 0; i < MESSAGE_SIZE; i++) {
-		message->content.buffer[i] = value;
-	}
+    /* Content */
+    for (i = 0; i < MESSAGE_SIZE; i++) {
+        message->content.buffer[i] = value;
+    }
 
 }
 

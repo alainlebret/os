@@ -53,8 +53,8 @@ int shmid;         /* shared memory id */
  */
 void handle_fatal_error(char *message)
 {
-	fprintf(stderr, "%s", message);
-	exit(EXIT_FAILURE);
+    fprintf(stderr, "%s", message);
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -63,38 +63,38 @@ void handle_fatal_error(char *message)
  */
 int initialize()
 {
-	unsigned int number_children; /* fork count */
-	key_t shmkey;                 /* shared memory key */
-	unsigned int sem_value;       /* semaphore value */
+    unsigned int number_children; /* fork count */
+    key_t shmkey;                 /* shared memory key */
+    unsigned int sem_value;       /* semaphore value */
 
-	/* initialize a shared variable in shared memory */
-	shmkey = ftok("/dev/null", 5);  /* valid directory name and a number */
-	printf("shmkey for shared value = %d\n", shmkey);
+    /* initialize a shared variable in shared memory */
+    shmkey = ftok("/dev/null", 5);  /* valid directory name and a number */
+    printf("shmkey for shared value = %d\n", shmkey);
 
-	shmid = shmget(shmkey, sizeof(int), 0644 | IPC_CREAT);
-	if (shmid < 0) {  /* shared memory error check */
-		handle_fatal_error("Error trying to allocate shared memory\n");
-	}
+    shmid = shmget(shmkey, sizeof(int), 0644 | IPC_CREAT);
+    if (shmid < 0) {  /* shared memory error check */
+        handle_fatal_error("Error trying to allocate shared memory\n");
+    }
 
-	shared_value = (int *) shmat(shmid, NULL, 0); /* attach to memory */
-	*shared_value = 0;
-	printf("shared value=%d is allocated in shared memory.\n\n", *shared_value);
+    shared_value = (int *) shmat(shmid, NULL, 0); /* attach to memory */
+    *shared_value = 0;
+    printf("shared value=%d is allocated in shared memory.\n\n", *shared_value);
 
-	printf("How many children do you want to fork:\n");
-	scanf("%u", &number_children);
+    printf("How many children do you want to fork:\n");
+    scanf("%u", &number_children);
 
-	printf("Enter a semaphore value: ");
-	scanf("%u", &sem_value);
+    printf("Enter a semaphore value: ");
+    scanf("%u", &sem_value);
 
-	/* initialize semaphores for shared processes */
-	sem = sem_open("pSem", O_CREAT | O_EXCL, 0644, sem_value);
-	/* name of semaphore is "pSem", semaphore is reached using this name */
-	sem_unlink("pSem");
-	/* unlink prevents the semaphore existing forever */
-	/* if a crash occurs during the execution         */
-	printf("semaphores initialized.\n\n");
+    /* initialize semaphores for shared processes */
+    sem = sem_open("pSem", O_CREAT | O_EXCL, 0644, sem_value);
+    /* name of semaphore is "pSem", semaphore is reached using this name */
+    sem_unlink("pSem");
+    /* unlink prevents the semaphore existing forever */
+    /* if a crash occurs during the execution         */
+    printf("semaphores initialized.\n\n");
 
-	return number_children;
+    return number_children;
 }
 
 /**
@@ -102,25 +102,25 @@ int initialize()
  */
 void manage_parent(int shmid)
 {
-	pid_t child;
+    pid_t child;
 
-	printf("Parent process (PID %d)\n", getpid());
+    printf("Parent process (PID %d)\n", getpid());
 
-	/* wait for all children to exit */
-	child = waitpid(-1, NULL, 0);
-	while (child) {
-		if (errno == ECHILD)
-			break;
-		child = waitpid(-1, NULL, 0) > 0;
-	}
-	printf("\nParent: All children have exited.\n");
+    /* wait for all children to exit */
+    child = waitpid(-1, NULL, 0);
+    while (child) {
+        if (errno == ECHILD)
+            break;
+        child = waitpid(-1, NULL, 0) > 0;
+    }
+    printf("\nParent: All children have exited.\n");
 
-	/* shared memory detach */
-	shmdt(shared_value);
-	shmctl(shmid, IPC_RMID, 0);
+    /* shared memory detach */
+    shmdt(shared_value);
+    shmctl(shmid, IPC_RMID, 0);
 
-	/* cleanup semaphores */
-	sem_destroy(sem);
+    /* cleanup semaphores */
+    sem_destroy(sem);
 }
 
 /**
@@ -129,39 +129,39 @@ void manage_parent(int shmid)
  */
 void manage_child(int child_number)
 {
-	printf("Child process (PID %d)\n", getpid());
-	sem_wait(sem);           /* P operation */
-	printf("Child (PID %d) is in critical section.\n", child_number);
-	sleep(1);
-	*shared_value +=
-		child_number % 3;  /* increment by 0, 1 or 2 based on number */
-	printf("Child (PID %d): new value = %d.\n", child_number, *shared_value);
-	sem_post(sem);           /* V operation */
-	printf("Child (PID %d) gets out of critical section.\n", child_number);
+    printf("Child process (PID %d)\n", getpid());
+    sem_wait(sem);           /* P operation */
+    printf("Child (PID %d) is in critical section.\n", child_number);
+    sleep(1);
+    *shared_value +=
+            child_number % 3;  /* increment by 0, 1 or 2 based on number */
+    printf("Child (PID %d): new value = %d.\n", child_number, *shared_value);
+    sem_post(sem);           /* V operation */
+    printf("Child (PID %d) gets out of critical section.\n", child_number);
 }
 
 int main(void)
 {
-	pid_t pid;
-	int number_children; /* fork count */
-	int child_number;
+    pid_t pid;
+    int number_children; /* fork count */
+    int child_number;
 
-	number_children = initialize();
+    number_children = initialize();
 
-	/* fork child processes */
-	for (child_number = 0; child_number < number_children; child_number++) {
-		pid = fork();
-		if (pid < 0) {
-			handle_fatal_error("Error using fork().\n");
-		} else if (pid == 0)
-			break;  /* child processes */
-	}
+    /* fork child processes */
+    for (child_number = 0; child_number < number_children; child_number++) {
+        pid = fork();
+        if (pid < 0) {
+            handle_fatal_error("Error using fork().\n");
+        } else if (pid == 0)
+            break;  /* child processes */
+    }
 
-	if (pid > 0) {
-		manage_parent(shmid);
-	} else {
-		manage_child(child_number);
-	}
+    if (pid > 0) {
+        manage_parent(shmid);
+    } else {
+        manage_child(child_number);
+    }
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

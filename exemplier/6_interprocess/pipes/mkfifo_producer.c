@@ -48,9 +48,10 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg) {
-	perror(msg);
-	exit(EXIT_FAILURE);
+void handle_fatal_error(char *msg)
+{
+    perror(msg);
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -59,12 +60,13 @@ void handle_fatal_error(char *msg) {
  * @param mode Permissions access.
  * @return The pipe identifier.
  */
-int create_pipe(const char *name, mode_t mode) {
-	int pipe;
+int create_pipe(const char *name, mode_t mode)
+{
+    int pipe;
 
-	pipe = mkfifo(name, mode);
+    pipe = mkfifo(name, mode);
 
-	return pipe;
+    return pipe;
 }
 
 /**
@@ -72,40 +74,42 @@ int create_pipe(const char *name, mode_t mode) {
  * @param name Name of the pipe.
  * @return The pipe descriptor.
  */
-int open_pipe(const char *name) {
-	int pd;
+int open_pipe(const char *name)
+{
+    int pd;
 
-	pd = open(name, O_WRONLY);
+    pd = open(name, O_WRONLY);
 
-	return pd;
+    return pd;
 }
 
-int main(void) {
-	char buffer[BUFFER_SIZE];
-	int pd;
-	int pipe;
+int main(void)
+{
+    char buffer[BUFFER_SIZE];
+    int pd;
+    int pipe;
 
-	/*
-	 * Create a new pipe named "testfifo" with read/write permissions for owner,
-	 * and with read permissions for group and others.
-	 */
-	pipe = create_pipe("./testfifo", S_IWUSR|S_IRUSR|S_IRGRP|S_IROTH);
-	if (pipe == -1) {
-		handle_fatal_error("\nError when trying to create the named pipe.\n");
-	}
+    /*
+     * Create a new pipe named "testfifo" with read/write permissions for owner,
+     * and with read permissions for group and others.
+     */
+    pipe = create_pipe("./testfifo", S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
+    if (pipe == -1) {
+        handle_fatal_error("\nError when trying to create the named pipe.\n");
+    }
 
-	pd = open_pipe("./testfifo");
-	if (pd == -1) {
-		handle_fatal_error("\nError when trying to open the named pipe.\n");
-	}
+    pd = open_pipe("./testfifo");
+    if (pd == -1) {
+        handle_fatal_error("\nError when trying to open the named pipe.\n");
+    }
 
 
-	strcpy(buffer,
-			 "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium...");
-	write(pd, buffer, BUFFER_SIZE);
+    strcpy(buffer,
+           "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium...");
+    write(pd, buffer, BUFFER_SIZE);
 
-	close(pd);
-	unlink("./testfifo");
+    close(pd);
+    unlink("./testfifo");
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

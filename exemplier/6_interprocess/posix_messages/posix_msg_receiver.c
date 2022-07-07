@@ -35,70 +35,72 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-#define EVER ;;
+#define FOREVER for (;;)
 
 /*
  * Receiver application using POSIX mqueue
  * Compilation: gcc -o mqueue_receiver posix_msg_receiver.c -lrt
  */
-int main(int argc,char * argv[]){
-	mqd_t mq;
-	char * buffer;
-	struct mq_attr attr;
-	struct timeval hour, *received_hour;
-	int size, nb_messages;
-	long int duration, max_duration, min_duration, sum_durations;
+int main(int argc, char *argv[])
+{
+    mqd_t mq;
+    char *buffer;
+    struct mq_attr attr;
+    struct timeval hour, *received_hour;
+    int size, nb_messages;
+    long int duration, max_duration, min_duration, sum_durations;
 
-	if (argc != 2) {
-		fprintf(stderr, "usage: %s mqueue_name\n", argv[0]);
-		exit(EXIT_FAILURE);
-	}
+    if (argc != 2) {
+        fprintf(stderr, "usage: %s mqueue_name\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
 
-	mq = mq_open(argv[1], O_RDONLY, 0600, NULL);
-	if (mq == (mqd_t) -1) {
-		perror(argv[1]);
-		exit(EXIT_FAILURE);
-	}
+    mq = mq_open(argv[1], O_RDONLY, 0600, NULL);
+    if (mq == (mqd_t) - 1) {
+        perror(argv[1]);
+        exit(EXIT_FAILURE);
+    }
 
-	if (mq_getattr(mq, & attr) != 0) {
-		perror("mq_getattr"); exit(EXIT_FAILURE);
-	}
+    if (mq_getattr(mq, &attr) != 0) {
+        perror("mq_getattr");
+        exit(EXIT_FAILURE);
+    }
 
-	size = attr.mq_msgsize;
-	buffer = (char *)malloc(size);
-	if (buffer == NULL) {
-		perror("malloc");
-		exit(EXIT_FAILURE);
-	}
+    size = attr.mq_msgsize;
+    buffer = (char *) malloc(size);
+    if (buffer == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
 
-	received_hour = (struct timeval *) buffer;
+    received_hour = (struct timeval *) buffer;
 
-	for (EVER) {
-		nb_messages = 0;
-		max_duration = 0;
-		min_duration = -1;
-		sum_durations = 0;
+    FOREVER {
+        nb_messages = 0;
+        max_duration = 0;
+        min_duration = -1;
+        sum_durations = 0;
 
-		do {
-			mq_receive(mq, buffer, size, NULL);
-			gettimeofday(& hour, NULL);
-			duration  = hour.tv_sec - received_hour->tv_sec;
-			duration *= 1000000;
-			duration += hour.tv_usec - received_hour->tv_usec;
-			if (nb_messages > 0) { /* Ignore first message */
-				if (max_duration < duration) {
-					max_duration = duration;
-					if ((min_duration == -1) || (min_duration > duration)) {
-						min_duration = duration;
-						sum_durations += duration;
-					}
-				}
-			}
-			nb_messages ++;
-		} while (nb_messages < 100000); /* approximately 1 sec */
+        do {
+            mq_receive(mq, buffer, size, NULL);
+            gettimeofday(&hour, NULL);
+            duration = hour.tv_sec - received_hour->tv_sec;
+            duration *= 1000000;
+            duration += hour.tv_usec - received_hour->tv_usec;
+            if (nb_messages > 0) { /* Ignore first message */
+                if (max_duration < duration) {
+                    max_duration = duration;
+                    if ((min_duration == -1) || (min_duration > duration)) {
+                        min_duration = duration;
+                        sum_durations += duration;
+                    }
+                }
+            }
+            nb_messages++;
+        } while (nb_messages < 100000); /* approximately 1 sec */
 
-		fprintf(stdout, "min = %3ld   max = %3ld moy= %5.1f\n",
-				  min_duration, max_duration, ((float) sum_durations) / (nb_messages - 1));
-	}
-	return EXIT_SUCCESS;
+        fprintf(stdout, "min = %3ld   max = %3ld moy= %5.1f\n",
+                min_duration, max_duration, ((float) sum_durations) / (nb_messages - 1));
+    }
+
 }

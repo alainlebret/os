@@ -35,30 +35,31 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-#define EVER ;;
+#define FOREVER for (;;)
 
 /*
  * Sender application using POSIX mqueue
  * Compilation: gcc -o mqueue_sender posix_msg_sender.c -lrt
  */
-int main(int argc,char * argv[]) {
-	mqd_t mq;
-	struct timeval hour;
+int main(int argc, char *argv[])
+{
+    mqd_t mq;
+    struct timeval hour;
 
-	if (argc != 2) {
-		fprintf(stderr, "usage: %s mqueue_name\n", argv[0]);
-		exit(EXIT_FAILURE);
-	}
+    if (argc != 2) {
+        fprintf(stderr, "usage: %s mqueue_name\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
 
-	mq = mq_open(argv[1], O_WRONLY | O_CREAT, 0600, NULL);
-	if (mq == (mqd_t) -1) {
-		perror(argv[1]);
-		exit(EXIT_FAILURE);
-	}
+    mq = mq_open(argv[1], O_WRONLY | O_CREAT, 0600, NULL);
+    if (mq == (mqd_t) - 1) {
+        perror(argv[1]);
+        exit(EXIT_FAILURE);
+    }
 
-	for (EVER) {
-		gettimeofday(& hour, NULL);
-		mq_send(mq, (char *) & hour, sizeof(hour), 1);
-	}
-	return EXIT_SUCCESS;
+    FOREVER {
+        gettimeofday(&hour, NULL);
+        mq_send(mq, (char *) &hour, sizeof(hour), 1);
+    }
+    /* Unreachable: use <Ctrl-C> to exit */
 }

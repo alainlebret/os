@@ -28,59 +28,44 @@
  */
 
 /**
- * @file unix_msg_recv.c
+ * @file test_msg_messages.c
  *
- * Consumer program using a System V IPC message mechanism.
+ *
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/msg.h>
-
+#include <sys/time.h>
+#include <string.h>
 #include "message.h"
 
-/**
- * Handles a fatal error. It displays a message, then exits.
- */
-void handle_fatal_error(char *msg)
+int main(int argc, char *argv[])
 {
-    perror(msg);
-    exit(EXIT_FAILURE);
-}
-
-/**
- * Returns the message queue ID for the given key
- */
-int get_msgq_id(key_t key)
-{
-    int msgq_id;
-    int msg_flag;
-
-    msg_flag = 0666;
-    msgq_id = msgget(key, msg_flag);
-
-    if (msgq_id < 0) {
-        handle_fatal_error("Error using msgget()\n");
-    }
-
-    return msgq_id;
-}
-
-int main(void)
-{
-    int msgq_id;
     message_t message;
+    struct timeval time;
+    double begin;
+    double end;
 
-    msgq_id = get_msgq_id(1234);
-
-    /* Receive an answer of message type MSG_TYPE_HANDOUT */
-    if (msgrcv(msgq_id, &message, MESSAGE_SIZE, MSG_TYPE_HANDOUT, 0) < 0) {
-        handle_fatal_error("Error using msgrcv()\n");
+    if (argc != 1) {
+        fprintf(stderr, "Testing messages\n");
+        fprintf(stderr, "Usage: %s \n", argv[0]);
+        exit(EXIT_FAILURE);
     }
 
+    printf("\n---------- Beginning of %s ----------\n", argv[0]);
+
+    gettimeofday(&time, NULL);
+    begin = time.tv_sec + (time.tv_usec / 1000000.0);
+
+    printf("Filling the message with some A\n");
+    msg_fill(&message, 'A');
+
+    printf("Displaying of the message\n");
     msg_display(&message);
-/*	printf("%s\n", message.content.buffer); */
+
+    gettimeofday(&time, NULL);
+    end = time.tv_sec + (time.tv_usec / 1000000.0);
+
+    printf("\nDuration of the program %s = %.6lf seconds.\n", argv[0], end - begin);
 
     exit(EXIT_SUCCESS);
 }

@@ -44,44 +44,45 @@
 
 #define QUESTION "cli2serv"
 #define REPONSE  "serv2cli"
-#define EVER ;;
+#define FOREVER for (;;)
 
 void traiter();  /* traitement par le serveur */
 
-int main(void) {
-	int fdq, fdr;
+int main(void)
+{
+    int fdq, fdr;
 
-	unlink(QUESTION);
-	unlink(REPONSE);
+    unlink(QUESTION);
+    unlink(REPONSE);
 
-	/* Création des tubes nommés */
-	if (mkfifo(QUESTION, 0644) == -1 || mkfifo(REPONSE, 0644) == -1) {
-		perror("Impossible de créer les tubes");
-		exit(EXIT_FAILURE);
-	}
+    /* Création des tubes nommés */
+    if (mkfifo(QUESTION, 0644) == -1 || mkfifo(REPONSE, 0644) == -1) {
+        perror("Impossible de créer les tubes");
+        exit(EXIT_FAILURE);
+    }
 
-	/* Attente des ouvertures Clients */
-	fdq = open(QUESTION, O_RDONLY);
-	if (fdq == -1) {
-		fprintf(stderr, "Impossible d\'ouvrir le tube %s\n", QUESTION);
-		exit(EXIT_FAILURE);
-	}
+    /* Attente des ouvertures Clients */
+    fdq = open(QUESTION, O_RDONLY);
+    if (fdq == -1) {
+        fprintf(stderr, "Impossible d\'ouvrir le tube %s\n", QUESTION);
+        exit(EXIT_FAILURE);
+    }
 
-	fdr = open(REPONSE, O_WRONLY);
-	if (fdr == -1) {
-		fprintf(stderr, "Impossible d\'ouvrir le tube %s\n", REPONSE);
-		exit(EXIT_FAILURE);
-	}
+    fdr = open(REPONSE, O_WRONLY);
+    if (fdr == -1) {
+        fprintf(stderr, "Impossible d\'ouvrir le tube %s\n", REPONSE);
+        exit(EXIT_FAILURE);
+    }
 
-	traiter(fdr, fdq);
+    traiter(fdr, fdq);
 
-	close(fdq);
-	close(fdr);
+    close(fdq);
+    close(fdr);
 
-	unlink(QUESTION);
-	unlink(REPONSE);
+    unlink(QUESTION);
+    unlink(REPONSE);
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }
 
 /**
@@ -91,30 +92,40 @@ int main(void) {
  * @param fdr descripteur du tube pour la réponse
  * @param fdq descripteur du tube pour la question
  */
-void traiter(int fdr, int fdq) {
-	int operande1, operande2, resultat;
-	char operateur;
-	char question[11];
-	char reponse[11];
+void traiter(int fdr, int fdq)
+{
+    int operande1, operande2, resultat;
+    char operateur;
+    char question[11];
+    char reponse[11];
 
-	for (EVER) {
-		read(fdq, question, 10);
-		sscanf(question, "%d%1s%d", &operande1, &operateur, &operande2);
-		if (strcmp(question, "Pouce!") == 0) {
-			strcpy(reponse, "OK");
-			write(fdr, reponse, 10);
-			break;
-		}
-		switch(operateur) {
-			case '+' : resultat = operande1 + operande2; break;
-			case '-' : resultat = operande1 - operande2; break;
-			case '*' : resultat = operande1 * operande2; break;
-			case '/' : resultat = (operande2 != 0) ? operande1 / operande2 : 32767 ; break;
-			default : return;
-		}
-		if (resultat == 32767) strcpy(reponse, "NaN");
+    FOREVER {
+        read(fdq, question, 10);
+        sscanf(question, "%d%1s%d", &operande1, &operateur, &operande2);
+        if (strcmp(question, "Pouce!") == 0) {
+            strcpy(reponse, "OK");
+            write(fdr, reponse, 10);
+            break;
+        }
+        switch (operateur) {
+            case '+' :
+                resultat = operande1 + operande2;
+                break;
+            case '-' :
+                resultat = operande1 - operande2;
+                break;
+            case '*' :
+                resultat = operande1 * operande2;
+                break;
+            case '/' :
+                resultat = (operande2 != 0) ? operande1 / operande2 : 32767;
+                break;
+            default :
+                return;
+        }
+        if (resultat == 32767) strcpy(reponse, "NaN");
 
-		sprintf(reponse, "%d", resultat);
-		write(fdr, reponse, 10);
-	}
+        sprintf(reponse, "%d", resultat);
+        write(fdr, reponse, 10);
+    }
 }

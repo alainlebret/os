@@ -37,15 +37,15 @@
 #include <signal.h>
 
 #define MAC_OSX 0
-#define EVER ;;
+#define FOREVER for (;;)
 #define MEMORY_PATH "/shm_name"
 
 /**
  * Structure to store a value and its square root.
  */
 struct memory_t {
-	int value;
-	double square_root;
+    int value;
+    double square_root;
 };
 
 /**
@@ -53,8 +53,8 @@ struct memory_t {
  */
 void handle_error(char *message)
 {
-	fprintf(stderr, "%s", message);
-	exit(EXIT_FAILURE);
+    fprintf(stderr, "%s", message);
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -62,65 +62,66 @@ void handle_error(char *message)
  */
 void handle_sigint(int signum)
 {
-	if (shm_unlink(MEMORY_PATH) < 0) {
-		handle_error("Error calling shm_unlink\n");
-	}
-	exit(EXIT_SUCCESS);
+    if (shm_unlink(MEMORY_PATH) < 0) {
+        handle_error("Error calling shm_unlink\n");
+    }
+    exit(EXIT_SUCCESS);
 }
 
 int main(int argc, char *argv[])
 {
-	int memory_descriptor;
-	size_t memory_size = (1 * sizeof(struct memory_t));
-	struct memory_t *memory;
-	struct sigaction action;
-	action.sa_handler = &handle_sigint;
+    int memory_descriptor;
+    size_t memory_size = (1 * sizeof(struct memory_t));
+    struct memory_t *memory;
+    struct sigaction action;
+    action.sa_handler = &handle_sigint;
 
-	sigaction(SIGINT, &action, NULL);
+    sigaction(SIGINT, &action, NULL);
 
-	memory_descriptor = shm_open(
-		MEMORY_PATH,
-		O_RDWR,
-		S_IRWXU | S_IRWXG);
-	if (memory_descriptor < 0) {
-		handle_error("Error calling shm_open\n");
-	}
+    memory_descriptor = shm_open(
+            MEMORY_PATH,
+            O_RDWR,
+            S_IRWXU | S_IRWXG);
+    if (memory_descriptor < 0) {
+        handle_error("Error calling shm_open\n");
+    }
 
-	fprintf(stderr, "Shared memory object %s has been opened", MEMORY_PATH);
+    fprintf(stderr, "Shared memory object %s has been opened", MEMORY_PATH);
 
-	if (MAC_OSX) { /* MAC OS X abnormality about ftruncate */
-		struct stat mapstat;
-		if (-1 != fstat(memory_descriptor, &mapstat)
-		    && mapstat.st_size == 0) {
-			ftruncate(memory_descriptor, memory_size);
-		}
-	} else {
-		ftruncate(memory_descriptor, memory_size);
-	}
+    if (MAC_OSX) { /* MAC OS X abnormality about ftruncate */
+        struct stat mapstat;
+        if (-1 != fstat(memory_descriptor, &mapstat)
+            && mapstat.st_size == 0) {
+            ftruncate(memory_descriptor, memory_size);
+        }
+    } else {
+        ftruncate(memory_descriptor, memory_size);
+    }
 
-	memory = (struct memory_t *) mmap(
-		NULL,
-		memory_size,
-		PROT_READ | PROT_WRITE,
-		MAP_SHARED,
-		memory_descriptor,
-		0);
-	if (memory == MAP_FAILED) {
-		handle_error("Error calling mmap\n");
-	}
-	fprintf(stderr, "Shared memory of %zu bytes has been allocated\n",
-		memory_size);
+    memory = (struct memory_t *) mmap(
+            NULL,
+            memory_size,
+            PROT_READ | PROT_WRITE,
+            MAP_SHARED,
+            memory_descriptor,
+            0);
+    if (memory == MAP_FAILED) {
+        handle_error("Error calling mmap\n");
+    }
+    fprintf(stderr, "Shared memory of %zu bytes has been allocated\n",
+            memory_size);
 
-	for (EVER) {
-		printf("Value is %d ... ", memory->value);
-		printf("and its square root is %f \n", memory->square_root);
-		sleep(3);
-	}
+    FOREVER {
+        printf("Value is %d ... ", memory->value);
+        printf("and its square root is %f \n", memory->square_root);
+        sleep(3);
+    }
 
-	/* unreachable code */
-	if (shm_unlink(MEMORY_PATH) != 0) {
-		handle_error("Error calling shm_unlink\n");
-	}
-
-	exit(EXIT_SUCCESS);
+    /*
+     * Unreachable: use a signal handler with the following code
+     * if (shm_unlink(MEMORY_PATH) != 0) {
+     *    handle_error("Error calling shm_unlink\n");
+     * }
+     * exit(EXIT_SUCCESS);
+     */
 }

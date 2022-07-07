@@ -48,9 +48,10 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(const char *msg) {
-	perror(msg);
-	exit(EXIT_FAILURE);
+void handle_fatal_error(const char *msg)
+{
+    perror(msg);
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -58,35 +59,37 @@ void handle_fatal_error(const char *msg) {
  * @param name Name of the pipe.
  * @return The pipe descriptor.
  */
-int open_pipe(const char *name) {
-	int pd;
+int open_pipe(const char *name)
+{
+    int pd;
 
-	pd = open(name, O_RDONLY);
-	if (pd == -1) {
-		handle_fatal_error("\nError when trying to open the named pipe.\n");
-	}
-	return pd;
+    pd = open(name, O_RDONLY);
+    if (pd == -1) {
+        handle_fatal_error("\nError when trying to open the named pipe.\n");
+    }
+    return pd;
 }
 
-int main(void) {
-	char buffer[BUFFER_SIZE];
-	int pd;
-	ssize_t message_length;
+int main(void)
+{
+    char buffer[BUFFER_SIZE];
+    int pd;
+    ssize_t message_length;
 
-	pd = open_pipe("./testfifo");
+    pd = open_pipe("./testfifo");
 
-	strcpy(buffer, "");
-	message_length = read(pd, buffer, BUFFER_SIZE);
+    strcpy(buffer, "");
+    message_length = read(pd, buffer, BUFFER_SIZE);
 
-	if (message_length > 0) {
-		printf("\nRead message from the pipe...\n");
-		printf("%s\n", buffer);
-	} else {
-		printf("Named pipe is empty.\n");
-	}
+    if (message_length > 0) {
+        printf("\nRead message from the pipe...\n");
+        printf("%s\n", buffer);
+    } else {
+        printf("Named pipe is empty.\n");
+    }
 
-	close(pd);
-	unlink("./testfifo");
+    close(pd);
+    unlink("./testfifo");
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

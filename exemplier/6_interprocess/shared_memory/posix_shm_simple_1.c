@@ -49,38 +49,38 @@
 
 int main(void)
 {
-	int fd;
-	int i;
-	int *ptr;
-	pid_t pid;
+    int fd;
+    int i;
+    int *ptr;
+    pid_t pid;
 
-	srand(time(NULL));
+    srand(time(NULL));
 
-	fd = shm_open("/pipeautique1", O_CREAT | O_RDWR, 0644);
-	printf("shm_open returned %d (%d: %s)\n", fd, errno, strerror(errno));
+    fd = shm_open("/pipeautique1", O_CREAT | O_RDWR, 0644);
+    printf("shm_open returned %d (%d: %s)\n", fd, errno, strerror(errno));
 
-	ftruncate(fd, SHM_SIZE);
+    ftruncate(fd, SHM_SIZE);
 
-	ptr = (int *)mmap(NULL, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-	printf("mmap returned %p (%d: %s)\n", ptr, errno, strerror(errno));
+    ptr = (int *) mmap(NULL, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    printf("mmap returned %p (%d: %s)\n", ptr, errno, strerror(errno));
 
-	pid = fork();
+    pid = fork();
 
-	if (pid > 0) {
-		for (i = 0; i < SHM_SIZE; i++) {
-			ptr[i] = rand() % SHM_SIZE;
-			printf("%d ", ptr[i]);
-		}
-		printf("\n");
-	} else {
-		for (i = 0; i < SHM_SIZE; i++) {
-			printf("%d ", ptr[i]);
-		}
-		printf("\n");
-	}
-	munmap(ptr, SHM_SIZE);
-	if (pid > 0) {
-		shm_unlink("/pipeautique1");		
-	}
-	exit(EXIT_SUCCESS);
+    if (pid > 0) {
+        for (i = 0; i < SHM_SIZE; i++) {
+            ptr[i] = rand() % SHM_SIZE;
+            printf("%d ", ptr[i]);
+        }
+        printf("\n");
+    } else {
+        for (i = 0; i < SHM_SIZE; i++) {
+            printf("%d ", ptr[i]);
+        }
+        printf("\n");
+    }
+    munmap(ptr, SHM_SIZE);
+    if (pid > 0) {
+        shm_unlink("/pipeautique1");
+    }
+    exit(EXIT_SUCCESS);
 }

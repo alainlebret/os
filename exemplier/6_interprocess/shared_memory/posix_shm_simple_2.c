@@ -46,7 +46,7 @@
 #include <errno.h>
 
 typedef struct {
-	int *table;
+    int *table;
 } memory_t;
 
 void display(char *prog, int *bytes, int n);
@@ -55,79 +55,79 @@ void handle_error(char *message);
 
 int main(void)
 {
-	memory_t mem;
-	mem.table = (int *) malloc(3 * sizeof(int));
-	const char *name = "/pipeautique2"; /* shared memory name */
-	const int SIZE = sizeof(mem); /* shared memory size */
+    memory_t mem;
+    mem.table = (int *) malloc(3 * sizeof(int));
+    const char *name = "/pipeautique2"; /* shared memory name */
+    const int SIZE = sizeof(mem); /* shared memory size */
 
 
-	int shm_fd;     /* file descriptor, from shm_open() */
-	int *shm_base;  /* base address, from mmap() */
-	int *ptr;       /* shm_base is fixed, ptr is movable */
+    int shm_fd;     /* file descriptor, from shm_open() */
+    int *shm_base;  /* base address, from mmap() */
+    int *ptr;       /* shm_base is fixed, ptr is movable */
 
-	/* create the shared memory segment as if it was a file */
-	shm_fd = shm_open(name, O_CREAT | O_RDWR, 0644);
-	if (shm_fd == -1) {
-		handle_error("Shared memory failed: %s\n");
-	}
+    /* create the shared memory segment as if it was a file */
+    shm_fd = shm_open(name, O_CREAT | O_RDWR, 0644);
+    if (shm_fd == -1) {
+        handle_error("Shared memory failed: %s\n");
+    }
 
-	/* configure the size of the shared memory segment */
-	ftruncate(shm_fd, SIZE);
+    /* configure the size of the shared memory segment */
+    ftruncate(shm_fd, SIZE);
 
-	/* map the shared memory segment to the address space of the process */
-	shm_base = mmap(0, SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
-	if (shm_base == MAP_FAILED) {
-		handle_error("Map failed: %s\n");
-	}
+    /* map the shared memory segment to the address space of the process */
+    shm_base = mmap(0, SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+    if (shm_base == MAP_FAILED) {
+        handle_error("Map failed: %s\n");
+    }
 
-	int pid = fork();
+    int pid = fork();
 
-	if (pid < 0) {
-		handle_error("Shared memory failed: %s\n");
-	}
-	if (pid > 0) { /* parent process */
-		display("prod1", shm_base, 3);
-		shm_base[0] = 1;
-		display("prod1", shm_base, 3);
-		sleep(1);
-		display("prod1", shm_base, 3);
-		shm_base[1] = 3;
-		display("prod1", shm_base, 3);
-		sleep(1);
-		display("prod1", shm_base, 3);
-		shm_base[2] = 5;
-		display("prod1", shm_base, 3);
-		sleep(1);
-	} else { /* child process */
-		display("prod2", shm_base, 3);
-		shm_base[0] = 2;
-		display("prod2", shm_base, 3);
-		sleep(1);
-		display("prod2", shm_base, 3);
-		shm_base[1] = 4;
-		display("prod2", shm_base, 3);
-		sleep(1);
-		display("prod2", shm_base, 3);
-		shm_base[2] = 6;
-		display("prod2", shm_base, 3);
-		sleep(1);
-	}
+    if (pid < 0) {
+        handle_error("Shared memory failed: %s\n");
+    }
+    if (pid > 0) { /* parent process */
+        display("prod1", shm_base, 3);
+        shm_base[0] = 1;
+        display("prod1", shm_base, 3);
+        sleep(1);
+        display("prod1", shm_base, 3);
+        shm_base[1] = 3;
+        display("prod1", shm_base, 3);
+        sleep(1);
+        display("prod1", shm_base, 3);
+        shm_base[2] = 5;
+        display("prod1", shm_base, 3);
+        sleep(1);
+    } else { /* child process */
+        display("prod2", shm_base, 3);
+        shm_base[0] = 2;
+        display("prod2", shm_base, 3);
+        sleep(1);
+        display("prod2", shm_base, 3);
+        shm_base[1] = 4;
+        display("prod2", shm_base, 3);
+        sleep(1);
+        display("prod2", shm_base, 3);
+        shm_base[2] = 6;
+        display("prod2", shm_base, 3);
+        sleep(1);
+    }
 
-	/* remove the mapped memory segment from the address space of the process */
-	if (munmap(shm_base, SIZE) == -1) {
-		handle_error("Unmap failed: %s\n");
-	}
+    /* remove the mapped memory segment from the address space of the process */
+    if (munmap(shm_base, SIZE) == -1) {
+        handle_error("Unmap failed: %s\n");
+    }
 
-	/* close the shared memory segment as if it was a file */
-	if (close(shm_fd) == -1) {
-		handle_error("prod: Close failed: %s\n");
-	}
+    /* close the shared memory segment as if it was a file */
+    if (close(shm_fd) == -1) {
+        handle_error("prod: Close failed: %s\n");
+    }
 
-	if (pid > 0) {
-		shm_unlink("/pipeautique2");		
-	}
+    if (pid > 0) {
+        shm_unlink("/pipeautique2");
+    }
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }
 
 /**
@@ -135,8 +135,8 @@ int main(void)
  */
 void handle_error(char *message)
 {
-	fprintf(stderr, "%s", message);
-	exit(EXIT_FAILURE);
+    fprintf(stderr, "%s", message);
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -144,11 +144,11 @@ void handle_error(char *message)
  */
 void display(char *prog, int *values, int n)
 {
-	int i;
+    int i;
 
-	printf("display: %s\n", prog);
-	for (i = 0; i < n; ++i) {
-		printf("%d ", values[i]);
-	}
-	printf("\n");
+    printf("display: %s\n", prog);
+    for (i = 0; i < n; ++i) {
+        printf("%d ", values[i]);
+    }
+    printf("\n");
 }

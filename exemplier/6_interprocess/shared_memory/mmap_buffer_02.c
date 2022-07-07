@@ -53,8 +53,8 @@
  */
 void handle_fatal_error(char *message)
 {
-	fprintf(stderr, "%s", message);
-	exit(EXIT_FAILURE);
+    fprintf(stderr, "%s", message);
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -62,14 +62,14 @@ void handle_fatal_error(char *message)
  */
 void write_memory(int *buffer, int *begin, int *end)
 {
-	int i;
+    int i;
 
-	for (i = 0; i < ITERATIONS; i++) {
-		while ((*begin + 1) % BUFFER_SIZE == *end);
-		buffer[*begin] = i * i;
-		*begin = (*begin + 1) % BUFFER_SIZE;
-		printf("Parent: initial value %2d before writing in the buffer\n", i);
-	}
+    for (i = 0; i < ITERATIONS; i++) {
+        while ((*begin + 1) % BUFFER_SIZE == *end);
+        buffer[*begin] = i * i;
+        *begin = (*begin + 1) % BUFFER_SIZE;
+        printf("Parent: initial value %2d before writing in the buffer\n", i);
+    }
 }
 
 /**
@@ -78,18 +78,18 @@ void write_memory(int *buffer, int *begin, int *end)
  */
 void manage_parent(int *buffer, int *begin, int *end)
 {
-	pid_t child;
-	int status;
+    pid_t child;
+    int status;
 
-	printf("Parent process (PID %d)\n", getpid());
-	write_memory(buffer, begin, end);
-	printf("Parent: end of production.\n");
+    printf("Parent process (PID %d)\n", getpid());
+    write_memory(buffer, begin, end);
+    printf("Parent: end of production.\n");
 
-	child = wait(&status);
-	if (WIFEXITED(status)) {
-		printf("Parent: child %d has finished (code %d)\n", child,
-		       WEXITSTATUS(status));
-	}
+    child = wait(&status);
+    if (WIFEXITED(status)) {
+        printf("Parent: child %d has finished (code %d)\n", child,
+               WEXITSTATUS(status));
+    }
 }
 
 /**
@@ -97,16 +97,16 @@ void manage_parent(int *buffer, int *begin, int *end)
  */
 void read_memory(int *buffer, int *in, int *out)
 {
-	int i;
-	int value;
+    int i;
+    int value;
 
-	for (i = 0; i < ITERATIONS; i++) {
-		sleep(1);  /* waiting for the memory update (not as good as semaphore) */
-		while (*in == *out);
-		value = buffer[*out];
-		*out = (*out + 1) % BUFFER_SIZE;
-		printf("Child: element %2d == %2d read from the buffer.\n", i, value);
-	}
+    for (i = 0; i < ITERATIONS; i++) {
+        sleep(1);  /* waiting for the memory update (not as good as semaphore) */
+        while (*in == *out);
+        value = buffer[*out];
+        *out = (*out + 1) % BUFFER_SIZE;
+        printf("Child: element %2d == %2d read from the buffer.\n", i, value);
+    }
 }
 
 /**
@@ -114,9 +114,9 @@ void read_memory(int *buffer, int *in, int *out)
  */
 void manage_child(int *buffer, int *in, int *out)
 {
-	printf("Child process (PID %d)\n", getpid());
-	read_memory(buffer, in, out);
-	printf("Child: memory has been consumed.\n");
+    printf("Child process (PID %d)\n", getpid());
+    read_memory(buffer, in, out);
+    printf("Child: memory has been consumed.\n");
 }
 
 /**
@@ -125,55 +125,55 @@ void manage_child(int *buffer, int *in, int *out)
  */
 void *create_shared_memory()
 {
-	/* initialize shared memory using mmap */
-	void *shared_memory = mmap(0, /* beginning (starting address is ignored) */
-		MEMORY_SIZE, /* size of the shared memory */
-		PROT_READ | PROT_WRITE, /* protection */
-		MAP_SHARED | MAP_ANONYMOUS,
-		-1, /* the shared memory do not use a file */
-		0);  /* ignored: set when using a file */
+    /* initialize shared memory using mmap */
+    void *shared_memory = mmap(0, /* beginning (starting address is ignored) */
+                               MEMORY_SIZE, /* size of the shared memory */
+                               PROT_READ | PROT_WRITE, /* protection */
+                               MAP_SHARED | MAP_ANONYMOUS,
+                               -1, /* the shared memory do not use a file */
+                               0);  /* ignored: set when using a file */
 
-	if (shared_memory == (void *) -1) {
-		handle_fatal_error("Error allocating shared memory using mmap!\n");
-	}
-	return shared_memory;
+    if (shared_memory == (void *) -1) {
+        handle_fatal_error("Error allocating shared memory using mmap!\n");
+    }
+    return shared_memory;
 }
 
 int main(void)
 {
-	pid_t pid;
+    pid_t pid;
 
-	void *shared_memory; /* shared memory base address */
+    void *shared_memory; /* shared memory base address */
 
-	int *buffer; /* logical base address for buffer */
-	int *in; /* pointer to logical 'in' address for producer */
-	int *out; /* pointer to logical 'out' address for consumer */
+    int *buffer; /* logical base address for buffer */
+    int *in; /* pointer to logical 'in' address for producer */
+    int *out; /* pointer to logical 'out' address for consumer */
 
-	shared_memory = create_shared_memory();
+    shared_memory = create_shared_memory();
 
-	/* The segment of shared memory is organised as:
-	 *  0                                                n-1   n   n+1
-	 * ----------------------------------------------------------------
-	 * |                                                    |    |    |
-	 * ----------------------------------------------------------------
-	 *  ^                                                    ^    ^
-	 *  buffer                                               in   out
-	 */
+    /* The segment of shared memory is organised as:
+     *  0                                                n-1   n   n+1
+     * ----------------------------------------------------------------
+     * |                                                    |    |    |
+     * ----------------------------------------------------------------
+     *  ^                                                    ^    ^
+     *  buffer                                               in   out
+     */
 
-	buffer = (int *) shared_memory;
-	in = (int *) shared_memory + BUFFER_SIZE * INTEGER_SIZE;
-	out = (int *) shared_memory + (BUFFER_SIZE + 1) * INTEGER_SIZE;
+    buffer = (int *) shared_memory;
+    in = (int *) shared_memory + BUFFER_SIZE * INTEGER_SIZE;
+    out = (int *) shared_memory + (BUFFER_SIZE + 1) * INTEGER_SIZE;
 
-	*in = *out = 0;          /* starting index */
+    *in = *out = 0;          /* starting index */
 
-	if (-1 == (pid = fork())) {
-		handle_fatal_error("Error using fork()\n");
-	}
-	if (0 == pid) {
-		manage_child(buffer, in, out);
-	} else {
-		manage_parent(buffer, in, out);
-	}
+    if (-1 == (pid = fork())) {
+        handle_fatal_error("Error using fork()\n");
+    }
+    if (0 == pid) {
+        manage_child(buffer, in, out);
+    } else {
+        manage_parent(buffer, in, out);
+    }
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

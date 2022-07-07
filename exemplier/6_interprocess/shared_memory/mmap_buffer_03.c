@@ -60,8 +60,8 @@
  */
 void handle_fatal_error(char *message)
 {
-	fprintf(stderr, "%s", message);
-	exit(EXIT_FAILURE);
+    fprintf(stderr, "%s", message);
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -70,25 +70,25 @@ void handle_fatal_error(char *message)
  */
 int initialize_semaphores(void)
 {
-	int semid;
+    int semid;
 
-	/* permission 0600 = lecture/modification by user */
-	if ((semid = semget(IPC_PRIVATE, NBR_SEMAPHORES, IPC_CREAT | 0600))
-	    < 0) {
-		handle_fatal_error("Error when creating semaphores!\n");
-	}
+    /* permission 0600 = lecture/modification by user */
+    if ((semid = semget(IPC_PRIVATE, NBR_SEMAPHORES, IPC_CREAT | 0600))
+        < 0) {
+        handle_fatal_error("Error when creating semaphores!\n");
+    }
 
-	if (semctl(semid, BUFFER_SPACE, SETVAL, BUFFER_SIZE) < 0) {
-		handle_fatal_error(
-			"Error during initialization of the first semaphore.\n");
-	}
+    if (semctl(semid, BUFFER_SPACE, SETVAL, BUFFER_SIZE) < 0) {
+        handle_fatal_error(
+                "Error during initialization of the first semaphore.\n");
+    }
 
-	if (semctl(semid, BUFFER_USED, SETVAL, 0) < 0) {
-		handle_fatal_error(
-			"Error during initialization of the second semaphore.\n");
-	}
+    if (semctl(semid, BUFFER_USED, SETVAL, 0) < 0) {
+        handle_fatal_error(
+                "Error during initialization of the second semaphore.\n");
+    }
 
-	return semid;
+    return semid;
 }
 
 /**
@@ -98,15 +98,15 @@ int initialize_semaphores(void)
  */
 void sem_wait(int semid, int index)
 {
-	struct sembuf sops[1];
+    struct sembuf sops[1];
 
-	sops[0].sem_num = index;
-	sops[0].sem_op = -1;
-	sops[0].sem_flg = 0;
+    sops[0].sem_num = index;
+    sops[0].sem_op = -1;
+    sops[0].sem_flg = 0;
 
-	if (semop(semid, sops, 1) < 0) {
-		handle_fatal_error("Error using P().\n");
-	}
+    if (semop(semid, sops, 1) < 0) {
+        handle_fatal_error("Error using P().\n");
+    }
 }
 
 /**
@@ -116,15 +116,15 @@ void sem_wait(int semid, int index)
  */
 void sem_signal(int semid, int index)
 {
-	struct sembuf sops[1];
+    struct sembuf sops[1];
 
-	sops[0].sem_num = index;
-	sops[0].sem_op = 1;
-	sops[0].sem_flg = 0;
+    sops[0].sem_num = index;
+    sops[0].sem_op = 1;
+    sops[0].sem_flg = 0;
 
-	if (semop(semid, sops, 1) < 0) {
-		handle_fatal_error("Error using V().\n");
-	}
+    if (semop(semid, sops, 1) < 0) {
+        handle_fatal_error("Error using V().\n");
+    }
 }
 
 /**
@@ -132,21 +132,21 @@ void sem_signal(int semid, int index)
  */
 void write_memory(int *buffer, int *in, int *out, int semid)
 {
-	int i;
+    int i;
 
-	for (i = 0; i < ITERATIONS; i++) {
-		sem_wait(semid, BUFFER_SPACE);  /* P() -- wait */
+    for (i = 0; i < ITERATIONS; i++) {
+        sem_wait(semid, BUFFER_SPACE);  /* P() -- wait */
 
-		buffer[*in] = i * i;
-		*in = (*in + 1) % BUFFER_SIZE;
-		printf("Parent: initial value %2d before writing in the buffer\n", i);
+        buffer[*in] = i * i;
+        *in = (*in + 1) % BUFFER_SIZE;
+        printf("Parent: initial value %2d before writing in the buffer\n", i);
 
-		sem_signal(semid, BUFFER_USED); /* V() -- signal */
+        sem_signal(semid, BUFFER_USED); /* V() -- signal */
 
-		if ((i % 4) == 0) {
-			sleep(1); /* slow production */
-		}
-	}
+        if ((i % 4) == 0) {
+            sleep(1); /* slow production */
+        }
+    }
 }
 
 /**
@@ -155,18 +155,18 @@ void write_memory(int *buffer, int *in, int *out, int semid)
  */
 void manage_parent(int *buffer, int *in, int *out, int semid)
 {
-	pid_t child;
-	int status;
+    pid_t child;
+    int status;
 
-	printf("Parent process (PID %d)\n", getpid());
-	write_memory(buffer, in, out, semid);
-	printf("Parent: end of production.\n");
+    printf("Parent process (PID %d)\n", getpid());
+    write_memory(buffer, in, out, semid);
+    printf("Parent: end of production.\n");
 
-	child = wait(&status);
-	if (WIFEXITED(status)) {
-		printf("Parent: child %d has finished (code %d)\n", child,
-		       WEXITSTATUS(status));
-	}
+    child = wait(&status);
+    if (WIFEXITED(status)) {
+        printf("Parent: child %d has finished (code %d)\n", child,
+               WEXITSTATUS(status));
+    }
 }
 
 /**
@@ -174,22 +174,22 @@ void manage_parent(int *buffer, int *in, int *out, int semid)
  */
 void read_memory(int *buffer, int *in, int *out, int semid)
 {
-	int i;
-	int value;
+    int i;
+    int value;
 
-	for (i = 0; i < ITERATIONS; i++) {
-		sem_wait(semid, BUFFER_USED);  /* P() -- wait */
+    for (i = 0; i < ITERATIONS; i++) {
+        sem_wait(semid, BUFFER_USED);  /* P() -- wait */
 
-		value = buffer[*out];
-		*out = (*out + 1) % BUFFER_SIZE;
-		printf("Child: element %2d == %2d read from the buffer.\n", i, value);
+        value = buffer[*out];
+        *out = (*out + 1) % BUFFER_SIZE;
+        printf("Child: element %2d == %2d read from the buffer.\n", i, value);
 
-		sem_signal(semid, BUFFER_SPACE); /* V() -- signal */
+        sem_signal(semid, BUFFER_SPACE); /* V() -- signal */
 
-		if ((i % 3) == 1) {
-			sleep(1); /* slow consuming */
-		}
-	}
+        if ((i % 3) == 1) {
+            sleep(1); /* slow consuming */
+        }
+    }
 }
 
 /**
@@ -197,9 +197,9 @@ void read_memory(int *buffer, int *in, int *out, int semid)
  */
 void manage_child(int *buffer, int *in, int *out, int semid)
 {
-	printf("Child process (PID %d)\n", getpid());
-	read_memory(buffer, in, out, semid);
-	printf("Child: memory has been totally consumed.\n");
+    printf("Child process (PID %d)\n", getpid());
+    read_memory(buffer, in, out, semid);
+    printf("Child: memory has been totally consumed.\n");
 }
 
 /**
@@ -208,62 +208,62 @@ void manage_child(int *buffer, int *in, int *out, int semid)
  */
 void *create_shared_memory()
 {
-	/* initialize shared memory using mmap */
-	void *shared_memory = mmap(0, /* beginning (starting address is ignored) */
-		MEMORY_SIZE, /* size of the shared memory */
-		PROT_READ | PROT_WRITE, /* protection */
-		MAP_SHARED | MAP_ANONYMOUS,
-		-1, /* the shared memory do not use a file */
-		0);  /* ignored: set when using a file */
+    /* initialize shared memory using mmap */
+    void *shared_memory = mmap(0, /* beginning (starting address is ignored) */
+                               MEMORY_SIZE, /* size of the shared memory */
+                               PROT_READ | PROT_WRITE, /* protection */
+                               MAP_SHARED | MAP_ANONYMOUS,
+                               -1, /* the shared memory do not use a file */
+                               0);  /* ignored: set when using a file */
 
-	if (shared_memory == (void *) -1) {
-		handle_fatal_error("Error allocating shared memory using mmap!\n");
-	}
-	return shared_memory;
+    if (shared_memory == (void *) -1) {
+        handle_fatal_error("Error allocating shared memory using mmap!\n");
+    }
+    return shared_memory;
 }
 
 int main(void)
 {
-	pid_t pid;
+    pid_t pid;
 
-	void *shared_memory; /* shared memory base address */
-	int *buffer; /* logical base address for buffer */
-	int *in; /* pointer to logical 'in' address for producer */
-	int *out; /* pointer to logical 'out' address for consumer */
-	int semaphores; /* identifier for a semaphore set */
+    void *shared_memory; /* shared memory base address */
+    int *buffer; /* logical base address for buffer */
+    int *in; /* pointer to logical 'in' address for producer */
+    int *out; /* pointer to logical 'out' address for consumer */
+    int semaphores; /* identifier for a semaphore set */
 
-	shared_memory = create_shared_memory();
+    shared_memory = create_shared_memory();
 
-	/* The segment of shared memory is organised as:
-	 *  0                                                n-1   n   n+1
-	 * ----------------------------------------------------------------
-	 * |                                                    |    |    |
-	 * ----------------------------------------------------------------
-	 *  ^                                                    ^    ^
-	 *  buffer                                               in   out
-	 */
+    /* The segment of shared memory is organised as:
+     *  0                                                n-1   n   n+1
+     * ----------------------------------------------------------------
+     * |                                                    |    |    |
+     * ----------------------------------------------------------------
+     *  ^                                                    ^    ^
+     *  buffer                                               in   out
+     */
 
-	buffer = (int *) shared_memory;
-	in = (int *) shared_memory + BUFFER_SIZE * INTEGER_SIZE;
-	out = (int *) shared_memory + (BUFFER_SIZE + 1) * INTEGER_SIZE;
+    buffer = (int *) shared_memory;
+    in = (int *) shared_memory + BUFFER_SIZE * INTEGER_SIZE;
+    out = (int *) shared_memory + (BUFFER_SIZE + 1) * INTEGER_SIZE;
 
-	*in = *out = 0;          /* starting index */
+    *in = *out = 0;          /* starting index */
 
-	semaphores = initialize_semaphores();
+    semaphores = initialize_semaphores();
 
-	if (-1 == (pid = fork())) {
-		handle_fatal_error("Error using fork()\n");
-	}
-	if (0 == pid) {
-		manage_child(buffer, in, out, semaphores);
-	} else {
-		manage_parent(buffer, in, out, semaphores);
-	}
+    if (-1 == (pid = fork())) {
+        handle_fatal_error("Error using fork()\n");
+    }
+    if (0 == pid) {
+        manage_child(buffer, in, out, semaphores);
+    } else {
+        manage_parent(buffer, in, out, semaphores);
+    }
 
-	if (semctl(semaphores, 0, IPC_RMID) < 0) {
-		handle_fatal_error("Error when trying to remove semaphores.\n");
-	}
-	printf("Semaphores have been removed.\n");
+    if (semctl(semaphores, 0, IPC_RMID) < 0) {
+        handle_fatal_error("Error when trying to remove semaphores.\n");
+    }
+    printf("Semaphores have been removed.\n");
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

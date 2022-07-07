@@ -51,8 +51,8 @@
  * Structure to store the number of some integers and their sum.
  */
 struct data {
-	int nb;
-	int total;
+    int nb;
+    int total;
 };
 
 typedef struct data data_t;
@@ -64,60 +64,60 @@ int loop = CONTINUE;
  */
 void handle_fatal_error(char *message)
 {
-	fprintf(stderr, "%s", message);
-	exit(EXIT_FAILURE);
+    fprintf(stderr, "%s", message);
+    exit(EXIT_FAILURE);
 }
 
 void stop_loop(int signal)
 {
-	loop = STOP;
+    loop = STOP;
 }
 
 int main(void)
 {
-	key_t key;
-	int id;
-	data_t *shared_memory;
-	struct sigaction action;
+    key_t key;
+    int id;
+    data_t *shared_memory;
+    struct sigaction action;
 
-	key = ftok(getenv("HOME"), 'A');
-	if (key == -1) {
-		handle_fatal_error("Error using ftok()!\n");
-	}
+    key = ftok(getenv("HOME"), 'A');
+    if (key == -1) {
+        handle_fatal_error("Error using ftok()!\n");
+    }
 
-	id = shmget(key, sizeof(data_t), 0);
-	if (id == -1) {
-		switch (errno) {
-		case ENOENT:
-			handle_fatal_error("No existing segment!\n");
-			break;
-		default:
-			handle_fatal_error("Error using shmget()!\n");
-		}
-	}
+    id = shmget(key, sizeof(data_t), 0);
+    if (id == -1) {
+        switch (errno) {
+            case ENOENT:
+                handle_fatal_error("No existing segment!\n");
+                break;
+            default:
+                handle_fatal_error("Error using shmget()!\n");
+        }
+    }
 
-	shared_memory = (data_t *) shmat(id, NULL, SHM_R);
-	if (shared_memory == NULL) {
-		handle_fatal_error("Error using shmat()!\n");
-	}
+    shared_memory = (data_t *) shmat(id, NULL, SHM_R);
+    if (shared_memory == NULL) {
+        handle_fatal_error("Error using shmat()!\n");
+    }
 
-	loop = CONTINUE;
+    loop = CONTINUE;
 
-	action.sa_handler = stop_loop;
-	sigemptyset(&action.sa_mask);
-	action.sa_flags = 0;
-	sigaction(SIGINT, &action, NULL);
+    action.sa_handler = stop_loop;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = 0;
+    sigaction(SIGINT, &action, NULL);
 
-	while (loop) {
-		sleep(DURATION);
-		printf("The sum of %d integers equals %d\n", shared_memory->nb,
-		       shared_memory->total);
-	}
+    while (loop) {
+        sleep(DURATION);
+        printf("The sum of %d integers equals %d\n", shared_memory->nb,
+               shared_memory->total);
+    }
 
-	printf("---\n");
-	if (shmdt((char *) shared_memory) == -1) {
-		handle_fatal_error("Error using shmdt()!\n");
-	}
+    printf("---\n");
+    if (shmdt((char *) shared_memory) == -1) {
+        handle_fatal_error("Error using shmdt()!\n");
+    }
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

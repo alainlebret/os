@@ -66,8 +66,8 @@
  */
 void handle_fatal_error(char *message)
 {
-	fprintf(stderr, "%s", message);
-	exit(EXIT_FAILURE);
+    fprintf(stderr, "%s", message);
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -77,15 +77,15 @@ void handle_fatal_error(char *message)
  */
 int create_semaphores(int nbr_semaphores)
 {
-	int semid;
+    int semid;
 
-	/* permission 0600 = lecture/modification by user */
-	if ((semid = semget(IPC_PRIVATE, nbr_semaphores, IPC_CREAT | 0600))
-	    < 0) {
-		handle_fatal_error("Error when creating semaphores!\n");
-	}
+    /* permission 0600 = lecture/modification by user */
+    if ((semid = semget(IPC_PRIVATE, nbr_semaphores, IPC_CREAT | 0600))
+        < 0) {
+        handle_fatal_error("Error when creating semaphores!\n");
+    }
 
-	return semid;
+    return semid;
 }
 
 /**
@@ -93,9 +93,9 @@ int create_semaphores(int nbr_semaphores)
  */
 void initialize_semaphore(int semid, int index, int valeur)
 {
-	if (semctl(semid, index, SETVAL, valeur) < 0) {
-		handle_fatal_error("Error when initializing semaphore.\n");
-	}
+    if (semctl(semid, index, SETVAL, valeur) < 0) {
+        handle_fatal_error("Error when initializing semaphore.\n");
+    }
 }
 
 /**
@@ -105,15 +105,15 @@ void initialize_semaphore(int semid, int index, int valeur)
  */
 void sem_wait(int semid, int index)
 {
-	struct sembuf sops[1];
+    struct sembuf sops[1];
 
-	sops[0].sem_num = index;
-	sops[0].sem_op = -1;
-	sops[0].sem_flg = 0;
+    sops[0].sem_num = index;
+    sops[0].sem_op = -1;
+    sops[0].sem_flg = 0;
 
-	if (semop(semid, sops, 1) < 0) {
-		handle_fatal_error("Error using P().\n");
-	}
+    if (semop(semid, sops, 1) < 0) {
+        handle_fatal_error("Error using P().\n");
+    }
 }
 
 /**
@@ -123,15 +123,15 @@ void sem_wait(int semid, int index)
  */
 void sem_signal(int semid, int index)
 {
-	struct sembuf sops[1];
+    struct sembuf sops[1];
 
-	sops[0].sem_num = index;
-	sops[0].sem_op = 1;
-	sops[0].sem_flg = 0;
+    sops[0].sem_num = index;
+    sops[0].sem_op = 1;
+    sops[0].sem_flg = 0;
 
-	if (semop(semid, sops, 1) < 0) {
-		handle_fatal_error("Error using V().\n");
-	}
+    if (semop(semid, sops, 1) < 0) {
+        handle_fatal_error("Error using V().\n");
+    }
 }
 
 /**
@@ -139,18 +139,18 @@ void sem_signal(int semid, int index)
  */
 void write_memory(int id, int *buffer, int *in, int *out, int semid)
 {
-	int value;
-	int i;
+    int value;
+    int i;
 
-	for (i = 0; i < ITERATIONS_PRODUCER; i++) {
-		value = 100 * id + i;
-		sem_wait(semid, BUFFER_SPACE);  /* P() -- wait */
-		sem_wait(semid, MUTEX);    /* Waiting to access buffer */
-		buffer[*in] = value;
-		*in = (*in + 1) % BUFFER_SIZE;
-		sem_signal(semid, MUTEX);  /* End of access */
-		sem_signal(semid, BUFFER_USED);  /* V() -- signal */
-	}
+    for (i = 0; i < ITERATIONS_PRODUCER; i++) {
+        value = 100 * id + i;
+        sem_wait(semid, BUFFER_SPACE);  /* P() -- wait */
+        sem_wait(semid, MUTEX);    /* Waiting to access buffer */
+        buffer[*in] = value;
+        *in = (*in + 1) % BUFFER_SIZE;
+        sem_signal(semid, MUTEX);  /* End of access */
+        sem_signal(semid, BUFFER_USED);  /* V() -- signal */
+    }
 }
 
 /**
@@ -158,9 +158,9 @@ void write_memory(int id, int *buffer, int *in, int *out, int semid)
  */
 void produce(int id, int *buffer, int *in, int *out, int semid)
 {
-	printf("Producer of ID %d begins.\n", id);
-	write_memory(id, buffer, in, out, semid);
-	printf("Producer of ID %d has finished.\n", id);
+    printf("Producer of ID %d begins.\n", id);
+    write_memory(id, buffer, in, out, semid);
+    printf("Producer of ID %d has finished.\n", id);
 }
 
 /**
@@ -168,26 +168,26 @@ void produce(int id, int *buffer, int *in, int *out, int semid)
  */
 void consume(int id, int *buffer, int *in, int *out, int semid)
 {
-	int i;
-	int value;
+    int i;
+    int value;
 
-	printf("Consumer of ID %d begins.\n", id);
+    printf("Consumer of ID %d begins.\n", id);
 
-	for (i = 0; i < ITERATIONS_CONSUMER; i++) {
-		sem_wait(semid, BUFFER_USED);  /* wait semaphore for something used */
-		sem_wait(semid, MUTEX);     /* wait semaphore for buffer access */
-		value = buffer[*in];  /* take data from buffer */
-		*in = (*in + 1) % BUFFER_SIZE;
-		sem_signal(semid, MUTEX);     /* signal semaphore for buffer access */
-		sem_signal(semid,
-			   BUFFER_SPACE); /* signal semaphore for space available */
+    for (i = 0; i < ITERATIONS_CONSUMER; i++) {
+        sem_wait(semid, BUFFER_USED);  /* wait semaphore for something used */
+        sem_wait(semid, MUTEX);     /* wait semaphore for buffer access */
+        value = buffer[*in];  /* take data from buffer */
+        *in = (*in + 1) % BUFFER_SIZE;
+        sem_signal(semid, MUTEX);     /* signal semaphore for buffer access */
+        sem_signal(semid,
+                   BUFFER_SPACE); /* signal semaphore for space available */
 
-		printf("Consumer of ID %d : element %2d == %2d\n", id, i, value);
+        printf("Consumer of ID %d : element %2d == %2d\n", id, i, value);
 
-		if ((i + id) % 5 == 0) /* pause somewhere in processing */
-			sleep(1);               /* to make output more interesting */
-	}
-	printf("Consumer of ID %d has finished.\n", id);
+        if ((i + id) % 5 == 0) /* pause somewhere in processing */
+            sleep(1);               /* to make output more interesting */
+    }
+    printf("Consumer of ID %d has finished.\n", id);
 }
 
 /**
@@ -196,97 +196,97 @@ void consume(int id, int *buffer, int *in, int *out, int semid)
  */
 void *create_shared_memory()
 {
-	/* initialize shared memory using mmap */
-	void *shared_memory = mmap(0, /* beginning (starting address is ignored) */
-		MEMORY_SIZE, /* size of the shared memory */
-		PROT_READ | PROT_WRITE, /* protection */
-		MAP_SHARED | MAP_ANONYMOUS,
-		-1, /* the shared memory do not use a file */
-		0);  /* ignored: set when using a file */
+    /* initialize shared memory using mmap */
+    void *shared_memory = mmap(0, /* beginning (starting address is ignored) */
+                               MEMORY_SIZE, /* size of the shared memory */
+                               PROT_READ | PROT_WRITE, /* protection */
+                               MAP_SHARED | MAP_ANONYMOUS,
+                               -1, /* the shared memory do not use a file */
+                               0);  /* ignored: set when using a file */
 
-	if (shared_memory == (void *) -1) {
-		handle_fatal_error("Error allocating shared memory using mmap!\n");
-	}
-	return shared_memory;
+    if (shared_memory == (void *) -1) {
+        handle_fatal_error("Error allocating shared memory using mmap!\n");
+    }
+    return shared_memory;
 }
 
 int main(void)
 {
-	pid_t pid;
+    pid_t pid;
 
-	void *shared_memory; /* shared memory base address */
-	int *buffer; /* logical base address for buffer */
-	int *in; /* pointer to logical 'in' address for producer */
-	int *out; /* pointer to logical 'out' address for consumer */
+    void *shared_memory; /* shared memory base address */
+    int *buffer; /* logical base address for buffer */
+    int *in; /* pointer to logical 'in' address for producer */
+    int *out; /* pointer to logical 'out' address for consumer */
 
-	int semid; /* identifier for a semaphore set */
+    int semid; /* identifier for a semaphore set */
 
-	int counter;
+    int counter;
 
-	shared_memory = create_shared_memory();
+    shared_memory = create_shared_memory();
 
-	/* The segment of shared memory is organised as:
-	 *  0                                                n-1   n   n+1
-	 * ----------------------------------------------------------------
-	 * |                                                    |    |    |
-	 * ----------------------------------------------------------------
-	 *  ^                                                    ^    ^
-	 *  buffer                                               in   out
-	 */
+    /* The segment of shared memory is organised as:
+     *  0                                                n-1   n   n+1
+     * ----------------------------------------------------------------
+     * |                                                    |    |    |
+     * ----------------------------------------------------------------
+     *  ^                                                    ^    ^
+     *  buffer                                               in   out
+     */
 
-	buffer = (int *) shared_memory;
-	in = (int *) shared_memory + BUFFER_SIZE * INTEGER_SIZE;
-	out = (int *) shared_memory + (BUFFER_SIZE + 1) * INTEGER_SIZE;
+    buffer = (int *) shared_memory;
+    in = (int *) shared_memory + BUFFER_SIZE * INTEGER_SIZE;
+    out = (int *) shared_memory + (BUFFER_SIZE + 1) * INTEGER_SIZE;
 
-	*in = *out = 0;          /* starting index */
+    *in = *out = 0;          /* starting index */
 
-	/* Creation and initialization of semaphores */
-	semid = create_semaphores(NBR_SEMAPHORES);
-	initialize_semaphore(semid, BUFFER_USED, 0);
-	initialize_semaphore(semid, BUFFER_SPACE, BUFFER_SIZE);
-	initialize_semaphore(semid, MUTEX, 1);
+    /* Creation and initialization of semaphores */
+    semid = create_semaphores(NBR_SEMAPHORES);
+    initialize_semaphore(semid, BUFFER_USED, 0);
+    initialize_semaphore(semid, BUFFER_SPACE, BUFFER_SIZE);
+    initialize_semaphore(semid, MUTEX, 1);
 
-	/* Creation of producers */
-	for (counter = 1; counter <= NBR_PRODUCTERS; counter++) {
-		pid = fork();
-		if (pid == -1) {
-			handle_fatal_error("Error when trying to fork producers.\n");
-		}
-		if (pid == 0) {
-			produce(counter, buffer, in, out, semid);
-			exit(EXIT_SUCCESS);
-		}
-	}
+    /* Creation of producers */
+    for (counter = 1; counter <= NBR_PRODUCTERS; counter++) {
+        pid = fork();
+        if (pid == -1) {
+            handle_fatal_error("Error when trying to fork producers.\n");
+        }
+        if (pid == 0) {
+            produce(counter, buffer, in, out, semid);
+            exit(EXIT_SUCCESS);
+        }
+    }
 
-	/* Creation of consumers */
-	for (counter = 1; counter <= NBR_CONSUMERS; counter++) {
-		pid = fork();
-		if (pid == -1) {
-			handle_fatal_error("Error when trying to fork consumers.\n");
-		}
+    /* Creation of consumers */
+    for (counter = 1; counter <= NBR_CONSUMERS; counter++) {
+        pid = fork();
+        if (pid == -1) {
+            handle_fatal_error("Error when trying to fork consumers.\n");
+        }
 
-		if (pid == 0) {
-			consume(counter, buffer, in, out, semid);
-			exit(EXIT_SUCCESS);
-		}
-	}
+        if (pid == 0) {
+            consume(counter, buffer, in, out, semid);
+            exit(EXIT_SUCCESS);
+        }
+    }
 
-	/* Waiting for the end of all consumers */
-	printf("All producers and consumers are working.\n");
-	printf("Parent process is waiting for them to end...\n");
+    /* Waiting for the end of all consumers */
+    printf("All producers and consumers are working.\n");
+    printf("Parent process is waiting for them to end...\n");
 
-	for (counter = 0;
-	     counter < NBR_PRODUCTERS + NBR_CONSUMERS; counter++) {
-		wait(NULL);
-	}
+    for (counter = 0;
+         counter < NBR_PRODUCTERS + NBR_CONSUMERS; counter++) {
+        wait(NULL);
+    }
 
-	/* Remove the semaphore from the system and destroy the set of
-	 *  semaphores and data structure associated with it. */
-	if (semctl(semid, 0, IPC_RMID) < 0) {
-		handle_fatal_error("Error removing semaphores.\n");
-		exit(EXIT_FAILURE);
-	}
-	printf("Semaphores removed.\n");
+    /* Remove the semaphore from the system and destroy the set of
+     *  semaphores and data structure associated with it. */
+    if (semctl(semid, 0, IPC_RMID) < 0) {
+        handle_fatal_error("Error removing semaphores.\n");
+        exit(EXIT_FAILURE);
+    }
+    printf("Semaphores removed.\n");
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

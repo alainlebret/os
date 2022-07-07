@@ -37,15 +37,15 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#define EVER ;;
+#define FOREVER for(;;)
 #define MEMORY_PATH "/shm_name"
 
 /**
  * Structure to store a value and its square root.
  */
 struct memory_t {
-	int value;
-	double square_root;
+    int value;
+    double square_root;
 };
 
 /**
@@ -53,8 +53,8 @@ struct memory_t {
  */
 void handle_error(char *message)
 {
-	fprintf(stderr, "%s", message);
-	exit(EXIT_FAILURE);
+    fprintf(stderr, "%s", message);
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -62,59 +62,60 @@ void handle_error(char *message)
  */
 void handle_sigint(int signum)
 {
-	if (shm_unlink("MEMORY_PATH") < 0) {
-		handle_error("Error calling shm_unlink\n");
-	}
-	exit(EXIT_SUCCESS);
+    if (shm_unlink("MEMORY_PATH") < 0) {
+        handle_error("Error calling shm_unlink\n");
+    }
+    exit(EXIT_SUCCESS);
 }
 
 int main(int argc, char *argv[])
 {
-	int memory_descriptor;
-	int value;
-	size_t memory_size = (1 * sizeof(struct memory_t));
-	struct memory_t *memory;
-	struct sigaction action;
-	action.sa_handler = &handle_sigint;
+    int memory_descriptor;
+    int value;
+    size_t memory_size = (1 * sizeof(struct memory_t));
+    struct memory_t *memory;
+    struct sigaction action;
+    action.sa_handler = &handle_sigint;
 
-	sigaction(SIGINT, &action, NULL);
+    sigaction(SIGINT, &action, NULL);
 
-	memory_descriptor = shm_open(
-		MEMORY_PATH,
-		O_CREAT | O_RDWR,
-		S_IRWXU | S_IRWXG);
-	if (memory_descriptor < 0) {
-		handle_error("Error calling shm_open\n");
-	}
+    memory_descriptor = shm_open(
+            MEMORY_PATH,
+            O_CREAT | O_RDWR,
+            S_IRWXU | S_IRWXG);
+    if (memory_descriptor < 0) {
+        handle_error("Error calling shm_open\n");
+    }
 
-	fprintf(stderr, "Shared memory object %s has been created\n", MEMORY_PATH);
+    fprintf(stderr, "Shared memory object %s has been created\n", MEMORY_PATH);
 
-	ftruncate(memory_descriptor, memory_size);
+    ftruncate(memory_descriptor, memory_size);
 
-	memory = (struct memory_t *) mmap(
-		NULL,
-		memory_size,
-		PROT_READ | PROT_WRITE,
-		MAP_SHARED,
-		memory_descriptor,
-		0);
-	if (memory == MAP_FAILED) {
-		handle_error("Error calling mmap\n");;
-	}
-	fprintf(stderr, "Memory of %zu bytes allocated.\n", memory_size);
+    memory = (struct memory_t *) mmap(
+            NULL,
+            memory_size,
+            PROT_READ | PROT_WRITE,
+            MAP_SHARED,
+            memory_descriptor,
+            0);
+    if (memory == MAP_FAILED) {
+        handle_error("Error calling mmap\n");;
+    }
+    fprintf(stderr, "Memory of %zu bytes allocated.\n", memory_size);
 
-	value = 1;
-	for (EVER) {
-		memory->value = value;
-		memory->square_root = sqrt(value);
-		sleep(5);
-		value++;
-	}
+    value = 1;
+    FOREVER {
+        memory->value = value;
+        memory->square_root = sqrt(value);
+        sleep(5);
+        value++;
+    }
 
-	/* unreachable code */
-	if (shm_unlink(MEMORY_PATH) != 0) {
-		handle_error("Error calling shm_unlink\n");
-	}
-
-	exit(EXIT_SUCCESS);
+    /*
+     * Unreachable: use a signal handler with the following code
+     * if (shm_unlink(MEMORY_PATH) != 0) {
+     *    handle_error("Error calling shm_unlink\n");
+     * }
+     * exit(EXIT_SUCCESS);
+     */
 }
