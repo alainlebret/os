@@ -21,6 +21,14 @@
  * limitations under the License.
  */
 
+#include <stdint.h>    /* C99 int types */
+#include <inttypes.h>  /* C99 int types */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() and execl()*/
+#include <unistd.h>    /* getpid() and getpgrp() */
+#include <sys/types.h> /* pid_t */
+#include <sys/wait.h>  /* wait(), WIFEXITED and WEXITSTATUS */
+
 /**
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
  * @version	1.1
@@ -32,13 +40,6 @@
  *
  * A simple program about a process and its group.
  */
-#include <stdint.h>    /* C99 int types */
-#include <inttypes.h>  /* C99 int types */
-#include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
-#include <unistd.h>    /* getpid() and getpgrp() */
-#include <sys/types.h> /* pid_t */
-#include <sys/wait.h>  /* wait(), WIFEXITED and WEXITSTATUS */
 
 /**
  * @brief Handles a fatal error and exit. 

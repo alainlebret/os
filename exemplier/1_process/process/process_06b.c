@@ -21,6 +21,14 @@
  * limitations under the License.
  */
 
+#include <stdint.h>    /* C99 int types */
+#include <inttypes.h>  /* C99 int types */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() and execl()*/
+#include <unistd.h>    /* fork() */
+#include <sys/types.h> /* pid_t */
+#include <sys/wait.h>  /* wait() */
+
 /**
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
  * @version	1.1
@@ -33,13 +41,6 @@
  * A simple program that clones a process using the \c fork() primitive. The
  * child is overlayed by a new program using the \c exec() family functions.
  */
-#include <stdint.h>    /* C99 int types */
-#include <inttypes.h>  /* C99 int types */
-#include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
-#include <unistd.h>    /* fork() */
-#include <sys/types.h> /* pid_t */
-#include <sys/wait.h>  /* wait() */
 
 /**
  * @brief Handles a fatal error and exit. 

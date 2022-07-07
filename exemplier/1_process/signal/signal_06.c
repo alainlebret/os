@@ -21,6 +21,14 @@
  * limitations under the License.
  */
 
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() and execl()*/
+#include <unistd.h>    /* fork() */
+#include <sys/types.h> /* pid_t */
+#include <signal.h>    /* sigaction */
+
+#define NBR_SIGNALS 2
+
 /**
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
  * @version	1.0
@@ -32,15 +40,6 @@
  *
  * A simple program that uses POSIX signals and manages masks to block signals.
  */
-
-#include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
-#include <unistd.h>    /* fork() */
-#include <sys/types.h> /* pid_t */
-#include <sys/wait.h>  /* wait() */
-#include <signal.h>    /* sigaction */
-
-#define NBR_SIGNALS 2
 
 /** A group of signals to be blocked by the process */
 int signals[NBR_SIGNALS] = {SIGINT, SIGTERM};

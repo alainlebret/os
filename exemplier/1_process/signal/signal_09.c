@@ -21,6 +21,15 @@
  * limitations under the License.
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <signal.h>
+#include <string.h>
+
+#define FOREVER for (;;)
+
 /**
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
  * @version	1.0
@@ -34,14 +43,6 @@
  * siginfo_t.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <signal.h>
-#include <string.h>
-
-#define FOREVER for (;;)
 
 void hdl(int signal, siginfo_t *siginfo, void *context)
 {

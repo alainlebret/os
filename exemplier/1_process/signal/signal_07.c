@@ -21,6 +21,13 @@
  * limitations under the License.
  */
 
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() */
+#include <unistd.h>    /* fork() */
+#include <sys/types.h> /* pid_t */
+#include <signal.h>    /* sigaction */
+#include <string.h>    /* memset() */
+
 /**
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
  * @version	1.0
@@ -32,14 +39,6 @@
  *
  * A simple program that uses POSIX signals and handles the SIGUSR1 signal.
  */
-
-#include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() */
-#include <unistd.h>    /* fork() */
-#include <sys/types.h> /* pid_t */
-#include <sys/wait.h>  /* wait() */
-#include <signal.h>    /* sigaction */
-#include <string.h>    /* memset() */
 
 unsigned char nb_calls = 7;
 
@@ -105,7 +104,7 @@ void manage_child()
     /* Install the new handler of the SIGUSR1 signal */
     sigaction(SIGUSR1, &managing_lifes, NULL);
 
-    while (nb_calls != 0);
+    while (nb_calls != 0) {}
 
     exit(EXIT_SUCCESS);
 }

@@ -21,6 +21,14 @@
  * limitations under the License.
  */
 
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() and execl()*/
+#include <unistd.h>    /* fork(), ...  */
+#include <signal.h>    /* sigaction() */
+#include <string.h>    /* memset() */
+
+#define DURATION 5
+
 /**
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
  * @version	1.0
@@ -33,17 +41,7 @@
  * A simple program that uses POSIX signals and handles SIGALRM.
  */
 
-#include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
-#include <unistd.h>    /* fork() */
-#include <sys/types.h> /* pid_t */
-#include <sys/wait.h>  /* wait() */
-#include <signal.h>    /* sigaction() */
-#include <string.h>    /* memset() */
-
-#define DURATION 5
-
-/** 
+/**
  * @brief Defines the new handler of the SIGALRM signal.
  * @param signal Number of the signal
  */

@@ -34,10 +34,7 @@
  */
 
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
 #include <unistd.h>    /* fork() */
-#include <sys/types.h> /* pid_t */
-#include <sys/wait.h>  /* wait() */
 #include <signal.h>    /* sigaction() */
 #include <string.h>    /* memset() */
 

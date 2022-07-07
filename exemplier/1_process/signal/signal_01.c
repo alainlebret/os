@@ -21,6 +21,16 @@
  * limitations under the License.
  */
 
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() and execl()*/
+#include <unistd.h>    /* fork() */
+#include <signal.h>    /* sigaction() */
+#ifdef __APPLE__
+#include <sys/types.h> /* pid_t */
+#include <sys/wait.h>  /* wait() */
+#endif
+#include <string.h>    /* memset() */
+
 /**
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
  * @version	1.0
@@ -32,14 +42,6 @@
  *
  * A simple program that uses POSIX signals and handles SIGINT.
  */
-
-#include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
-#include <unistd.h>    /* fork() */
-#include <signal.h>    /* sigaction() */
-#include <sys/types.h> /* pid_t */
-#include <sys/wait.h>  /* wait() */
-#include <string.h>    /* memset() */
 
 /**
  * @brief Defines the new handler of the SIGINT signal.

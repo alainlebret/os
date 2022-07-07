@@ -21,6 +21,16 @@
  * limitations under the License.
  */
 
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() and execl()*/
+#include <unistd.h>    /* fork() */
+#include <sys/types.h> /* pid_t */
+#include <sys/wait.h>  /* wait() */
+#include <signal.h>    /* sigaction */
+#include <string.h>    /* memset() */
+
+#define FOREVER for (;;)
+
 /**
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
  * @version	1.0
@@ -32,16 +42,6 @@
  *
  * A simple program that uses POSIX signals and handles SIGCHLD.
  */
-
-#include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
-#include <unistd.h>    /* fork() */
-#include <sys/types.h> /* pid_t */
-#include <sys/wait.h>  /* wait() */
-#include <signal.h>    /* sigaction */
-#include <string.h>    /* memset() */
-
-#define FOREVER for (;;)
 
 /** 
  * @brief Defines a new handler of the SIGCHLD signal in charge of suppressing

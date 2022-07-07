@@ -21,6 +21,14 @@
  * limitations under the License.
  */
 
+#include <inttypes.h>  /* C99 int types */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() */
+#include <unistd.h>    /* fork() and sleep() */
+#include <sys/types.h> /* pid_t */
+
+#define DURATION 20
+
 /**
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
  * @version	1.1
@@ -34,14 +42,6 @@
  * where the parent process dies before his child. The child process becomes
  * orphean.
  */
-#include <stdint.h>    /* C99 int types */
-#include <inttypes.h>  /* C99 int types */
-#include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() */
-#include <unistd.h>    /* fork() and sleep() */
-#include <sys/types.h> /* pid_t */
-
-#define DURATION 20
 
 /**
  * @brief Handles a fatal error and exit. 

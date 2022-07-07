@@ -21,6 +21,15 @@
  * limitations under the License.
  */
 
+#include <inttypes.h>  /* C99 int types */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() */
+#include <unistd.h>    /* fork() and sleep() */
+#include <sys/types.h> /* pid_t */
+
+#define FOREVER for(;;)
+#define DURATION 5
+
 /**
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
  * @version	1.1
@@ -33,15 +42,6 @@
  * A simple program that clones a process using the \c fork() primitive, but
  * without waiting child process, which then becomes a zombie!
  */
-#include <stdint.h>    /* C99 int types */
-#include <inttypes.h>  /* C99 int types */
-#include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() */
-#include <unistd.h>    /* fork() and sleep() */
-#include <sys/types.h> /* pid_t */
-
-#define FOREVER for(;;)
-#define DURATION 5
 
 /**
  * @brief Handles a fatal error and exit. 

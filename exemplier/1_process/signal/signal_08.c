@@ -21,6 +21,12 @@
  * limitations under the License.
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <signal.h>
+
 /**
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
  * @version	1.0
@@ -34,12 +40,6 @@
  * while running this program and execute:
  * kill -s SIGUSR1 <PID>
  */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <signal.h>
 
 volatile sig_atomic_t got_usr1;
 

@@ -21,6 +21,14 @@
  * limitations under the License.
  */
 
+#include <stdint.h>    /* C99 int types */
+#include <inttypes.h>  /* C99 int types */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() */
+#include <unistd.h>    /* fork() */
+#include <sys/types.h> /* pid_t */
+#include <sys/wait.h>  /* wait() */
+
 /**
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
  * @version	1.1
@@ -29,17 +37,10 @@
 
 /**
  * @file process_02.c
- * 
+ *
  * A simple program that clones a process using the \c fork() primitive and
  * shows the evolution of a variable in parent and child processes.
  */
-#include <stdint.h>    /* C99 int types */
-#include <inttypes.h>  /* C99 int types */
-#include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() */
-#include <unistd.h>    /* fork() */
-#include <sys/types.h> /* pid_t */
-#include <sys/wait.h>  /* wait() */
 
 /**
  * @brief Handles a fatal error and exit. 
