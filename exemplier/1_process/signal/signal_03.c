@@ -53,41 +53,42 @@ unsigned int s = 0; /* Seconds */
  */
 void tick(int signal)
 {
-	s++;
-	if (s == 60) {
-		s = 0;
-		m++;
-		if (m == 60) {
-			m = 0;
-			h++;
-			if (h == 24)
-				h = 0;
-		}
-	}
-	printf("%d:%d:%d\n", h, m, s);
+    s++;
+    if (s == 60) {
+        s = 0;
+        m++;
+        if (m == 60) {
+            m = 0;
+            h++;
+            if (h == 24)
+                h = 0;
+        }
+    }
+    printf("%d:%d:%d\n", h, m, s);
 
-	/* Re-engage the alarm */
-	alarm(1);
+    /* Re-engage the alarm */
+    alarm(1);
 }
 
 int main(void)
 {
-	struct sigaction action;
+    struct sigaction action;
 
-	/* Clean up the structure before using it */
-	memset(&action, '\0', sizeof(action));
-	
-	/* Set the new handler */
-	action.sa_handler = &tick;
+    /* Clean up the structure before using it */
+    memset(&action, '\0', sizeof(action));
 
-	/* Install the new handler of the SIGALRM signal */
-	sigaction(SIGALRM, &action, NULL);
+    /* Set the new handler */
+    action.sa_handler = &tick;
 
-	/* Ask the OS to send a SIGALRM signal in 1 second */
-	alarm(1);
+    /* Install the new handler of the SIGALRM signal */
+    sigaction(SIGALRM, &action, NULL);
 
-	/* Waiting for SIGALRM signal */
-	FOREVER {}
+    /* Ask the OS to send a SIGALRM signal in 1 second */
+    alarm(1);
 
-	exit(EXIT_SUCCESS); /* unreachable code */
+    /* Waiting for SIGALRM signal */
+    FOREVER {}
+
+    /* Unreachable: use <Ctrl-C> to exit */
+
 }

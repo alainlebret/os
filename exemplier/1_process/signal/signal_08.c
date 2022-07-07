@@ -46,35 +46,35 @@ volatile sig_atomic_t got_usr1;
 /**
  * @brief Handles the signal SIGUSR1.
  */
-void sigusr1_handler(int sig) 
+void sigusr1_handler(int sig)
 {
-	got_usr1 = 1;
+    got_usr1 = 1;
 }
 
-int main(void) 
+int main(void)
 {
-	struct sigaction action;
+    struct sigaction action;
 
-	got_usr1 = 0;
+    got_usr1 = 0;
 
-	/* Set the new handler */
-	action.sa_handler = sigusr1_handler;
-	/* Clear the flags (another way to do a memset) */
-	action.sa_flags = 0;
-	/* Clear the mask */	
-	sigemptyset(&action.sa_mask);
+    /* Set the new handler */
+    action.sa_handler = sigusr1_handler;
+    /* Clear the flags (another way to do a memset) */
+    action.sa_flags = 0;
+    /* Clear the mask */
+    sigemptyset(&action.sa_mask);
 
-	if (sigaction(SIGUSR1, &action, NULL) == -1) {
-		perror("Error using sigaction");
-		exit(EXIT_FAILURE);
-	}
+    if (sigaction(SIGUSR1, &action, NULL) == -1) {
+        perror("Error using sigaction");
+        exit(EXIT_FAILURE);
+    }
 
-	while (!got_usr1) {
-		printf("PID %d: working hard...\n", getpid());
-		sleep(1);
-	}
+    while (!got_usr1) {
+        printf("PID %d: working hard...\n", getpid());
+        sleep(1);
+    }
 
-	printf("Done by SIGUSR1!\n");
+    printf("Done by SIGUSR1!\n");
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

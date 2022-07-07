@@ -49,8 +49,8 @@
  */
 void handle_fatal_error_and_exit(char *msg)
 {
-	perror(msg);
-	exit(EXIT_FAILURE);
+    perror(msg);
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -60,16 +60,22 @@ void handle_fatal_error_and_exit(char *msg)
  */
 void manage_parent()
 {
-	pid_t child;
-	int32_t status;
+    pid_t child;
+    int32_t status;
 
-	printf("Parent process (PID %" PRId32 ")\n", getpid());
+    printf("Parent process (PID %"
+    PRId32
+    ")\n", getpid());
 
-	child = wait(&status);
-	if (WIFEXITED(status)) {
-		printf("%d : child %" PRId32 " has finished is work (code: %" PRId32 ")\n", 
-			getpid(), child, WEXITSTATUS(status));
-	}
+    child = wait(&status);
+    if (WIFEXITED(status)) {
+        printf("%d : child %"
+        PRId32
+        " has finished is work (code: %"
+        PRId32
+        ")\n",
+                getpid(), child, WEXITSTATUS(status));
+    }
 }
 
 /**
@@ -80,28 +86,30 @@ void manage_parent()
  */
 void manage_child()
 {
-	const char *path = "/bin/ls";
-	const char *command = "ls";
-	const char *arguments = "-al";
-	
-	printf("Child process (PID %" PRId32 ")\n", getpid());
-	execl(path, command, arguments, (void *)0);
+    const char *path = "/bin/ls";
+    const char *command = "ls";
+    const char *arguments = "-al";
+
+    printf("Child process (PID %"
+    PRId32
+    ")\n", getpid());
+    execl(path, command, arguments, (void *) 0);
 }
 
 int main(void)
 {
-	pid_t pid;
+    pid_t pid;
 
-	pid = fork();
-	if (pid < 0) {
-		handle_fatal_error_and_exit("Error using fork().\n");
-	}
+    pid = fork();
+    if (pid < 0) {
+        handle_fatal_error_and_exit("Error using fork().\n");
+    }
 
-	if (pid > 0) {
-		manage_parent();
-	} else {
-		manage_child();
-	}
+    if (pid > 0) {
+        manage_parent();
+    } else {
+        manage_child();
+    }
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

@@ -47,8 +47,8 @@
  */
 void handle_fatal_error_and_exit(char *msg)
 {
-	perror(msg);
-	exit(EXIT_FAILURE);
+    perror(msg);
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -56,8 +56,10 @@ void handle_fatal_error_and_exit(char *msg)
  */
 void manage_parent()
 {
-	printf("Parent process (PID %" PRId32 ")\n", getpid());
-	printf("Instructions of parent process...\n");
+    printf("Parent process (PID %"
+    PRId32
+    ")\n", getpid());
+    printf("Instructions of parent process...\n");
 }
 
 /**
@@ -65,23 +67,25 @@ void manage_parent()
  */
 void manage_child()
 {
-	printf("Child process (PID %" PRId32 ")\n", getpid());
-	printf("Instructions of child process...\n");
+    printf("Child process (PID %"
+    PRId32
+    ")\n", getpid());
+    printf("Instructions of child process...\n");
 }
 
 int main(void)
 {
-	pid_t pid;
+    pid_t pid;
 
-	pid = fork();
-	if (pid < 0) {
-		handle_fatal_error_and_exit("Error using fork().\n");
-	}
-	if (pid > 0) {
-		manage_parent();
-	} else {
-		manage_child();
-	}
+    pid = fork();
+    if (pid < 0) {
+        handle_fatal_error_and_exit("Error using fork().\n");
+    }
+    if (pid > 0) {
+        manage_parent();
+    } else {
+        manage_child();
+    }
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

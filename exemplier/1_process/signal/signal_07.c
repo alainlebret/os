@@ -49,8 +49,8 @@ unsigned char nb_calls = 7;
  */
 void handle_seven_lifes(int signal)
 {
-	nb_calls--;
-	printf("Still have %d lifes....\n", (int) nb_calls);
+    nb_calls--;
+    printf("Still have %d lifes....\n", (int) nb_calls);
 }
 
 /**
@@ -61,8 +61,8 @@ void handle_seven_lifes(int signal)
  */
 void handle_fatal_error_and_exit(char *msg)
 {
-	perror(msg);
-	exit(EXIT_FAILURE);
+    perror(msg);
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -73,15 +73,15 @@ void handle_fatal_error_and_exit(char *msg)
  */
 void manage_parent(pid_t child)
 {
-	printf("Parent process (PID %d)\n", getpid());
+    printf("Parent process (PID %d)\n", getpid());
 
-	while (nb_calls-- != 0) {
-		sleep(2);
-		printf("Parent: sending SIGUSR1 to the child %d...\n", child);
-		kill(child, SIGUSR1);
-	}
+    while (nb_calls-- != 0) {
+        sleep(2);
+        printf("Parent: sending SIGUSR1 to the child %d...\n", child);
+        kill(child, SIGUSR1);
+    }
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }
 
 /**
@@ -92,38 +92,38 @@ void manage_parent(pid_t child)
  */
 void manage_child()
 {
-	struct sigaction managing_lifes;
+    struct sigaction managing_lifes;
 
-	printf("Child process (PID %d)\n", getpid());
+    printf("Child process (PID %d)\n", getpid());
 
-	/* Clean up the structure before using it */
-	memset(&managing_lifes, '\0', sizeof(managing_lifes));
+    /* Clean up the structure before using it */
+    memset(&managing_lifes, '\0', sizeof(managing_lifes));
 
-	/* Set the new handler */
-	managing_lifes.sa_handler = &handle_seven_lifes;
+    /* Set the new handler */
+    managing_lifes.sa_handler = &handle_seven_lifes;
 
-	/* Install the new handler of the SIGUSR1 signal */
-	sigaction(SIGUSR1, &managing_lifes, NULL);
+    /* Install the new handler of the SIGUSR1 signal */
+    sigaction(SIGUSR1, &managing_lifes, NULL);
 
-	while (nb_calls != 0) ;
+    while (nb_calls != 0);
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }
 
 int main(void)
 {
-	pid_t pid;
+    pid_t pid;
 
-	pid = fork();
-	if (pid < 0) {
-		handle_fatal_error_and_exit("Error using fork().\n");
-	}
-	
-	if (pid > 0) {
-		manage_parent(pid);
-	} else {
-		manage_child();
-	}
+    pid = fork();
+    if (pid < 0) {
+        handle_fatal_error_and_exit("Error using fork().\n");
+    }
 
-	exit(EXIT_SUCCESS);
+    if (pid > 0) {
+        manage_parent(pid);
+    } else {
+        manage_child();
+    }
+
+    exit(EXIT_SUCCESS);
 }

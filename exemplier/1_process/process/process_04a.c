@@ -40,7 +40,7 @@
 #include <unistd.h>    /* fork() and sleep() */
 #include <sys/types.h> /* pid_t */
 
-#define EVER ;;
+#define FOREVER for(;;)
 #define DURATION 5
 
 /**
@@ -51,8 +51,8 @@
  */
 void handle_fatal_error_and_exit(char *msg)
 {
-	perror(msg);
-	exit(EXIT_FAILURE);
+    perror(msg);
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -62,10 +62,12 @@ void handle_fatal_error_and_exit(char *msg)
  */
 void manage_parent()
 {
-	printf("Parent process (PID %" PRId32 ")\n", getpid());
-	printf("Parent will never wait for his child to finish\n");
+    printf("Parent process (PID %"
+    PRId32
+    ")\n", getpid());
+    printf("Parent will never wait for his child to finish\n");
 
-	for (EVER) ;
+    FOREVER {}
 }
 
 /**
@@ -75,28 +77,32 @@ void manage_parent()
  */
 void manage_child()
 {
-	printf("Child process (PID %" PRId32 ")\n", getpid());
-	printf("Child will be blocked during %" PRId32 " seconds...\n", DURATION);
+    printf("Child process (PID %"
+    PRId32
+    ")\n", getpid());
+    printf("Child will be blocked during %"
+    PRId32
+    " seconds...\n", DURATION);
 
-	sleep(DURATION);
+    sleep(DURATION);
 
-	printf("Child has finished to sleep.\n");
+    printf("Child has finished to sleep.\n");
 }
 
 int main(void)
 {
-	pid_t pid;
+    pid_t pid;
 
-	pid = fork();
-	if (pid < 0) {
-		handle_fatal_error_and_exit("Error using fork().\n");
-	}
+    pid = fork();
+    if (pid < 0) {
+        handle_fatal_error_and_exit("Error using fork().\n");
+    }
 
-	if (pid > 0) {
-		manage_parent();
-	} else {
-		manage_child();
-	}
+    if (pid > 0) {
+        manage_parent();
+    } else {
+        manage_child();
+    }
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

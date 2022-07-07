@@ -49,29 +49,30 @@
  */
 void handle(int signal)
 {
-	printf("Signal number %d has been received.\n", signal);
-	fflush(stdout);
+    printf("Signal number %d has been received.\n", signal);
+    fflush(stdout);
 }
 
 int main(void)
 {
-	struct sigaction action;
+    struct sigaction action;
 
-	/* Clean up the structure before using it */
-	memset(&action, '\0', sizeof(action));
+    /* Clean up the structure before using it */
+    memset(&action, '\0', sizeof(action));
 
-	/* Set the new handler */
-	action.sa_handler = &handle;
+    /* Set the new handler */
+    action.sa_handler = &handle;
 
-	/* We do no block any specific signal */
-	sigemptyset(&action.sa_mask);
+    /* We do no block any specific signal */
+    sigemptyset(&action.sa_mask);
 
-	/* Three signals will be handled by the process */
-	sigaction(SIGINT, &action, 0);
-	sigaction(SIGQUIT, &action, 0);
-	sigaction(SIGTERM, &action, 0);
+    /* Three signals will be handled by the process */
+    sigaction(SIGINT, &action, 0);
+    sigaction(SIGQUIT, &action, 0);
+    sigaction(SIGTERM, &action, 0);
 
-	FOREVER {}
-	
-	exit(EXIT_SUCCESS); /* unreachable code */
+    FOREVER {}
+
+    /* Unreachable: use <Ctrl-C> to exit */
+
 }

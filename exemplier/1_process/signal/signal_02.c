@@ -47,40 +47,40 @@
  * @brief Defines the new handler of the SIGALRM signal.
  * @param signal Number of the signal
  */
-void handleAlarm(int signal)
+void handle_alarm(int signal)
 {
-	printf("\nToo late!\n");
+    printf("\nToo late!\n");
 
-	exit(EXIT_FAILURE);
+    exit(EXIT_FAILURE);
 }
 
 int main(void)
 {
-	struct sigaction action;
-	int value;
-	int remaining_time;
+    struct sigaction action;
+    int value;
+    int remaining_time;
 
-	/* Clean up the structure before using it */
-	memset(&action, '\0', sizeof(action));
-	
-	/* Set the new handler */
-	action.sa_handler = &handleAlarm;
+    /* Clean up the structure before using it */
+    memset(&action, '\0', sizeof(action));
 
-	/* Install the new handler of the SIGALRM signal */
-	sigaction(SIGALRM, &action, NULL);
+    /* Set the new handler */
+    action.sa_handler = &handle_alarm;
 
-	printf("You have %d seconds to enter a number: ", DURATION);
+    /* Install the new handler of the SIGALRM signal */
+    sigaction(SIGALRM, &action, NULL);
 
-	/* The OS will send an alarm signal to the process in 'DURATION' sec. */
-	alarm(DURATION);
+    printf("You have %d seconds to enter a number: ", DURATION);
 
-	/* Wait for the user to enter a value */
-	scanf("%d", &value);
+    /* The OS will send an alarm signal to the process in 'DURATION' sec. */
+    alarm(DURATION);
 
-	/* Deactivate the sending of an alarm signal by the OS */
-	remaining_time = alarm(0);
+    /* Wait for the user to enter a value */
+    scanf("%d", &value);
 
-	printf("\nElapsed time: %d seconds.\n", 5 - remaining_time);
+    /* Deactivate the sending of an alarm signal by the OS */
+    remaining_time = alarm(0);
 
-	exit(EXIT_SUCCESS);
+    printf("\nElapsed time: %d seconds.\n", 5 - remaining_time);
+
+    exit(EXIT_SUCCESS);
 }

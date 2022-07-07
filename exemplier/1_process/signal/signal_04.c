@@ -50,13 +50,13 @@
  */
 void handle_sigchild(int signal)
 {
-	pid_t child;
-	int status;
+    pid_t child;
+    int status;
 
-	child = wait(&status);
-	printf("My child (%d) died. He will not be a zombie. I can stop working.\n", child);
+    child = wait(&status);
+    printf("My child (%d) died. He will not be a zombie. I can stop working.\n", child);
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }
 
 /**
@@ -67,8 +67,8 @@ void handle_sigchild(int signal)
  */
 void handle_fatal_error_and_exit(char *msg)
 {
-	perror(msg);
-	exit(EXIT_FAILURE);
+    perror(msg);
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -76,24 +76,25 @@ void handle_fatal_error_and_exit(char *msg)
  */
 void manage_parent()
 {
-	struct sigaction action;
+    struct sigaction action;
 
-	/* Clean up the structure before using it */
-	memset(&action, '\0', sizeof(action));
+    /* Clean up the structure before using it */
+    memset(&action, '\0', sizeof(action));
 
-	/* Set the new handler */
-	action.sa_handler = &handle_sigchild;
+    /* Set the new handler */
+    action.sa_handler = &handle_sigchild;
 
-	/* Install the new handler of the SIGCHLD signal */
-	sigaction(SIGCHLD, &action, NULL);
+    /* Install the new handler of the SIGCHLD signal */
+    sigaction(SIGCHLD, &action, NULL);
 
-	printf("Parent process (PID %d)\n", getpid());
-	printf("Signal %d will be received and handled by the parent.\n", SIGCHLD);
+    printf("Parent process (PID %d)\n", getpid());
+    printf("Signal %d will be received and handled by the parent.\n", SIGCHLD);
 
-	FOREVER {
-		printf("Parent: I am working...\n");
-		sleep(2);
-	}
+    FOREVER {
+        printf("Parent: I am working...\n");
+        sleep(2);
+    }
+
 }
 
 /**
@@ -103,27 +104,27 @@ void manage_parent()
  */
 void manage_child()
 {
-	printf("Child process (PID %d)\n", getpid());
-	printf("Child: I am doing some stuff for 10 seconds...\n");
-	sleep(10);
-	exit(EXIT_SUCCESS);
+    printf("Child process (PID %d)\n", getpid());
+    printf("Child: I am doing some stuff for 10 seconds...\n");
+    sleep(10);
+    exit(EXIT_SUCCESS);
 }
 
 int main(void)
 {
-	pid_t pid;
+    pid_t pid;
 
-	pid = fork();
-	
-	if (pid < 0) {
-		handle_fatal_error_and_exit("Error using fork().\n");
-	}
+    pid = fork();
 
-	if (pid > 0) {
-		manage_parent();
-	} else {
-		manage_child();
-	}
+    if (pid < 0) {
+        handle_fatal_error_and_exit("Error using fork().\n");
+    }
 
-	exit(EXIT_SUCCESS);
+    if (pid > 0) {
+        manage_parent();
+    } else {
+        manage_child();
+    }
+
+    exit(EXIT_SUCCESS);
 }

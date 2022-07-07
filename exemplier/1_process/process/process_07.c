@@ -48,8 +48,8 @@
  */
 void handle_fatal_error_and_exit(char *msg)
 {
-	perror(msg);
-	exit(EXIT_FAILURE);
+    perror(msg);
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -59,18 +59,26 @@ void handle_fatal_error_and_exit(char *msg)
  */
 void manage_parent()
 {
-	pid_t child;
-	int32_t status;
+    pid_t child;
+    int32_t status;
 
-	printf("Parent process: %" PRId32 "\n", getpid());
-	printf("Parent group: %" PRId32 "\n", getpgrp());
-	
-	child = wait(&status);
-	
-	if (WIFEXITED(status)) {
-		printf("%d : child %" PRId32 " has finished is work (code: %" PRId32 ")\n", 
-			getpid(), child, WEXITSTATUS(status));
-	}
+    printf("Parent process: %"
+    PRId32
+    "\n", getpid());
+    printf("Parent group: %"
+    PRId32
+    "\n", getpgrp());
+
+    child = wait(&status);
+
+    if (WIFEXITED(status)) {
+        printf("%d : child %"
+        PRId32
+        " has finished is work (code: %"
+        PRId32
+        ")\n",
+                getpid(), child, WEXITSTATUS(status));
+    }
 }
 
 /**
@@ -78,24 +86,28 @@ void manage_parent()
  */
 void manage_child()
 {
-	printf("Child process: %" PRId32 "\n", getpid());
-	printf("Child group: %" PRId32 "\n", getpgrp());
+    printf("Child process: %"
+    PRId32
+    "\n", getpid());
+    printf("Child group: %"
+    PRId32
+    "\n", getpgrp());
 }
 
 int main(void)
 {
-	pid_t pid;
+    pid_t pid;
 
-	pid = fork();
-	if (pid < 0) {
-		handle_fatal_error_and_exit("Error using fork().\n");
-	}
-	
-	if (pid > 0) {
-		manage_parent();
-	} else {
-		manage_child();
-	}
+    pid = fork();
+    if (pid < 0) {
+        handle_fatal_error_and_exit("Error using fork().\n");
+    }
 
-	exit(EXIT_SUCCESS);
+    if (pid > 0) {
+        manage_parent();
+    } else {
+        manage_child();
+    }
+
+    exit(EXIT_SUCCESS);
 }

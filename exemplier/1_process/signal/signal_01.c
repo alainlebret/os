@@ -47,28 +47,28 @@
  */
 void handle_sigint(int signal)
 {
-	printf("SIGINT signal received!\n");
+    printf("SIGINT signal received!\n");
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }
 
 int main(void)
 {
-	struct sigaction action;
-	
-	/* Clean up the structure before using it */
-	memset(&action, '\0', sizeof(action));
-	
-	/* Set the new handler */
-	action.sa_handler = &handle_sigint;
+    struct sigaction action;
 
-	/* Install the new handler of the SIGINT signal */
-	sigaction(SIGINT, &action, NULL);
+    /* Clean up the structure before using it */
+    memset(&action, '\0', sizeof(action));
 
-	/* Wait for the signal SIGINT (<Ctrl-C>) */
-	pause();
-	
-	printf("This will never be displayed.\n");
+    /* Set the new handler */
+    action.sa_handler = &handle_sigint;
 
-	exit(EXIT_SUCCESS);
+    /* Install the new handler of the SIGINT signal */
+    sigaction(SIGINT, &action, NULL);
+
+    /* Wait for the signal SIGINT (<Ctrl-C>) */
+    pause();
+
+    printf("This will never be displayed.\n");
+
+    exit(EXIT_SUCCESS);
 }

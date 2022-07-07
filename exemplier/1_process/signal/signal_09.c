@@ -45,30 +45,31 @@
 
 void hdl(int signal, siginfo_t *siginfo, void *context)
 {
-	printf("Sending PID: %ld, UID: %ld\n", (long)siginfo->si_pid, (long)siginfo->si_uid);
+    printf("Sending PID: %ld, UID: %ld\n", (long) siginfo->si_pid, (long) siginfo->si_uid);
 }
 
 int main(int argc, char *argv[])
 {
-	struct sigaction action;
+    struct sigaction action;
 
-	/* Clean up the structure before using it */
-	memset(&action, '\0', sizeof(action));
+    /* Clean up the structure before using it */
+    memset(&action, '\0', sizeof(action));
 
-	/* Use the sa_sigaction field because the handles has two additional parameters */
-	action.sa_sigaction = &hdl;
+    /* Use the sa_sigaction field because the handles has two additional parameters */
+    action.sa_sigaction = &hdl;
 
-	/* The SA_SIGINFO flag tells sigaction() to use the sa_sigaction field, not sa_handler. */
-	action.sa_flags = SA_SIGINFO;
+    /* The SA_SIGINFO flag tells sigaction() to use the sa_sigaction field, not sa_handler. */
+    action.sa_flags = SA_SIGINFO;
 
-	if (sigaction(SIGTERM, &action, NULL) < 0) {
-		perror ("Error using sigaction");
-		exit(EXIT_FAILURE);
-	}
+    if (sigaction(SIGTERM, &action, NULL) < 0) {
+        perror("Error using sigaction");
+        exit(EXIT_FAILURE);
+    }
 
-	FOREVER {
-		sleep(10);
-	}
+    FOREVER {
+        sleep(10);
+    }
 
-	exit(EXIT_SUCCESS);
+    /* Unreachable: use <Ctrl-C> to exit */
+
 }

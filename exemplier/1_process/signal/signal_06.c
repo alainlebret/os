@@ -50,41 +50,41 @@ struct sigaction old_handlers[NBR_SIGNALS];
 
 int main(void)
 {
-	sigset_t new_mask;
-	sigset_t old_mask;
-	sigset_t pending_signals;
-	int i;
+    int i;
+    sigset_t new_mask;
+    sigset_t old_mask;
+    sigset_t pending_signals;
 
-	/*
-	 * Create a mask to block the two signals.
-	 */
-	sigemptyset(&new_mask);
-	for (i = 0; i < NBR_SIGNALS; i++) {
-		sigaddset(&new_mask, signals[i]);
-	}
+    /*
+     * Create a mask to block the two signals.
+     */
+    sigemptyset(&new_mask);
+    for (i = 0; i < NBR_SIGNALS; i++) {
+        sigaddset(&new_mask, signals[i]);
+    }
 
-	/*
-	 * Exchange old and new masks
-	 */
-	sigprocmask(SIG_SETMASK, &new_mask, &old_mask);
+    /*
+     * Exchange old and new masks
+     */
+    sigprocmask(SIG_SETMASK, &new_mask, &old_mask);
 
-	/*
-	 * Sleep for 20 seconds (maybe enough to try sending CTRL-C and SIGTERM and
-	 * SIGHUP signals)...
-	 */
-	printf("20 seconds to send <CTRL>-C and kill -15 %d to this process\n", getpid());
-	sleep(20);
-	printf("\nEnd of blocking \n");
+    /*
+     * Sleep for 20 seconds (maybe enough to try sending CTRL-C and SIGTERM and
+     * SIGHUP signals)...
+     */
+    printf("20 seconds to send <CTRL>-C and kill -15 %d to this process\n", getpid());
+    sleep(20);
+    printf("\nEnd of blocking \n");
 
-	/* Get the list of pending signals */
-	sigpending(&pending_signals);
+    /* Get the list of pending signals */
+    sigpending(&pending_signals);
 
-	/* Decode pending signals */
-	for (i = 1; i < NSIG; i++) {
-		if (sigismember(&pending_signals, i)) {
-			printf("Pending signal %d has been blocked.\n", i);
-		}
-	}
+    /* Decode pending signals */
+    for (i = 1; i < NSIG; i++) {
+        if (sigismember(&pending_signals, i)) {
+            printf("Pending signal %d has been blocked.\n", i);
+        }
+    }
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

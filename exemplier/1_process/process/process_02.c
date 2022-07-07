@@ -49,8 +49,8 @@
  */
 void handle_fatal_error_and_exit(char *msg)
 {
-	perror(msg);
-	exit(EXIT_FAILURE);
+    perror(msg);
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -58,10 +58,12 @@ void handle_fatal_error_and_exit(char *msg)
  */
 void manage_parent(int32_t *parameter)
 {
-	printf("Parent process (PID %" PRId32 ")\n", getpid());
-	printf("Parent modifies its own variable...\n");
-	*parameter = 10;
-	wait(NULL);
+    printf("Parent process (PID %"
+    PRId32
+    ")\n", getpid());
+    printf("Parent modifies its own variable...\n");
+    *parameter = 10;
+    wait(NULL);
 }
 
 /**
@@ -69,27 +71,33 @@ void manage_parent(int32_t *parameter)
  */
 void manage_child(int32_t *parameter)
 {
-	printf("Child process (PID %" PRId32 ")\n", getpid());
-	printf("Child modifies its own variable...\n");
-	*parameter = 20;
+    printf("Child process (PID %"
+    PRId32
+    ")\n", getpid());
+    printf("Child modifies its own variable...\n");
+    *parameter = 20;
 }
 
 int main(void)
 {
-	pid_t pid;
-	int32_t own_variable = 0;
+    pid_t pid;
+    int32_t own_variable = 0;
 
-	pid = fork();
-	if (pid < 0) {
-		handle_fatal_error_and_exit("Error using fork().\n");
-	}
+    pid = fork();
+    if (pid < 0) {
+        handle_fatal_error_and_exit("Error using fork().\n");
+    }
 
-	if (pid > 0) {
-		manage_parent(&own_variable);
-	} else {
-		manage_child(&own_variable);
-	}
-	printf("\nPID %" PRId32 " has its own variable equals to: %" PRId32 "\n", getpid(), own_variable);
+    if (pid > 0) {
+        manage_parent(&own_variable);
+    } else {
+        manage_child(&own_variable);
+    }
+    printf("\nPID %"
+    PRId32
+    " has its own variable equals to: %"
+    PRId32
+    "\n", getpid(), own_variable);
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }
