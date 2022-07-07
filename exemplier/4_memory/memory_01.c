@@ -38,8 +38,9 @@
 #include <unistd.h>    /* fork() */
 #include <sys/types.h> /* pid_t and mkfifo() */
 
-int main(void) {
-	printf("Size of page on this system: %d bytes\n", getpagesize());
+int main(void)
+{
+    printf("Size of page on this system: %d bytes\n", getpagesize());
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

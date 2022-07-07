@@ -40,14 +40,14 @@
 
 int main(void)
 {
-	int *p;
+    int *p;
 
-	p = (int *) malloc(10 * sizeof(int));
+    p = (int *) malloc(10 * sizeof(int));
 
-	pause();
+    pause();
 
-	free(p);
-	p = NULL;
+    free(p);
+    p = NULL;
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

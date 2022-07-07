@@ -39,12 +39,13 @@
 #include <unistd.h>    /* fork() */
 #include <sys/types.h> /* pid_t and mkfifo() */
 
-int main(void) {
-	int *p;
+int main(void)
+{
+    int *p;
 
-	p = (int *) malloc(10*sizeof(int));
+    p = (int *) malloc(10 * sizeof(int));
 
-	pause();
+    pause();
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

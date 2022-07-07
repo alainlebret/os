@@ -33,19 +33,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int f() {
-	int val;
-	
-	val = 1;
-	printf("location of stack: %p\n", &val);
-	return val;
+int f()
+{
+    int val;
+
+    val = 1;
+    printf("location of stack: %p\n", &val);
+    return val;
 }
 
-int main(int argc, char *argv[]) {
-	printf("location of main code: %p\n", main);
-	printf("location of f() code: %p\n", f);
-	int val = f();
-	printf("location of stack: %p\n", &val);	
-	printf("location of heap: %p\n", malloc(100e8));
-	return 0;
+int main(int argc, char *argv[])
+{
+    printf("location of main code: %p\n", main);
+    printf("location of f() code: %p\n", f);
+    int val = f();
+    printf("location of stack: %p\n", &val);
+    printf("location of heap: %p\n", malloc(100e8));
+
+    return 0;
 }

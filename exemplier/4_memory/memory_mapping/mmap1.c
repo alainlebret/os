@@ -45,48 +45,50 @@
 
 #define TERMINAL 1
 
-size_t get_file_size(const char *filename) {
-	struct stat st;
-	stat(filename, &st);
-	printf("%lld\n", st.st_size);
-	return (size_t) st.st_size;
+size_t get_file_size(const char *filename)
+{
+    struct stat st;
+    stat(filename, &st);
+    printf("%lld\n", st.st_size);
+    return (size_t) st.st_size;
 }
 
-int main(int argc, char **argv) {
-	int fd;
-	int i;
-	size_t file_size;
-	char *projection;
+int main(int argc, char **argv)
+{
+    int fd;
+    int i;
+    size_t file_size;
+    char *projection;
 
-	file_size = get_file_size(argv[1]);
+    file_size = get_file_size(argv[1]);
 
-	fd = open(argv[1], O_RDONLY, 0);
+    fd = open(argv[1], O_RDONLY, 0);
 
-	/* Project the file content to memory */
-	projection = mmap(NULL, file_size, PROT_READ, MAP_SHARED, fd, 0);
-	assert(projection != MAP_FAILED);
+    /* Project the file content to memory */
+    projection = mmap(NULL, file_size, PROT_READ, MAP_SHARED, fd, 0);
+    assert(projection != MAP_FAILED);
 
-	/* Write the content to the terminal */
-	write(TERMINAL, projection, file_size);
+    /* Write the content to the terminal */
+    write(TERMINAL, projection, file_size);
 
-	/* Do some stuff with data */
-	for (i = 0; i < file_size; i++) {
-		char c;
+    /* Do some stuff with data */
+    for (i = 0; i < file_size; i++) {
+        char c;
 
-		c = projection[i];
-		printf("%c", c);
-		if (!isalpha(c) && !isspace(c)) {
-			putchar(c);
-		}
-		if (i % 80 == 79) {
-			putchar('\n');
-		}
-	}
+        c = projection[i];
+        printf("%c", c);
+        if (!isalpha(c) && !isspace(c)) {
+            putchar(c);
+        }
+        if (i % 80 == 79) {
+            putchar('\n');
+        }
+    }
 
-	/* Unmapping memory */
-	munmap(projection, file_size);
+    /* Unmapping memory */
+    munmap(projection, file_size);
 
-	close(fd);
+    close(fd);
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

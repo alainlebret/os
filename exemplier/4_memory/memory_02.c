@@ -43,17 +43,18 @@
 #include <sys/types.h> /* pid_t and mkfifo() */
 #include <time.h>
 
-#define EVER ;;
+#define FOREVER for(;;)
 
-int main(void) {
-	time_t end  = time(NULL) + 240; /* about 4 min */
+int main(void)
+{
+    time_t end = time(NULL) + 240; /* about 4 min */
 
-	printf("Process with PID %d\n", getpid());
-	for (EVER) {
-		if (time(NULL) >= end) {
-			break;
-		}
-	}
+    printf("Process with PID %d\n", getpid());
+    FOREVER {
+        if (time(NULL) >= end) {
+            break;
+        }
+    }
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

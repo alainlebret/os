@@ -43,17 +43,19 @@
 #include <sys/types.h> /* pid_t and mkfifo() */
 #include <math.h>      /* sqrt() -- don't forget to link with -lm */
 
-#define EVER ;;
+#define FOREVER for(;;)
 
-int main(void) {
-	long value;
-	double square_root;
+int main(void)
+{
+    long value;
+    double square_root;
 
-	printf("Process with PID %d\n", getpid());
-	for (EVER) {
-		value = random();
-		square_root = sqrt(value);
-	}
+    printf("Process with PID %d\n", getpid());
+    FOREVER {
+        value = random();
+        square_root = sqrt(value);
+    }
 
-	exit(EXIT_SUCCESS); /* unreachable code */
+    /* Unreachable: use <Ctrl-C> to exit */
+
 }

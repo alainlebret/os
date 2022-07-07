@@ -45,18 +45,19 @@
 #include <unistd.h>    /* fork() */
 #include <sys/types.h> /* pid_t and mkfifo() */
 
-#define EVER ;;
+#define FOREVER for(;;)
 
-int main(void) {
-	int *pointer;
-	int value;
+int main(void)
+{
+    int *pointer;
+    int value;
 
-	pointer = (int *) malloc(1);
+    pointer = (int *) malloc(1);
 
-	for (EVER) {
-		value = random();
-		*pointer = value;
-	}
+    FOREVER {
+        value = random();
+        *pointer = value;
+    }
 
-	exit(EXIT_SUCCESS); /* unreachable code */
+    /* Unreachable: use <Ctrl-C> to exit */
 }
