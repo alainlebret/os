@@ -49,8 +49,8 @@
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 struct {
-	int status;
-	int value;
+    int status;
+    int value;
 } memory;
 
 /**
@@ -58,19 +58,19 @@ struct {
  */
 void *consume(void *pv)
 {
-	for (EVER) {
-		pthread_mutex_lock(&mutex);
+    for (EVER) {
+        pthread_mutex_lock(&mutex);
 
-		if (memory.status == BUFFER_FULL) {
-			/* utiliser la valeur */
-			printf("%d\n", memory.value);
-			memory.status = BUFFER_SPACE;
-		}
-		pthread_mutex_unlock(&mutex);
-		sleep(1);
-	}
+        if (memory.status == BUFFER_FULL) {
+            /* utiliser la valeur */
+            printf("%d\n", memory.value);
+            memory.status = BUFFER_SPACE;
+        }
+        pthread_mutex_unlock(&mutex);
+        sleep(1);
+    }
 
-	pthread_exit(NULL); /* Jamais atteint */
+    pthread_exit(NULL); /* Jamais atteint */
 }
 
 /**
@@ -78,40 +78,38 @@ void *consume(void *pv)
  */
 void *produce(void *pv)
 {
-	int i = 0;
+    int i = 0;
 
-	while (i++ < ITERATIONS) {
-		pthread_mutex_lock(&mutex);
-		if (memory.status == BUFFER_SPACE) {
-			/* doing some stuff */
-			memory.status = BUFFER_FULL;
-			memory.value = memory.value + 1;
-		}
-		pthread_mutex_unlock(&mutex);
-		/* sleep(1); */
-	}
-	pthread_exit(NULL);
+    while (i++ < ITERATIONS) {
+        pthread_mutex_lock(&mutex);
+        if (memory.status == BUFFER_SPACE) {
+            /* doing some stuff */
+            memory.status = BUFFER_FULL;
+            memory.value = memory.value + 1;
+        }
+        pthread_mutex_unlock(&mutex);
+        /* sleep(1); */
+    }
+    pthread_exit(NULL);
 }
 
 int main(void)
 {
-	pthread_t th1, th2, th3, th4, th5;
+    pthread_t th1, th2, th3, th4, th5;
 
-	/* Creation of the threads */
-	pthread_create(&th1, NULL, produce, 0);
-	pthread_create(&th2, NULL, produce, 0);
-	pthread_create(&th3, NULL, produce, 0);
-	pthread_create(&th4, NULL, produce, 0);
-	pthread_create(&th5, NULL, consume, 0);
+    /* Creation of the threads */
+    pthread_create(&th1, NULL, produce, 0);
+    pthread_create(&th2, NULL, produce, 0);
+    pthread_create(&th3, NULL, produce, 0);
+    pthread_create(&th4, NULL, produce, 0);
+    pthread_create(&th5, NULL, consume, 0);
 
-	/* The main thread is waiting for all threads to finish */
-	pthread_join(th1, NULL);
-	pthread_join(th2, NULL);
-	pthread_join(th3, NULL);
-	pthread_join(th4, NULL);
-	pthread_join(th5, NULL);
+    /* The main thread is waiting for all threads to finish */
+    pthread_join(th1, NULL);
+    pthread_join(th2, NULL);
+    pthread_join(th3, NULL);
+    pthread_join(th4, NULL);
+    pthread_join(th5, NULL);
 
-	pthread_exit(NULL);
-
-	exit(EXIT_SUCCESS); /* unreachable code */
+    pthread_exit(NULL);
 }

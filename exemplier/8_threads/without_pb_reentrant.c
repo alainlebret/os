@@ -43,41 +43,41 @@
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int f_reentrant(void)
-{	
-	static unsigned int next;	
+{
+    static unsigned int next;
 
-	pthread_mutex_lock(&mutex);
+    pthread_mutex_lock(&mutex);
 
-	/* Beginning of critical section */
-	next = 1;
-	next = next * 1103515245 + 12345;
-	next = (unsigned int)(next / 65536) % 32768;
-	/* End of critical section */
-	
-	pthread_mutex_unlock(&mutex);
-	usleep(10);
-	return next;
+    /* Beginning of critical section */
+    next = 1;
+    next = next * 1103515245 + 12345;
+    next = (unsigned int) (next / 65536) % 32768;
+    /* End of critical section */
+
+    pthread_mutex_unlock(&mutex);
+    usleep(10);
+    return next;
 }
 
 void *doit(void *vargp)
 {
-	printf("[%ld]: val = %d\n", pthread_self(), f_reentrant());	
-	return NULL; 
+    printf("[%ld]: val = %d\n", pthread_self(), f_reentrant());
+    return NULL;
 }
 
 int main(void)
 {
-	pthread_t tid[4];
-	int i;
-	
-	for (i = 0; i < THREADS; i++) {
-		pthread_create(&tid[i], NULL, doit, NULL);
-	}
+    pthread_t tid[4];
+    int i;
 
-	for (i = 0; i < THREADS; i++) {
-		pthread_join(tid[i], NULL);
-	}
+    for (i = 0; i < THREADS; i++) {
+        pthread_create(&tid[i], NULL, doit, NULL);
+    }
 
-	exit(EXIT_SUCCESS); 
+    for (i = 0; i < THREADS; i++) {
+        pthread_join(tid[i], NULL);
+    }
+
+    exit(EXIT_SUCCESS);
 }
 

@@ -32,8 +32,8 @@
  *
  * A simple program using threads and signal.
  *
- * On Mac OS X, compile with gcc -Wall -Wextra -ansi -pedantic thread_with_signal.c
- * On Linux, compile with gcc -Wall -Wextra -ansi -pedantic thread_with_signal.c -pthread
+ * On Mac OS X, compile with gcc -Wall -Wextra -pedantic thread_with_signal.c
+ * On Linux, compile with gcc -Wall -Wextra -pedantic thread_with_signal.c -pthread
  */
 
 #include <pthread.h>
@@ -43,47 +43,46 @@
 #include <signal.h>
 #include <string.h>
 
-#define EVER ;;
+#define FOREVER for(;;)
 
-typedef struct data
-{
-	char name[10];
-	int age;
+typedef struct data {
+    char name[10];
+    int age;
 } data_t;
 
 void handle_signal(int sig)
 {
-	write(1, "Caught signal SIGINT\n", 21);
-	pthread_exit(NULL);
+    write(1, "Caught signal SIGINT\n", 21);
+    pthread_exit(NULL);
 }
 
 void func(data_t *p)
 {
-	for (EVER) {
-		fprintf(stderr, "This is from thread function\n");
-		strcpy(p->name, "Mr. Linux Cons");
-		p->age = 50;
-		sleep(2);
-	}
+    FOREVER {
+        fprintf(stderr, "This is from thread function\n");
+        strcpy(p->name, "Mr. Linux Cons");
+        p->age = 50;
+        sleep(2);
+    }
 }
 
 int main(void)
 {
-	pthread_t tid;
-	pthread_attr_t attr;
-	data_t d;
-	data_t *ptr = &d;
-	struct sigaction action;
+    pthread_t tid;
+    pthread_attr_t attr;
+    data_t d;
+    data_t *ptr = &d;
+    struct sigaction action;
 
-	action.sa_handler = &handle_signal;
-	sigaction(SIGINT, &action, NULL);
+    action.sa_handler = &handle_signal;
+    sigaction(SIGINT, &action, NULL);
 
-	pthread_attr_init(&attr);
-	pthread_create(&tid, &attr, (void*)func, ptr);
-	sleep(10);
-	pthread_kill(tid, SIGINT);
+    pthread_attr_init(&attr);
+    pthread_create(&tid, &attr, (void *) func, ptr);
+    sleep(10);
+    pthread_kill(tid, SIGINT);
 
-	pthread_join(tid, NULL);
-	fprintf(stderr, "Name: %s\n",ptr->name);
-	fprintf(stderr, "Age: %d\n",ptr->age);
+    pthread_join(tid, NULL);
+    fprintf(stderr, "Name: %s\n", ptr->name);
+    fprintf(stderr, "Age: %d\n", ptr->age);
 }

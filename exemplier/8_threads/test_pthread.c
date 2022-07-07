@@ -45,47 +45,46 @@
 
 void *do_little(void *unused)
 {
-	int i;
+    int i;
 
-	i = 0;
-	i = i + 2;
+    i = 0;
+    i = i + 2;
 
-	pthread_exit(NULL);
+    pthread_exit(NULL);
 }
 
 int main(void)
 {
-	int action, i;
-	pthread_t tid;
-	pthread_attr_t attr;
-	clock_t begin_time;
-	clock_t end_time;
-	double duration;
+    int action, i;
+    pthread_t tid;
+    pthread_attr_t attr;
+    clock_t begin_time;
+    clock_t end_time;
+    double duration;
 
-	begin_time = clock();
-	pthread_attr_init(&attr);
-	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+    begin_time = clock();
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-	for (i = 0; i < NB_THREADS; i++) {
-		action = pthread_create(&tid, &attr, do_little, NULL);
-		if (action != OK) {
-			printf("Error using pthread_create() : %d).\n", action);
-			exit(EXIT_FAILURE);
-		}
+    for (i = 0; i < NB_THREADS; i++) {
+        action = pthread_create(&tid, &attr, do_little, NULL);
+        if (action != OK) {
+            printf("Error using pthread_create() : %d).\n", action);
+            exit(EXIT_FAILURE);
+        }
 
-		/* Attente du thread */
-		action = pthread_join(tid, NULL);
-		if (action != OK) {
-			printf("Error using pthread_join() : %d).\n", action);
-			exit(EXIT_FAILURE);
-		}
-	}
-	end_time = clock();
-	duration = (double) (end_time - begin_time) / CLOCKS_PER_SEC;
-	printf("%2.1f seconds\n", duration);
+        /* Attente du thread */
+        action = pthread_join(tid, NULL);
+        if (action != OK) {
+            printf("Error using pthread_join() : %d).\n", action);
+            exit(EXIT_FAILURE);
+        }
+    }
+    end_time = clock();
+    duration = (double) (end_time - begin_time) / CLOCKS_PER_SEC;
+    printf("%2.1f seconds\n", duration);
 
-	pthread_attr_destroy(&attr);
-	pthread_exit(NULL);
+    pthread_attr_destroy(&attr);
 
-	exit(EXIT_SUCCESS); /* unreachable code */
+    pthread_exit(NULL);
 }

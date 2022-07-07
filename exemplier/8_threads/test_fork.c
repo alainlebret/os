@@ -50,44 +50,44 @@
  */
 void handle_fatal_error(char *msg)
 {
-	perror(msg);
-	exit(EXIT_FAILURE);
+    perror(msg);
+    exit(EXIT_FAILURE);
 }
 
 void do_little()
 {
-	int i;
+    int i;
 
-	i = 0;
-	i = i + 2;
+    i = 0;
+    i = i + 2;
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }
 
 int main(void)
 {
-	int pid;
-	int status = 0;
-	int i;
-	clock_t begin_time;
-	clock_t end_time;
-	double duration;
+    int pid;
+    int status = 0;
+    int i;
+    clock_t begin_time;
+    clock_t end_time;
+    double duration;
 
-	begin_time = clock();
+    begin_time = clock();
 
-	for (i = 0; i < NB_FORKS; i++) {
-		if ((pid = fork()) < 0) {
-			handle_fatal_error("Error when trying to fork\n");
-		} else if (pid == 0) {
-			do_little();
-		} else {
-			waitpid(pid, &status, 0);
-		}
-	}
+    for (i = 0; i < NB_FORKS; i++) {
+        if ((pid = fork()) < 0) {
+            handle_fatal_error("Error when trying to fork\n");
+        } else if (pid == 0) {
+            do_little();
+        } else {
+            waitpid(pid, &status, 0);
+        }
+    }
 
-	end_time = clock();
-	duration = (double) (end_time - begin_time) / CLOCKS_PER_SEC;
-	printf("%2.1f seconds\n", duration);
+    end_time = clock();
+    duration = (double) (end_time - begin_time) / CLOCKS_PER_SEC;
+    printf("%2.1f seconds\n", duration);
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }  

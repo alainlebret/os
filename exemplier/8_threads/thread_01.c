@@ -45,48 +45,46 @@ int global_value = -10;
 
 void *do_A(void *arg)
 {
-	int i;
-	int n;
+    int i;
+    int n;
 
-	n = *(int *) arg;
+    n = *(int *) arg;
 
-	for (i = 0; i < n; i++)
-		global_value = i;
+    for (i = 0; i < n; i++)
+        global_value = i;
 
-	pthread_exit(NULL);
+    pthread_exit(NULL);
 }
 
 void *do_B(void *arg)
 {
-	int i;
-	int n;
+    int i;
+    int n;
 
-	n = *(int *) arg;
+    n = *(int *) arg;
 
-	for (i = 0; i < n; i++)
-		printf("%d\n", global_value);
+    for (i = 0; i < n; i++)
+        printf("%d\n", global_value);
 
-	pthread_exit(NULL);
+    pthread_exit(NULL);
 }
 
 int main(void)
 {
-	pthread_t thA;
-	pthread_t thB;
-	int n = 10;
+    pthread_t thA;
+    pthread_t thB;
+    int n = 10;
 
-	pthread_create(&thA, NULL, do_A, &n);
-	pthread_create(&thB, NULL, do_B, &n);
+    pthread_create(&thA, NULL, do_A, &n);
+    pthread_create(&thB, NULL, do_B, &n);
 
-	/* ... */
-	sleep(1);
+    /* ... */
+    sleep(1);
 
-	/* The main thread is waiting for A and B to finish */
-	printf("The main thread is waiting for A and B to finish\n");
-	pthread_join(thB, NULL);
-	pthread_join(thA, NULL);
+    /* The main thread is waiting for A and B to finish */
+    printf("The main thread is waiting for A and B to finish\n");
+    pthread_join(thB, NULL);
+    pthread_join(thA, NULL);
 
-	pthread_exit(NULL);
-
-	exit(EXIT_SUCCESS); /* Unreachable code */
+    pthread_exit(NULL);
 }

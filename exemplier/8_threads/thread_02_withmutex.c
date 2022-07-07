@@ -43,71 +43,71 @@
 
 #define ITERATIONS 100000
 
-pthread_mutex_t mutex ;
+pthread_mutex_t mutex;
 
 void display(int n, char letter)
 {
-	int i, j;
+    int i, j;
 
-	for (j = 1; j < n; j++) {
-		pthread_mutex_lock(&mutex) ;
-		for (i = 1; i < ITERATIONS; i++);
-		printf("%c", letter);
-		fflush(stdout);
-		pthread_mutex_unlock(&mutex) ;
-	}
+    for (j = 1; j < n; j++) {
+        pthread_mutex_lock(&mutex);
+        for (i = 1; i < ITERATIONS; i++);
+        printf("%c", letter);
+        fflush(stdout);
+        pthread_mutex_unlock(&mutex);
+    }
 }
 
 void *threadA(void *unused)
 {
-	display(100, 65);
-	printf("\n End of the thread A\n");
-	fflush(stdout);
+    display(100, 65);
+    printf("\n End of the thread A\n");
+    fflush(stdout);
 
-	pthread_exit(NULL);
+    pthread_exit(NULL);
 }
 
 void *threadC(void *unused)
 {
-	display(150, 67);
+    display(150, 67);
 
-	printf("\n End of the thread C\n");
-	fflush(stdout);
+    printf("\n End of the thread C\n");
+    fflush(stdout);
 
-	pthread_exit(NULL);
+    pthread_exit(NULL);
 }
 
 void *threadB(void *unused)
 {
-	pthread_t thC;
+    pthread_t thC;
 
-	pthread_create(&thC, NULL, threadC, NULL);
-	display(100, 66);
+    pthread_create(&thC, NULL, threadC, NULL);
+    display(100, 66);
 
-	printf("\n Thread B is waiting for thread C\n");
-	pthread_join(thC, NULL);
+    printf("\n Thread B is waiting for thread C\n");
+    pthread_join(thC, NULL);
 
-	printf("\n End of the thread B\n");
-	fflush(stdout);
+    printf("\n End of the thread B\n");
+    fflush(stdout);
 
-	pthread_exit(NULL);
+    pthread_exit(NULL);
 }
 
 int main(void)
 {
-	pthread_t thA, thB;
+    pthread_t thA, thB;
 
-	pthread_mutex_init(&mutex, NULL);
-	printf(" Creation of the thread A\n");
-	pthread_create(&thA, NULL, threadA, NULL);
-	printf(" Creation of the thread B\n");
-	pthread_create(&thB, NULL, threadB, NULL);
-	sleep(1);
+    pthread_mutex_init(&mutex, NULL);
+    printf(" Creation of the thread A\n");
+    pthread_create(&thA, NULL, threadA, NULL);
+    printf(" Creation of the thread B\n");
+    pthread_create(&thB, NULL, threadB, NULL);
+    sleep(1);
 
-	/* The main thread is waiting for A and B to finish */
-	printf("The main thread is waiting for A and B to finish\n");
-	pthread_join(thA, NULL);
-	pthread_join(thB, NULL);
+    /* The main thread is waiting for A and B to finish */
+    printf("The main thread is waiting for A and B to finish\n");
+    pthread_join(thA, NULL);
+    pthread_join(thB, NULL);
 
-	pthread_exit(NULL);
+    pthread_exit(NULL);
 }
