@@ -49,50 +49,54 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#define EVER ;;
+#define FOREVER for (;;)
 
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg) {
-	printf(msg);
-	exit(EXIT_FAILURE);
+void handle_fatal_error(char *msg)
+{
+    printf(msg);
+    exit(EXIT_FAILURE);
 }
 
-int open_lockfile(const char *name) {
-	int fd;
+int open_lockfile(const char *name)
+{
+    int fd;
 
-	fd = open("test_lock", O_RDWR); /* must exist */
-	if (fd == -1) {
-		handle_fatal_error("Error opening a file.\n");
-	}
+    fd = open("test_lock", O_RDWR); /* must exist */
+    if (fd == -1) {
+        handle_fatal_error("Error opening a file.\n");
+    }
 
-	return fd;
+    return fd;
 }
 
-int main(void) {
-	int fd;
-	pid_t pid;
+int main(void)
+{
+    int fd;
+    pid_t pid;
 
-	pid = getpid();
+    pid = getpid();
 
-	fd = open_lockfile("test_lock");
+    fd = open_lockfile("test_lock");
 
-	for (EVER) {
-		if (lockf(fd, F_TLOCK, 0) == 0) {
-			printf("%d has locked the file\n", pid);
-			sleep(5);
+    FOREVER {
+        if (lockf(fd, F_TLOCK, 0) == 0) {
+            printf("%d has locked the file\n", pid);
+            sleep(5);
 
-			if (lockf(fd, F_ULOCK, 0) == 0) {
-				printf("%d has unlocked the file\n", pid);
-			}
+            if (lockf(fd, F_ULOCK, 0) == 0) {
+                printf("%d has unlocked the file\n", pid);
+            }
 
-			exit(EXIT_SUCCESS);
+            exit(EXIT_SUCCESS);
 
-		} else {
-			printf("%d found the file already locked, try again...\n", pid);
-			sleep(2);
-		}
-	}
-	exit(EXIT_SUCCESS); /* unreachable code */
+        } else {
+            printf("%d found the file already locked, try again...\n", pid);
+            sleep(2);
+        }
+    }
+
+    /* Unreachable: use <Ctrl-C> to exit */
 }

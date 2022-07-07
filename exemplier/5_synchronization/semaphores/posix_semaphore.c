@@ -49,9 +49,10 @@ typedef sem_t semaphore_t;
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char message[]) {
-	fprintf(stderr, "%s\n", message);
-	exit(EXIT_FAILURE);
+void handle_fatal_error(char message[])
+{
+    fprintf(stderr, "%s\n", message);
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -59,14 +60,15 @@ void handle_fatal_error(char message[]) {
  * @param name The name of the semaphore on the Unix system.
  * @return A pointer on the created POSIX semaphore.
  */
-semaphore_t *create_and_open_semaphore(char *name) {
-	semaphore_t *sem = NULL;
+semaphore_t *create_and_open_semaphore(char *name)
+{
+    semaphore_t *sem = NULL;
 
-	sem = sem_open(name, O_CREAT|O_RDWR, S_IRUSR|S_IWUSR, 1);
-	if (sem == SEM_FAILED) {
-		handle_fatal_error("Error trying to create semaphore\n");
-	}
-	return sem;
+    sem = sem_open(name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, 1);
+    if (sem == SEM_FAILED) {
+        handle_fatal_error("Error trying to create semaphore\n");
+    }
+    return sem;
 }
 
 /**
@@ -74,93 +76,98 @@ semaphore_t *create_and_open_semaphore(char *name) {
  * @param name The name of the semaphore on the Unix system.
  * @return A pointer on the POSIX semaphore.
  */
-semaphore_t *open_semaphore(char *name) {
-	semaphore_t *sem = NULL;
+semaphore_t *open_semaphore(char *name)
+{
+    semaphore_t *sem = NULL;
 
-	sem = sem_open(name, O_RDWR, S_IRUSR|S_IWUSR, 0);
-	if (sem < 0) {
-		sem_unlink(name);
-		handle_fatal_error("Error trying to open semaphore\n");
-	}
-	return sem;
+    sem = sem_open(name, O_RDWR, S_IRUSR | S_IWUSR, 0);
+    if (sem < 0) {
+        sem_unlink(name);
+        handle_fatal_error("Error trying to open semaphore\n");
+    }
+    return sem;
 }
 
 /**
  * Destroys the specifier POSIX semaphore.
  * @param sem The identifier of the semaphore to destroy
  */
-void destroy_semaphore(semaphore_t *sem, char *name) {
-	int r = 0;
+void destroy_semaphore(semaphore_t *sem, char *name)
+{
+    int r = 0;
 
-	r = sem_close(sem);
-	if (r < 0) {
-		handle_fatal_error("Error trying to destroy semaphore\n");
-	}
-	r = sem_unlink(name);
-	if (r < 0) {
-		perror("Error trying to unlink semaphore\n");
-	}
+    r = sem_close(sem);
+    if (r < 0) {
+        handle_fatal_error("Error trying to destroy semaphore\n");
+    }
+    r = sem_unlink(name);
+    if (r < 0) {
+        perror("Error trying to unlink semaphore\n");
+    }
 }
 
 /**
  * Performs a P() operation ("wait") on a semaphore.
  * @param sem Pointer on the semaphore.
  */
-void P(semaphore_t *sem) {
-	int r = 0;
+void P(semaphore_t *sem)
+{
+    int r = 0;
 
-	r = sem_wait(sem);
-	if (r < 0) {
-		handle_fatal_error("Error with P() operation\n");
-	}
+    r = sem_wait(sem);
+    if (r < 0) {
+        handle_fatal_error("Error with P() operation\n");
+    }
 }
 
 /**
  * Performs a V() operation ("signal") on a semaphore.
  * @param sem Pointer on the semaphore.
  */
-void V(semaphore_t *sem) {
-	int r = 0;
+void V(semaphore_t *sem)
+{
+    int r = 0;
 
-	sem_post(sem);
-	if (r < 0) {
-		handle_fatal_error("Error with V() operation\n");
-	}
+    sem_post(sem);
+    if (r < 0) {
+        handle_fatal_error("Error with V() operation\n");
+    }
 }
 
-int main(int argc, char *argv[]) {
-	semaphore_t *sem = NULL;
-	int loop = TRUE;
-	char choice;
+int main(int argc, char *argv[])
+{
+    semaphore_t *sem = NULL;
+    int loop = TRUE;
+    char choice;
 
-	sem = create_and_open_semaphore("/thesemaphore");
+    sem = create_and_open_semaphore("/thesemaphore");
 
-	while (loop) {
-		printf("p, v, x, q ? ");
-		if (scanf("%c", &choice) != 1)
-			break;
+    while (loop) {
+        printf("p, v, x, q ? ");
+        if (scanf("%c", &choice) != 1)
+            break;
 
-		switch (toupper(choice)) {
-			case 'P':
-				P(sem);
-				printf("P() -- Now access the critical section\n");
-				break;
-			case 'V':
-				V(sem);
-				printf("OK.\n");
-				break;
-			case 'X':
-				destroy_semaphore(sem, "/thesemaphore");
-				printf("V() -- Leave the critical section\n");
-				loop = FALSE;
-				break;
-			case 'Q':
-				loop = FALSE;
-				break;
-			default:
-				printf("?\n");
-		}
-	}
+        switch (toupper(choice)) {
+            case 'P':
+                P(sem);
+                printf("P() -- Now access the critical section\n");
+                break;
+            case 'V':
+                V(sem);
+                printf("OK.\n");
+                break;
+            case 'X':
+                destroy_semaphore(sem, "/thesemaphore");
+                printf("V() -- Leave the critical section\n");
+                loop = FALSE;
+                break;
+            case 'Q':
+                loop = FALSE;
+                break;
+            default:
+                printf("?\n");
+        }
+    }
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

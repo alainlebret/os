@@ -40,7 +40,7 @@
 PRG_SUFFIX_FLAG := 0
 #
 LDFLAGS := -lpthread
-CFLAGS_INC := -Wextra -ansi -pedantic
+CFLAGS_INC := -Wextra -pedantic
 CFLAGS := -g -Wall $(CFLAGS_INC)
 #
 ## ==================- NOTHING TO CHANGE BELOW THIS LINE ===================

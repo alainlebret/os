@@ -41,7 +41,7 @@
 #include <fcntl.h>
 #include <semaphore.h>
 
-#define EVER ;;
+#define FOREVER for (;;)
 #define BUFFER_SIZE 5
 #define BUFFER_SPACE 0
 #define BUFFER_USED 1
@@ -55,8 +55,8 @@ typedef sem_t semaphore_t;
  */
 void handle_fatal_error(char *msg)
 {
-	perror(msg);
-	exit(EXIT_FAILURE);
+    perror(msg);
+    exit(EXIT_FAILURE);
 }
 
 /**
@@ -66,13 +66,13 @@ void handle_fatal_error(char *msg)
  */
 semaphore_t *create_and_open_semaphore(char *name)
 {
-	semaphore_t *sem = NULL;
+    semaphore_t *sem = NULL;
 
-	sem = sem_open(name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, 1);
-	if (sem == SEM_FAILED) {
-		handle_fatal_error("Error trying to create semaphore\n");
-	}
-	return sem;
+    sem = sem_open(name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, 1);
+    if (sem == SEM_FAILED) {
+        handle_fatal_error("Error trying to create semaphore\n");
+    }
+    return sem;
 }
 
 /**
@@ -82,14 +82,14 @@ semaphore_t *create_and_open_semaphore(char *name)
  */
 semaphore_t *open_semaphore(char *name)
 {
-	semaphore_t *sem = NULL;
+    semaphore_t *sem = NULL;
 
-	sem = sem_open(name, O_RDWR, S_IRUSR | S_IWUSR, 0);
-	if (sem < 0) {
-		sem_unlink(name);
-		handle_fatal_error("Error trying to open semaphore\n");
-	}
-	return sem;
+    sem = sem_open(name, O_RDWR, S_IRUSR | S_IWUSR, 0);
+    if (sem < 0) {
+        sem_unlink(name);
+        handle_fatal_error("Error trying to open semaphore\n");
+    }
+    return sem;
 }
 
 /**
@@ -98,16 +98,16 @@ semaphore_t *open_semaphore(char *name)
  */
 void destroy_semaphore(semaphore_t *sem, char *name)
 {
-	int r = 0;
+    int r = 0;
 
-	r = sem_close(sem);
-	if (r < 0) {
-		handle_fatal_error("Error trying to destroy semaphore\n");
-	}
-	r = sem_unlink(name);
-	if (r < 0) {
-		perror("Error trying to unlink semaphore\n");
-	}
+    r = sem_close(sem);
+    if (r < 0) {
+        handle_fatal_error("Error trying to destroy semaphore\n");
+    }
+    r = sem_unlink(name);
+    if (r < 0) {
+        perror("Error trying to unlink semaphore\n");
+    }
 }
 
 /**
@@ -116,12 +116,12 @@ void destroy_semaphore(semaphore_t *sem, char *name)
  */
 void P(semaphore_t *sem)
 {
-	int r = 0;
+    int r = 0;
 
-	r = sem_wait(sem);
-	if (r < 0) {
-		handle_fatal_error("Error with P() operation\n");
-	}
+    r = sem_wait(sem);
+    if (r < 0) {
+        handle_fatal_error("Error with P() operation\n");
+    }
 }
 
 /**
@@ -130,12 +130,12 @@ void P(semaphore_t *sem)
  */
 void V(semaphore_t *sem)
 {
-	int r = 0;
+    int r = 0;
 
-	sem_post(sem);
-	if (r < 0) {
-		handle_fatal_error("Error with V() operation\n");
-	}
+    sem_post(sem);
+    if (r < 0) {
+        handle_fatal_error("Error with V() operation\n");
+    }
 }
 
 /**
@@ -144,9 +144,9 @@ void V(semaphore_t *sem)
  */
 void handler(int signal)
 {
-	sem_unlink(SEM_PATH);
-	shm_unlink(MEM_PATH);
-	exit(EXIT_SUCCESS);
+    sem_unlink(SEM_PATH);
+    shm_unlink(MEM_PATH);
+    exit(EXIT_SUCCESS);
 }
 
 /**
@@ -155,45 +155,44 @@ void handler(int signal)
  */
 void produce()
 {
-	int in_index;
-	int next_value;
-	int shmd;
-	semaphore_t * sem;
-	int *buffer;
-	struct sigaction action;
+    int in_index;
+    int next_value;
+    int shmd;
+    semaphore_t *sem;
+    int *buffer;
+    struct sigaction action;
 
-	action.sa_handler = &handler;
-	sigaction(SIGINT, &action, 0);
+    action.sa_handler = &handler;
+    sigaction(SIGINT, &action, 0);
 
-	srand((unsigned int) getpid());
-	in_index = 0;
+    srand((unsigned int) getpid());
+    in_index = 0;
 
-	shmd = shm_open(MEM_PATH, O_CREAT|O_RDWR, S_IRUSR|S_IWUSR);
-	if (shmd < 0) {
-		handle_fatal_error("Error when creating shared memory\n");
-	}
-	ftruncate(shmd, BUFFER_SIZE);
-	buffer = (int *) mmap(NULL, BUFFER_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED,
-			shmd, 0);
-	if (buffer == MAP_FAILED) {
-		handle_fatal_error("Error calling mmap\n");
-	}
+    shmd = shm_open(MEM_PATH, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+    if (shmd < 0) {
+        handle_fatal_error("Error when creating shared memory\n");
+    }
+    ftruncate(shmd, BUFFER_SIZE);
+    buffer = (int *) mmap(NULL, BUFFER_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED,
+                          shmd, 0);
+    if (buffer == MAP_FAILED) {
+        handle_fatal_error("Error calling mmap\n");
+    }
 
-	sem = create_and_open_semaphore(SEM_PATH);
+    sem = create_and_open_semaphore(SEM_PATH);
 
+    FOREVER { /* produce next_value */
+        sleep((unsigned int) (3 + rand() % 3));
+        next_value = rand() % 100;
+        printf("producer[%d]: %d\n", in_index, next_value);
 
-	for (EVER) { /* produce next_value */
-		sleep((unsigned int) (3 + rand() % 3));
-		next_value = rand() % 100;
-		printf("producer[%d]: %d\n", in_index, next_value);
+        P(sem);
 
-		P(sem);
+        buffer[in_index] = next_value;
+        in_index = (in_index + 1) % BUFFER_SIZE;
 
-		buffer[in_index] = next_value;
-		in_index = (in_index + 1) % BUFFER_SIZE;
-
-		V(sem);
-	}
+        V(sem);
+    }
 }
 
 /**
@@ -203,56 +202,56 @@ void produce()
  */
 void consume()
 {
-	int out_index;
-	int next_value;
-	int shmd;
-	semaphore_t * sem;
-	int *buffer;
-	struct sigaction action;
+    int out_index;
+    int next_value;
+    int shmd;
+    semaphore_t *sem;
+    int *buffer;
+    struct sigaction action;
 
-	action.sa_handler = &handler;
-	sigaction(SIGINT, &action, 0);
+    action.sa_handler = &handler;
+    sigaction(SIGINT, &action, 0);
 
-	srand((unsigned int) getpid());
-	out_index = 0;
+    srand((unsigned int) getpid());
+    out_index = 0;
 
-	shmd = shm_open(MEM_PATH, O_RDWR, S_IRUSR|S_IWUSR);
-	if (shmd < 0) {
-		handle_fatal_error("Error when creating shared memory\n");
-	}
-	buffer = (int *) mmap(NULL, BUFFER_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED,
-			shmd, 0);
-	if (buffer == MAP_FAILED) {
-		handle_fatal_error("Error calling mmap\n");
-	}
+    shmd = shm_open(MEM_PATH, O_RDWR, S_IRUSR | S_IWUSR);
+    if (shmd < 0) {
+        handle_fatal_error("Error when creating shared memory\n");
+    }
+    buffer = (int *) mmap(NULL, BUFFER_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED,
+                          shmd, 0);
+    if (buffer == MAP_FAILED) {
+        handle_fatal_error("Error calling mmap\n");
+    }
 
-	sem = open_semaphore(SEM_PATH);
+    sem = open_semaphore(SEM_PATH);
 
-	for (EVER) { /* consume next_value */
-		P(sem);
+    FOREVER { /* consume next_value */
+        P(sem);
 
-		next_value = buffer[out_index];
-		out_index = (out_index + 1) % BUFFER_SIZE;
+        next_value = buffer[out_index];
+        out_index = (out_index + 1) % BUFFER_SIZE;
 
-		V(sem);
+        V(sem);
 
-		/* consume next */
-		printf("consumer[%d]: %d\n", out_index == 0 ? 4 : out_index - 1, next_value);
-		sleep((unsigned int) (5 + rand() % 5));
-	}
+        /* consume next */
+        printf("consumer[%d]: %d\n", out_index == 0 ? 4 : out_index - 1, next_value);
+        sleep((unsigned int) (5 + rand() % 5));
+    }
 }
 
 int main(void)
 {
-	if (fork() == 0) {
-		produce();
-	}
-	sleep(5);
-	if (fork() == 0) {
-		consume();
-	}
+    if (fork() == 0) {
+        produce();
+    }
+    sleep(5);
+    if (fork() == 0) {
+        consume();
+    }
 
-	wait(NULL);
+    wait(NULL);
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }
