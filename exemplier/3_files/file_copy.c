@@ -43,24 +43,24 @@
 
 int main(void)
 {
-	int fd;
-	ssize_t nbcar;
-	char buffer[SIZE];
+    int fd;
+    ssize_t nbcar;
+    char buffer[SIZE];
 
-	fd = open("file.out", O_CREAT | O_WRONLY); /* créer un fichier */
-	if (fd == -1) {
-		write(STANDARD_ERROR, "Error opening a file\n", 25);
-		exit(EXIT_FAILURE);
-	}
+    fd = open("file.out", O_CREAT | O_WRONLY); /* créer un fichier */
+    if (fd == -1) {
+        write(STANDARD_ERROR, "Error opening a file\n", 25);
+        exit(EXIT_FAILURE);
+    }
 
-	write(STANDARD_OUTPUT, "File opened with success\n", 30);
+    write(STANDARD_OUTPUT, "File opened with success\n", 30);
 
-	while ((nbcar = read(KEYBOARD, buffer, SIZE)) > 0) {
-		if (write(fd, buffer, (size_t) nbcar) == -1) {
-			exit(EXIT_FAILURE);
-		}
-	}
+    while ((nbcar = read(KEYBOARD, buffer, SIZE)) > 0) {
+        if (write(fd, buffer, (size_t) nbcar) == -1) {
+            exit(EXIT_FAILURE);
+        }
+    }
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }
 

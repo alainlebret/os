@@ -50,40 +50,40 @@
  */
 void handle_fatal_error_and_exit(char *msg)
 {
-	perror(msg);
-	exit(EXIT_FAILURE);
+    perror(msg);
+    exit(EXIT_FAILURE);
 }
 
 int main(int argc, char *argv[])
 {
-	int fd;
-	int zero;
-	char *filename;
-	size_t length;
+    int fd;
+    int zero;
+    char *filename;
+    size_t length;
 
-	/* argc should be 3 */
-	if (argc != 3) {
-		printf("Usage: %s <filename> <number of gigabytes>\n", argv[0]);
-		exit(EXIT_FAILURE);
-	}
+    /* argc should be 3 */
+    if (argc != 3) {
+        printf("Usage: %s <filename> <number of gigabytes>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
 
-	zero = 0;
-	filename = argv[1];
-	length = (size_t) atoi(argv[2]) * GIGABYTE;
+    zero = 0;
+    filename = argv[1];
+    length = (size_t) atoi(argv[2]) * GIGABYTE;
 
-	/* Open a new file. */
-	fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, 0666);
-	if (fd == -1) {
-		handle_fatal_error_and_exit("Error opening a file.\n");
-	}
+    /* Open a new file. */
+    fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, 0666);
+    if (fd == -1) {
+        handle_fatal_error_and_exit("Error opening a file.\n");
+    }
 
-	/* Jump to 1 byte of where we want the file to end. */
-	lseek(fd, length - 1, SEEK_SET);
+    /* Jump to 1 byte of where we want the file to end. */
+    lseek(fd, length - 1, SEEK_SET);
 
-	/* Write a single 0 byte. */
-	write(fd, &zero, 1);
+    /* Write a single 0 byte. */
+    write(fd, &zero, 1);
 
-	close(fd);
+    close(fd);
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

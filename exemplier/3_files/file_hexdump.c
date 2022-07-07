@@ -51,51 +51,51 @@
  */
 void handle_fatal_error_and_exit(char *msg)
 {
-	perror(msg);
-	exit(EXIT_FAILURE);
+    perror(msg);
+    exit(EXIT_FAILURE);
 }
 
 int main(int argc, char *argv[])
 {
-	int fd; /* file descriptor */
-	char *filename;
-	unsigned char buffer[BUFFER_SIZE];
-	size_t offset;
-	ssize_t bytes_read;
-	int i;
+    int fd; /* file descriptor */
+    char *filename;
+    unsigned char buffer[BUFFER_SIZE];
+    size_t offset;
+    ssize_t bytes_read;
+    int i;
 
-	/* argc should be 2 */
-	if (argc != 2) {
-		printf("Usage: %s <filename>\n", argv[0]);
-		exit(EXIT_FAILURE);
-	}
+    /* argc should be 2 */
+    if (argc != 2) {
+        printf("Usage: %s <filename>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
 
-	/* Open the file for reading. */
-	filename = argv[1];
-	fd = open(filename, O_RDONLY);
-	if (fd == -1) {
-		handle_fatal_error_and_exit("Error opening a file.\n");
-	}
+    /* Open the file for reading. */
+    filename = argv[1];
+    fd = open(filename, O_RDONLY);
+    if (fd == -1) {
+        handle_fatal_error_and_exit("Error opening a file.\n");
+    }
 
-	offset = 0;
+    offset = 0;
 
-	do {
-		/* Read the next line of 20 bytes.  */
-		bytes_read = read(fd, buffer, sizeof(buffer));
+    do {
+        /* Read the next line of 20 bytes.  */
+        bytes_read = read(fd, buffer, sizeof(buffer));
 
-		/* Display the offset in the file followed by the bytes themselves.  */
-		printf("0x%06x : ", (unsigned int)offset);
+        /* Display the offset in the file followed by the bytes themselves.  */
+        printf("0x%06x : ", (unsigned int) offset);
 
-		for (i = 0; i < bytes_read; ++i) {
-			printf("%02x ", buffer[i]);
-		}
-		printf("\n");
+        for (i = 0; i < bytes_read; ++i) {
+            printf("%02x ", buffer[i]);
+        }
+        printf("\n");
 
-		/* Keep position in the file.  */
-		offset += bytes_read;
-	} while (bytes_read == sizeof(buffer));
+        /* Keep position in the file.  */
+        offset += bytes_read;
+    } while (bytes_read == sizeof(buffer));
 
-	close(fd);
+    close(fd);
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }

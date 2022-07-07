@@ -37,9 +37,10 @@
 #include <stdlib.h>
 #include <sys/statvfs.h>
 
-int main(void) {
-    struct statvfs stat;
+int main(void)
+{
     int result;
+    struct statvfs stat;
 
     result = statvfs("/", &stat);
     if (result == -1) {

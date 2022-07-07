@@ -48,31 +48,32 @@
  */
 void handle_fatal_error_and_exit(char *msg)
 {
-	perror(msg);
-	exit(EXIT_FAILURE);
+    perror(msg);
+    exit(EXIT_FAILURE);
 }
 
 int main(int argc, char *argv[])
 {
-	char *filename; /* The path at which to create the new file.  */
-	mode_t mode; /* The permissions for the new file.  */
+    int fd;         /* File descriptor */
+    char *filename; /* Path at which to create the new file.  */
+    mode_t mode;    /* Permissions for the new file.  */
 
-	/* argc should be 2 */
-	if (argc != 2) {
-		printf("Usage: %s <filename>\n", argv[0]);
-		exit(EXIT_FAILURE);
-	}
+    /* argc should be 2 */
+    if (argc != 2) {
+        printf("Usage: %s <filename>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
 
-	filename = argv[1];
-	mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH;
+    filename = argv[1];
+    mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH;
 
-	/* Create the file.  */
-	int fd = open(filename, O_WRONLY | O_EXCL | O_CREAT, mode);
-	if (fd == -1) {
-		handle_fatal_error_and_exit("Error opening a file.\n");
-	}
+    /* Create the file.  */
+    fd = open(filename, O_WRONLY | O_EXCL | O_CREAT, mode);
+    if (fd == -1) {
+        handle_fatal_error_and_exit("Error opening a file.\n");
+    }
 
-	close(fd);
+    close(fd);
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }
