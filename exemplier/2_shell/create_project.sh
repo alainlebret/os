@@ -1,27 +1,4 @@
-#!/bin/sh
-
-#
-# ENSICAEN
-# 6 Boulevard Maréchal Juin
-# F-14050 Caen Cedex
-#
-# Unix System Programming Examples / Exemplier de programmation système Unix
-# "Shell bash" / "Interpréteur de commandes bash"
-#
-# Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
+#!/bin/bash
 
 PROJECT_PATH=""
 AUTHOR1="Jean Saigne"
@@ -49,7 +26,7 @@ function error() {
 # 
 #
 function help() { 
-    echo "`basename $0` est un script shell pour créer des projets C."
+    echo "$(basename "$0") est un script shell pour créer des projets C."
     exit 0
 } 
 
@@ -57,8 +34,8 @@ function help() {
 # 
 #
 function initialize_rep() {
-   if [ ! -e $PROJECT_PATH ]; then
-      mkdir $PROJECT_PATH
+   if [ ! -e "$PROJECT_PATH" ]; then
+      mkdir "$PROJECT_PATH"
       for repertory in bin doc etc include lib object src
          do
             mkdir "$PROJECT_PATH/$repertory"
@@ -105,11 +82,11 @@ EOF
 # 
 #
 function create_Makefile() {
-   echo "CC       = gcc
-RM       = rm
-CPPFLAGS = -Wall -Wextra -I./include
-CCFLAGS  = -pedantic -O2
-LDFLAGS  = -L ./lib
+   printf "CC=gcc
+RM=rm
+CPPFLAGS=-I./include
+CFLAGS=-Wall -Wextra -pedantic -O2
+LDFLAGS=-L./lib
 
 .PHONY: all clean distclean
 
@@ -126,7 +103,7 @@ clean:
 \t-@\$(RM) ./object/*.o
 
 distclean: clean
-\t-@\$(RM) ./bin/main.exe" > $PROJECT_PATH/Makefile
+\t-@\$(RM) ./bin/main.exe" > "$PROJECT_PATH/Makefile"
 }
 
 #
@@ -159,7 +136,7 @@ EOF
 #
 function create_project() {
    echo "Entrer le nom du nouveau projet :"
-   read PROJECT_PATH
+   read -r PROJECT_PATH
    initialize_rep
    if [ "$?" == 0 ] 
    then
@@ -168,7 +145,7 @@ function create_project() {
       create_AUTHORS
       create_main
       create_Makefile
-      echo "Projet `basename $PROJECT_PATH` créé."
+      echo "Projet $(basename $PROJECT_PATH) créé."
    fi
 }
 
@@ -178,7 +155,7 @@ function create_project() {
 function open_project() {
    echo "Entrer le nom du projet à ouvrir :"
    read PROJECT_PATH
-   if [ ! -e $PROJECT_PATH ] 
+   if [ ! -e "$PROJECT_PATH" ]
    then
       echo "Projet inexistant. Il va être créé."
       initialize_rep
@@ -190,10 +167,10 @@ function open_project() {
          create_main
          create_Makefile
       fi
-      echo "Projet `basename $PROJECT_PATH` créé."
+      echo "Projet $(basename "$PROJECT_PATH") créé."
       return 0
    else 
-      if [ ! -d $PROJECT_PATH ] 
+      if [ ! -d "$PROJECT_PATH" ]
       then 
          echo "Un fichier porte déjà ce nom."
 	 PROJECT_PATH=""
@@ -211,13 +188,13 @@ fi
 # PROJECT_DIRECTORY-NAME1-NAME2-day-month-year-hour:min.tgz
 #
 function create_archive() {
-   author1=$( echo $AUTHOR1 | cut -f2 -d' ' )
-   author2=$( echo $AUTHOR2 | cut -f2 -d' ' )
+   author1=$( echo "$AUTHOR1" | cut -f2 -d' ' )
+   author2=$( echo "$AUTHOR2" | cut -f2 -d' ' )
    currentdate=$( date +%d−%m−%Y-%H-%M )
    
-   if [ -n $PROJECT_PATH ]; then
-      cd "${PROJECT_PATH}" ; make distclean; cd .. ;   
-      tar czf "$PROJECT_PATH-$author1-$author2-$currentdate.tgz" `basename $PROJECT_PATH`
+   if [ -n "$PROJECT_PATH" ]; then
+      cd "${PROJECT_PATH}" || exit 1; make distclean; cd ..;
+      tar czf "${PROJECT_PATH}-${author1}-${author2}-${currentdate}.tgz" "$( basename $PROJECT_PATH )"
    else
       error "Projet courant inexistant !" 
    fi
@@ -228,7 +205,7 @@ function create_archive() {
 # Suppress the current C project
 #
 function suppress_project() {
-   rm -R -f $PROJECT_PATH ;  
+   rm -R -f "$PROJECT_PATH"
    echo "Projet courant supprimé."
 }
 
@@ -236,7 +213,7 @@ function suppress_project() {
 # Compiles the current C project
 #
 function compile_project() {
-   if [ -z $PROJECT_PATH ]
+   if [ -z "$PROJECT_PATH" ]
    then
       echo "Aucun projet ouvert."
       return 12
@@ -282,4 +259,3 @@ then
 fi
 
 menu
-
