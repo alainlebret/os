@@ -40,28 +40,29 @@
 /**
  * A simple test of the gethostbyname function.
  */
-int main(int argc, char **argv) {
-   struct hostent *hp;
-   unisigned int count;
+int main(int argc, char **argv)
+{
+    struct hostent *hp;
+    unsigned int count;
 
-   if (argc < 2) {
-      fprintf(stderr, "Usage: %s hostname\n", argv[0]);
-      exit(EXIT_FAILURE);
-   }
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s hostname\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
 
-   hp = gethostbyname(argv[1]);
-   if (hp == NULL) {
-      fprintf(stderr, "gethostbyname() failed\n");
-      exit(EXIT_FAILURE);
-   } else {
-      printf("%s = ", hp->h_name);
-      count = 0;
+    hp = gethostbyname(argv[1]);
+    if (hp == NULL) {
+        fprintf(stderr, "gethostbyname() failed\n");
+        exit(EXIT_FAILURE);
+    } else {
+        printf("%s = ", hp->h_name);
+        count = 0;
 
-      while (hp -> h_addr_list[count] != NULL) {
-         printf("%s ", inet_ntoa(*(struct in_addr*)(hp->h_addr_list[count])));
-         count++;
-      }
-      printf("\n");
-      exit(EXIT_SUCCESS);
-   }
+        while (hp->h_addr_list[count] != NULL) {
+            printf("%s ", inet_ntoa(*(struct in_addr *) (hp->h_addr_list[count])));
+            count++;
+        }
+        printf("\n");
+        exit(EXIT_SUCCESS);
+    }
 }

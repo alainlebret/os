@@ -30,100 +30,103 @@
 #include <stdio.h>
 #include <stdlib.h>     /* exit() */
 #include <unistd.h>     /* close() */
-#include <sys/types.h>  
+#include <signal.h>
+#include <sys/types.h>
 #include <netinet/in.h> /* Internet structures and functions. */
 #include <sys/socket.h> /* Socket functions. */
 
-#define EVER ;;
+#define FOREVER for(;;)
 
 /**
  * New handler of the SIGINT signal.
  * @param signal Number of the signal
  */
-void handle(int signal) {
-	printf("SIGINT signal received!\n");
+void handle(int signal)
+{
+    printf("SIGINT signal received!\n");
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }
 
-int main() {
-	int s1, s2, s3, s4, s5, s6, s7, s8; /* socket descriptors for the test */
-	struct sigaction action;
+int main()
+{
+    int s1, s2, s3, s4, s5, s6, s7, s8; /* socket descriptors for the test */
+    struct sigaction action;
 
-	action.sa_handler = &handle;
+    action.sa_handler = &handle;
 
-	/* install the new handler of the SIGINT signal */
-	sigaction(SIGINT, &action, NULL);
+    /* install the new handler of the SIGINT signal */
+    sigaction(SIGINT, &action, NULL);
 
-	/* open sockets in different modes */
-	s1 = socket(AF_UNIX, SOCK_STREAM, 0);
-	if (s1 == -1) {
-		printf("Error opening a stream Unix socket using default protocol\n");
-	} else {
-		printf("A stream Unix socket (s1) using default protocol has been opened\n");
-	}
+    /* open sockets in different modes */
+    s1 = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (s1 == -1) {
+        printf("Error opening a stream Unix socket using default protocol\n");
+    } else {
+        printf("A stream Unix socket (s1) using default protocol has been opened\n");
+    }
 
-	s2 = socket(AF_UNIX, SOCK_DGRAM, 0);
-	if (s2 == -1) {
-		printf("Error opening a datagram Unix socket using default protocol\n");
-	} else {
-		printf("A datagram Unix socket (s2) using default protocol has been opened\n");
-	}
+    s2 = socket(AF_UNIX, SOCK_DGRAM, 0);
+    if (s2 == -1) {
+        printf("Error opening a datagram Unix socket using default protocol\n");
+    } else {
+        printf("A datagram Unix socket (s2) using default protocol has been opened\n");
+    }
 
-	s3 = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (s3 == -1) {
-		printf("Error opening a stream socket using TCP\n");
-	} else {
-		printf("A stream socket (s3) using TCP has been opened\n");
-	}
+    s3 = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (s3 == -1) {
+        printf("Error opening a stream socket using TCP\n");
+    } else {
+        printf("A stream socket (s3) using TCP has been opened\n");
+    }
 
-	s4 = socket(AF_INET, SOCK_STREAM, 0);
-	if (s4 == -1) {
-		printf("Error opening a stream socket using default protocol\n");
-	} else {
-		printf("A stream socket (s4) using default protocol has been opened\n");
-	}
+    s4 = socket(AF_INET, SOCK_STREAM, 0);
+    if (s4 == -1) {
+        printf("Error opening a stream socket using default protocol\n");
+    } else {
+        printf("A stream socket (s4) using default protocol has been opened\n");
+    }
 
-	s5 = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	if (s5 == -1) {
-		printf("Error opening a datagram socket using UDP\n");
-	} else {
-		printf("A datagram socket (s5) using UDP has been opened\n");
-	}
+    s5 = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (s5 == -1) {
+        printf("Error opening a datagram socket using UDP\n");
+    } else {
+        printf("A datagram socket (s5) using UDP has been opened\n");
+    }
 
-	s6 = socket(AF_INET, SOCK_DGRAM, 0);
-	if (s6 == -1) {
-		printf("Error opening a datagram socket using default protocol\n");
-	} else {
-		printf("A datagram socket (s6) using default protocol has been opened\n");
-	}
+    s6 = socket(AF_INET, SOCK_DGRAM, 0);
+    if (s6 == -1) {
+        printf("Error opening a datagram socket using default protocol\n");
+    } else {
+        printf("A datagram socket (s6) using default protocol has been opened\n");
+    }
 
-	s7 = socket(AF_INET, SOCK_RAW, IPPROTO_IP);
-	if (s7 == -1) {
-		printf("Error opening a raw socket using IP\n");
-	} else {
-		printf("A raw socket (s7) using IP has been opened\n");
-	}
+    s7 = socket(AF_INET, SOCK_RAW, IPPROTO_IP);
+    if (s7 == -1) {
+        printf("Error opening a raw socket using IP\n");
+    } else {
+        printf("A raw socket (s7) using IP has been opened\n");
+    }
 
-	s8 = socket(AF_INET, SOCK_RAW, 0);
-	if (s8 == -1) {
-		printf("Error opening a raw socket using default protocol\n");
-	} else {
-		printf("A raw socket (s8) using default protocol has been opened\n");
-	}
+    s8 = socket(AF_INET, SOCK_RAW, 0);
+    if (s8 == -1) {
+        printf("Error opening a raw socket using default protocol\n");
+    } else {
+        printf("A raw socket (s8) using default protocol has been opened\n");
+    }
 
-	/* wait for Ctrl-C (SIGINT) */
-	pause();
+    /* wait for Ctrl-C (SIGINT) */
+    pause();
 
-	close(s1);
-	close(s2);
-	close(s3);
-	close(s4);
-	close(s5);
-	close(s6);
-	close(s7);
-	close(s8);
+    close(s1);
+    close(s2);
+    close(s3);
+    close(s4);
+    close(s5);
+    close(s6);
+    close(s7);
+    close(s8);
 
-	exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }  
  

@@ -37,26 +37,27 @@
  * The host address is set to INADDR_ANY and the operating system
  * replaces that with the machine’s actual address.
  */
-int main(void) {
-   int sd, port = 5432;
-   struct sockaddr_in name;
+int main(void)
+{
+    int sd, port = 5432;
+    struct sockaddr_in name;
 
-   /* Create the socket */
-   sd = socket(PF_INET, SOCK_STREAM, 0);
-   if (sd < 0) {
-		fprintf(stderr, "socket() failed\n");
-		exit(EXIT_FAILURE);
-   }
+    /* Create the socket */
+    sd = socket(PF_INET, SOCK_STREAM, 0);
+    if (sd < 0) {
+        fprintf(stderr, "socket() failed\n");
+        exit(EXIT_FAILURE);
+    }
 
-   /* Give a name to the socket */
-   name.sin_family = AF_INET;
-   name.sin_port = htons(port);
-   name.sin_addr.s_addr = htonl(INADDR_ANY);
+    /* Give a name to the socket */
+    name.sin_family = AF_INET;
+    name.sin_port = htons(port);
+    name.sin_addr.s_addr = htonl(INADDR_ANY);
 
-   if (bind(sd, (struct sockaddr *) &name, sizeof(name)) < 0) {
-		fprintf(stderr, "bind() failed\n");
-		exit(EXIT_FAILURE);
-   }
+    if (bind(sd, (struct sockaddr *) &name, sizeof(name)) < 0) {
+        fprintf(stderr, "bind() failed\n");
+        exit(EXIT_FAILURE);
+    }
 
-   exit(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }
