@@ -4,7 +4,7 @@ obj = $(src:.c=.o)
 CC=gcc
 CPPFLAGS=
 CFLAGS=-Wall -Wextra -pedantic -O2
-LDFLAGS=
+LDFLAGS=-lm
 BIN= mmap1 mmap2 memory_01 memory_02 memory_03 memory_04 memory_05a \
      memory_05b memory_06 memory_07
 
