@@ -4,7 +4,7 @@ obj = $(src:.c=.o)
 CC=gcc
 CPPFLAGS=
 CFLAGS=-Wall -Wextra -pedantic -O2
-LDFLAGS=
+LDFLAGS=-lrt -lpthread
 BIN= file_locking/lock_file semaphores/posix_prod_cons semaphores/posix_semaphore \
      semaphores/unix_prod_cons semaphores/unix_semaphore
 
