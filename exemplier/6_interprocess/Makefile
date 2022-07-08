@@ -5,8 +5,8 @@ CC=gcc
 CPPFLAGS=
 CFLAGS=-Wall -Wextra -pedantic -O2
 
-ifeq ($(shell uname -s), Darwin)
-LDFLAGS=
+ifeq ($(uname -s), Darwin)
+LDFLAGS=-lm -lpthread
 BIN= pipes/anonymous_pipe_01 pipes/anonymous_pipe_02 pipes/mkfifo_client pipes/mkfifo_server \
      pipes/mkfifo_producer pipes/mkfifo_consumer \
      shared_memory/mmap_buffer_01 shared_memory/mmap_buffer_02 shared_memory/mmap_buffer_03 \
@@ -16,7 +16,7 @@ BIN= pipes/anonymous_pipe_01 pipes/anonymous_pipe_02 pipes/mkfifo_client pipes/m
      unix_messages/test_message unix_messages/test_msg_messages unix_messages/unix_msg_recv \
      unix_messages/unix_msg_send
 else
-LDFLAGS=-lrt
+LDFLAGS=-lrt -lm -lpthread
 BIN= pipes/anonymous_pipe_01 pipes/anonymous_pipe_02 pipes/mkfifo_client pipes/mkfifo_server \
      pipes/mkfifo_producer pipes/mkfifo_consumer \
      posix_messages/posix_msg_receiver posix_messages/posix_msg_sender \
