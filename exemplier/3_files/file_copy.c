@@ -47,7 +47,7 @@ int main(void)
     ssize_t nbcar;
     char buffer[SIZE];
 
-    fd = open("file.out", O_CREAT | O_WRONLY); /* créer un fichier */
+    fd = open("file.out", O_CREAT | O_WRONLY, 0644);
     if (fd == -1) {
         write(STANDARD_ERROR, "Error opening a file\n", 25);
         exit(EXIT_FAILURE);
