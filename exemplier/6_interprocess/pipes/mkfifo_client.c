@@ -69,7 +69,7 @@ int main(void)
 
     fdr = open(RESPONSE, O_RDONLY);
     if (fdr == -1) {
-        fprintf(stderr, "Unable to access to output named pipe %\n", RESPONSE);
+        fprintf(stderr, "Unable to access to output named pipe %s\n", RESPONSE);
         fprintf(stderr, "Please, run server first!\n");
         exit(EXIT_FAILURE);
     }

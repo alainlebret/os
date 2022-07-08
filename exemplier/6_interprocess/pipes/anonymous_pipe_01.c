@@ -27,15 +27,15 @@
 #include <sys/wait.h> /* wait() */
 #include <ctype.h>
 
-#define INPUT 1
-#define OUTPUT 0
-#define KEYBOARD 0
+#define INPUT     1
+#define OUTPUT    0
+#define KEYBOARD  0
 #define BYTE_SIZE 1
 
 /**
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
  * @version	1.0
- * @date 2011-12-01
+ * @date 2022-06-01
  */
 
 /**
@@ -67,7 +67,7 @@ void manage_parent(int pipe[])
 
     while (read(KEYBOARD, &byte, BYTE_SIZE) > 0) {
         if (isalnum(byte)) {
-            write(pipe[1], &byte, 1);
+            write(pipe[INPUT], &byte, 1);
         }
     }
     close(pipe[INPUT]);
