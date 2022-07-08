@@ -9,7 +9,7 @@ BIN= process/process_01 process/process_02 process/process_03 process/process_04
      process/process_04b process/process_05 process/process_06a process/process_06b \
      process/process_07 signal/signal_01 signal/signal_02 signal/signal_03 \
      signal/signal_04 signal/signal_05 signal/signal_06 signal/signal_07 \
-     signal/signal_08 signal/signal_09
+     signal/signal_08a signal/signal_08b signal/signal_09
 
 all: $(BIN)
 
@@ -61,10 +61,13 @@ signal/signal_06: signal/signal_06.o
 signal/signal_07: signal/signal_07.o
 	$(CC) $< -o $@ $(LDFLAGS)
 
-signal/signal_08: signal/signal_08.o
+signal/signal_08a: signal/signal_08a.o
 	$(CC) $< -o $@ $(LDFLAGS)
 
-signal/signal_09: signal/signal_08.o
+signal/signal_08b: signal/signal_08b.o
+	$(CC) $< -o $@ $(LDFLAGS)
+	
+signal/signal_09: signal/signal_09.o
 	$(CC) $< -o $@ $(LDFLAGS)
 
 clean:
