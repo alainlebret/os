@@ -4,37 +4,20 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * Chapter "Interprocess communication" / Chapitre "Communication interprocessus"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-
-/**
- * @author Alain Lebret (2011)
- * @author Janet Davis (2006)
- * @author Henry Walker (2004)
- * @version	1.3
- * @date 2011-12-01
- */
-
-/**
- * @file mmap_buffer_03.c
- *
- * Producer-consumer program using a shared memory that stores a buffer of
- * integers and synchronized using semaphores. This code is based on the example
- * presented by:  Janet Davis (2006) and Henry Walker (2004).
  */
 
 #include <stdio.h>
@@ -54,6 +37,22 @@
 #define BUFFER_USED  0
 #define BUFFER_SPACE 1
 #define NBR_SEMAPHORES  2
+
+/**
+ * @author Alain Lebret (2011)
+ * @author Janet Davis (2006)
+ * @author Henry Walker (2004)
+ * @version	1.3
+ * @date 2011-12-01
+ */
+
+/**
+ * @file mmap_buffer_03.c
+ *
+ * Producer-consumer program using a shared memory that stores a buffer of
+ * integers and synchronized using semaphores. This code is based on the example
+ * presented by:  Janet Davis (2006) and Henry Walker (2004).
+ */
 
 /**
  * Handles a fatal error. It displays a message, then exits.

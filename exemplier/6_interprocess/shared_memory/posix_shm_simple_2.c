@@ -4,15 +4,14 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * Chapter "Interprocess communication" / Chapitre "Communication interprocessus"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,25 +44,30 @@
 #include <sys/types.h>
 #include <errno.h>
 
-typedef struct {
+typedef struct memory {
     int *table;
 } memory_t;
 
+/**
+ * Displays content of the specified integer values.
+ */
 void display(char *prog, int *bytes, int n);
 
+/**
+ * Handles a fatal error. It displays a message, then exits.
+ */
 void handle_error(char *message);
 
 int main(void)
 {
-    memory_t mem;
-    mem.table = (int *) malloc(3 * sizeof(int));
-    const char *name = "/pipeautique2"; /* shared memory name */
-    const int SIZE = sizeof(mem); /* shared memory size */
-
-
     int shm_fd;     /* file descriptor, from shm_open() */
     int *shm_base;  /* base address, from mmap() */
     int *ptr;       /* shm_base is fixed, ptr is movable */
+    memory_t mem;   /* the shared memory */
+
+    mem.table = (int *) malloc(3 * sizeof(int));
+    const char *name = "/pipeautique2"; /* shared memory name */
+    const int SIZE = sizeof(mem); /* shared memory size */
 
     /* create the shared memory segment as if it was a file */
     shm_fd = shm_open(name, O_CREAT | O_RDWR, 0644);
@@ -130,23 +134,17 @@ int main(void)
     exit(EXIT_SUCCESS);
 }
 
-/**
- * Handles a fatal error. It displays a message, then exits.
- */
 void handle_error(char *message)
 {
     fprintf(stderr, "%s", message);
     exit(EXIT_FAILURE);
 }
 
-/**
- * Displays content of the specified integer values.
- */
 void display(char *prog, int *values, int n)
 {
     int i;
 
-    printf("display: %s\n", prog);
+    printf("Display: %s\n", prog);
     for (i = 0; i < n; ++i) {
         printf("%d ", values[i]);
     }

@@ -4,15 +4,14 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * "Files, pipes and fifo" / "Fichiers et entrées-sorties"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +19,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include <stdio.h>      /* printf() */
+#include <stdlib.h>     /* exit() */
+#include <fcntl.h>      /* open() opening flags and file modes */
+#include <unistd.h>     /* close() */
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#define GIGABYTE 1024*1024*1024
 
 /**
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
@@ -32,15 +40,6 @@
  *
  * A simple example that uses the \c lseek primitive to create a huge file.
  */
-
-#include <stdio.h>      /* printf() */
-#include <stdlib.h>     /* exit() */
-#include <fcntl.h>      /* open() opening flags and file modes */
-#include <unistd.h>     /* close() */
-#include <sys/stat.h>
-#include <sys/types.h>
-
-#define GIGABYTE 1024*1024*1024
 
 /**
  * @brief Handles a fatal error and exit. 

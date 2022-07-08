@@ -4,15 +4,14 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * Chapter "Interprocess communication" / Chapitre "Communication interprocessus"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +19,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include <stdio.h>  /* printf() */
+#include <stdlib.h> /* exit() and execl()*/
+#include <unistd.h> /* fork() */
+#include <sys/types.h> /* pid_t and mkfifo() */
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <errno.h>
+#include <signal.h>
+
+#define FOREVER for (;;)
 
 /**
  * @author Alain Lebret
@@ -34,19 +44,8 @@
  * integers and stores their sum in a shared memory.
  */
 
-#include <stdio.h>  /* printf() */
-#include <stdlib.h> /* exit() and execl()*/
-#include <unistd.h> /* fork() */
-#include <sys/types.h> /* pid_t and mkfifo() */
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <errno.h>
-#include <signal.h>
-
-#define FOREVER for(;;)
-
-/** 
- * Structure to store the number of some integers and their sum.
+/**
+ * Structure to store the number of \c nb integers and their sum.
  */
 struct data {
     int nb;
@@ -66,10 +65,10 @@ void handle_fatal_error(char *message)
 
 int main(void)
 {
-    key_t key;
     int id;
-    struct data *shared_memory;
     int value;
+    key_t key;
+    struct data *shared_memory;
 
     key = ftok(getenv("HOME"), 'A');
     if (key == -1) {

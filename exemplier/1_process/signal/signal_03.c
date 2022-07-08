@@ -4,15 +4,14 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * "Processes & signals" / "Processus et signaux"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -50,21 +49,23 @@ unsigned int s = 0; /* Seconds */
  */
 void tick(int signal)
 {
-    s++;
-    if (s == 60) {
-        s = 0;
-        m++;
-        if (m == 60) {
-            m = 0;
-            h++;
-            if (h == 24)
-                h = 0;
+    if (signal == SIGALRM) {
+        s++;
+        if (s == 60) {
+            s = 0;
+            m++;
+            if (m == 60) {
+                m = 0;
+                h++;
+                if (h == 24)
+                    h = 0;
+            }
         }
-    }
-    printf("%d:%d:%d\n", h, m, s);
+        printf("%d:%d:%d\n", h, m, s);
 
-    /* Re-engage the alarm */
-    alarm(1);
+        /* Re-engage the alarm */
+        alarm(1);
+    }
 }
 
 int main(void)

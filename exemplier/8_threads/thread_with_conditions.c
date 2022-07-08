@@ -4,15 +4,14 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * Chapter "Threads" / Chapitre "Threads"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +19,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include <unistd.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#define NUM_THREADS  4
+#define TOTAL_COUNT 10
+#define COUNT_LIMIT 12
 
 /**
  * @author Blaise Barney -- Lawrence Livermore National Laboratory (03/07/2017)
@@ -41,15 +49,6 @@
  * This example is adapted from the code at:
  * https://computing.llnl.gov/tutorials/pthreads/
  */
-
-#include <unistd.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#define NUM_THREADS  4
-#define TOTAL_COUNT 10
-#define COUNT_LIMIT 12
 
 int count = 0;
 pthread_mutex_t count_mutex;
@@ -114,10 +113,18 @@ void *watch_count(void *t)
 
 int main(int argc, char *argv[])
 {
-    int i, rc;
-    long t1 = 1, t2 = 2, t3 = 3, t4 = 4;
+    int i;
+    long t1;
+    long t2;
+    long t3;
+    long t4;
     pthread_t threads[NUM_THREADS];
     pthread_attr_t attr;
+
+    t1 = 1;
+    t2 = 2;
+    t3 = 3;
+    t4 = 4;
 
     /* Initialize mutex and condition variable objects */
     pthread_mutex_init(&count_mutex, NULL);

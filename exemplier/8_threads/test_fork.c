@@ -4,36 +4,20 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * Chapter "Threads" / Chapitre "Threads"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-
-/**
- * @author Alain Lebret
- * @version	1.0
- * @date 2012-04-10
- */
-
-
-/**
- * @file fork_test.c
- *
- * A simple program to test fork vs threads (see \c thread_test.c).
- *
- * Compile using gcc -Wall -Wextra fork_test.c
  */
 
 #include <stdio.h>
@@ -46,6 +30,20 @@
 #define NB_FORKS 50000
 
 /**
+ * @author Alain Lebret
+ * @version	1.0
+ * @date 2012-04-10
+ */
+
+/**
+ * @file fork_test.c
+ *
+ * A simple program to test fork vs threads (see \c thread_test.c).
+ *
+ * Compile using gcc -Wall -Wextra fork_test.c
+ */
+
+/**
  * Handles a fatal error. It displays a message, then exits.
  */
 void handle_fatal_error(char *msg)
@@ -54,7 +52,7 @@ void handle_fatal_error(char *msg)
     exit(EXIT_FAILURE);
 }
 
-void do_little()
+void do_little(void)
 {
     int i;
 
@@ -67,11 +65,13 @@ void do_little()
 int main(void)
 {
     int pid;
-    int status = 0;
+    int status;
     int i;
     clock_t begin_time;
     clock_t end_time;
     double duration;
+
+    status = 0;
 
     begin_time = clock();
 

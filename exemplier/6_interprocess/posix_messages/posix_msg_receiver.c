@@ -4,28 +4,20 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * Chapter "Interprocess communication" / Chapitre "Communication interprocessus"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-
-/**
- * @file posix_msg_receiver.c
- * @author Alain Lebret
- * @version	1.0
- * @date 2016-11-01
  */
 
 #include <fcntl.h>
@@ -37,21 +29,33 @@
 
 #define FOREVER for (;;)
 
+/**
+ * @file posix_msg_receiver.c
+ * @author Alain Lebret
+ * @version	1.0
+ * @date 2016-11-01
+ */
+
 /*
  * Receiver application using POSIX mqueue
  * Compilation: gcc -o mqueue_receiver posix_msg_receiver.c -lrt
  */
 int main(int argc, char *argv[])
 {
+    int size;
+    int nb_messages;
+    long int duration;
+    long int max_duration;
+    long int min_duration;
+    long int sum_durations;
     mqd_t mq;
     char *buffer;
     struct mq_attr attr;
-    struct timeval hour, *received_hour;
-    int size, nb_messages;
-    long int duration, max_duration, min_duration, sum_durations;
+    struct timeval hour;
+    struct timeval *received_hour;
 
     if (argc != 2) {
-        fprintf(stderr, "usage: %s mqueue_name\n", argv[0]);
+        fprintf(stderr, "Usage: %s mqueue_name\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
@@ -62,14 +66,14 @@ int main(int argc, char *argv[])
     }
 
     if (mq_getattr(mq, &attr) != 0) {
-        perror("mq_getattr");
+        perror("Unable to get attributes from the message queue.");
         exit(EXIT_FAILURE);
     }
 
     size = attr.mq_msgsize;
     buffer = (char *) malloc(size);
     if (buffer == NULL) {
-        perror("malloc");
+        perror("Unable to allocate memory for the buffer");
         exit(EXIT_FAILURE);
     }
 
@@ -83,10 +87,12 @@ int main(int argc, char *argv[])
 
         do {
             mq_receive(mq, buffer, size, NULL);
+
             gettimeofday(&hour, NULL);
             duration = hour.tv_sec - received_hour->tv_sec;
             duration *= 1000000;
             duration += hour.tv_usec - received_hour->tv_usec;
+
             if (nb_messages > 0) { /* Ignore first message */
                 if (max_duration < duration) {
                     max_duration = duration;

@@ -4,37 +4,20 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * Chapter "Interprocess communication" / Chapitre "Communication interprocessus"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-
-/**
- * @author Alain Lebret (2011)
- * @author Janet Davis (2006)
- * @author Henry Walker (2004)
- * @version	1.3
- * @date 2011-12-01
- */
-
-/**
- * @file mmap_buffer_04.c
- *
- * Multi-producer-multi-consumer program using a shared memory and synchronized
- * with semaphores. This code is based on the example presented by:  Janet Davis
- * (2006) and Henry Walker (2004).
  */
 
 #include <stdlib.h>
@@ -62,6 +45,22 @@
 #define NBR_SEMAPHORES 3     /* number of semaphores */
 
 /**
+ * @author Alain Lebret (2011)
+ * @author Janet Davis (2006)
+ * @author Henry Walker (2004)
+ * @version	1.3
+ * @date 2011-12-01
+ */
+
+/**
+ * @file mmap_buffer_04.c
+ *
+ * Multi-producer-multi-consumer program using a shared memory and synchronized
+ * with semaphores. This code is based on the example presented by:  Janet Davis
+ * (2006) and Henry Walker (2004).
+ */
+
+ /**
  * Handles a fatal error. It displays a message, then exits.
  */
 void handle_fatal_error(char *message)
@@ -213,15 +212,13 @@ void *create_shared_memory()
 int main(void)
 {
     pid_t pid;
-
+    int i;
+    int semid; /* identifier for a semaphore set */
     void *shared_memory; /* shared memory base address */
     int *buffer; /* logical base address for buffer */
     int *in; /* pointer to logical 'in' address for producer */
     int *out; /* pointer to logical 'out' address for consumer */
 
-    int semid; /* identifier for a semaphore set */
-
-    int counter;
 
     shared_memory = create_shared_memory();
 
@@ -247,36 +244,35 @@ int main(void)
     initialize_semaphore(semid, MUTEX, 1);
 
     /* Creation of producers */
-    for (counter = 1; counter <= NBR_PRODUCTERS; counter++) {
+    for (i = 1; i <= NBR_PRODUCTERS; i++) {
         pid = fork();
         if (pid == -1) {
             handle_fatal_error("Error when trying to fork producers.\n");
         }
         if (pid == 0) {
-            produce(counter, buffer, in, out, semid);
+            produce(i, buffer, in, out, semid);
             exit(EXIT_SUCCESS);
         }
     }
 
     /* Creation of consumers */
-    for (counter = 1; counter <= NBR_CONSUMERS; counter++) {
+    for (i = 1; i <= NBR_CONSUMERS; i++) {
         pid = fork();
         if (pid == -1) {
             handle_fatal_error("Error when trying to fork consumers.\n");
         }
 
         if (pid == 0) {
-            consume(counter, buffer, in, out, semid);
+            consume(i, buffer, in, out, semid);
             exit(EXIT_SUCCESS);
         }
     }
 
     /* Waiting for the end of all consumers */
-    printf("All producers and consumers are working.\n");
+    printf("All producers and consumers are working...\n");
     printf("Parent process is waiting for them to end...\n");
 
-    for (counter = 0;
-         counter < NBR_PRODUCTERS + NBR_CONSUMERS; counter++) {
+    for (i = 0; i < NBR_PRODUCTERS + NBR_CONSUMERS; i++) {
         wait(NULL);
     }
 

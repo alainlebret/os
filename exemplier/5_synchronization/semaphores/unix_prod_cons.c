@@ -4,40 +4,20 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * "Process synchronization" / "Synchronisation des processus"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-
-/**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2011-12-01
- */
-/**
- * @author Alain Lebret (2011)
- * @author Janet Davis (2006)
- * @author Henry Walker (2004)
- * @version	1.0
- * @date 2011-12-01
- */
-
-/**
- * @file prod_cons.c
- *
- * Producer-consumer program using a set of two IPC semaphores.
  */
 
 #include <signal.h>
@@ -53,6 +33,20 @@
 #define BUFFER_SIZE 10
 #define BUFFER_SPACE 0
 #define BUFFER_USED 1
+
+/**
+ * @author Alain Lebret (2011)
+ * @author Janet Davis (2006)
+ * @author Henry Walker (2004)
+ * @version	1.0
+ * @date 2011-12-01
+ */
+
+/**
+ * @file prod_cons.c
+ *
+ * Producer-consumer program using a set of two IPC semaphores.
+ */
 
 typedef int semaphore_t;
 
@@ -79,8 +73,9 @@ void modify_semaphore_value(semaphore_t sem, int sem_num, int new_value)
     sb[0].sem_op = new_value;
     sb[0].sem_flg = 0;
 
-    if (semop(sem, sb, 1) != 0)
+    if (semop(sem, sb, 1) != 0) {
         handle_fatal_error("Error trying to modify semaphore's value\n");
+    }
 }
 
 /**
@@ -126,6 +121,8 @@ void produce(int *buffer, int id_semaphores)
 
         V(id_semaphores, BUFFER_USED);
     }
+
+    /* Unreachable */
 }
 
 /**
@@ -154,10 +151,15 @@ void consume(int *buffer, int id_semaphores)
         printf("consumer: %d\n", next_value);
         sleep((unsigned int) (10 + rand() % 10));
     }
+
+    /* Unreachable */
 }
 
 void handler(int signal)
 {
+    if (signal == SIGINT) {
+        exit(EXIT_SUCCESS);
+    }
 }
 
 int main(void)

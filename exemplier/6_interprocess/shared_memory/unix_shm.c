@@ -4,15 +4,14 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * Chapter "Interprocess communication" / Chapitre "Communication interprocessus"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +19,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include <stdio.h>          /* printf()                 */
+#include <stdlib.h>         /* exit(), malloc(), free() */
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/types.h>      /* key_t, sem_t, pid_t      */
+#include <sys/shm.h>        /* shmat(), IPC_RMID        */
+#include <fcntl.h>          /* for O_* constants */
+#include <errno.h>          /* errno, ECHILD            */
+#include <semaphore.h>      /* sem_open(), sem_destroy(), sem_wait().. */
 
 /**
  * @author Alain Lebret
@@ -34,19 +43,9 @@
  * Link with \c -lpthread.
  */
 
-#include <stdio.h>          /* printf()                 */
-#include <stdlib.h>         /* exit(), malloc(), free() */
-#include <unistd.h>
-#include <sys/wait.h>
-#include <sys/types.h>      /* key_t, sem_t, pid_t      */
-#include <sys/shm.h>        /* shmat(), IPC_RMID        */
-#include <fcntl.h>          /* for O_* constants */
-#include <errno.h>          /* errno, ECHILD            */
-#include <semaphore.h>      /* sem_open(), sem_destroy(), sem_wait().. */
-
+int shmid;         /* shared memory id */
 int *shared_value; /* shared variable */
 sem_t *sem;        /* synch semaphore */
-int shmid;         /* shared memory id */
 
 /**
  * Handles a fatal error. It displays a message, then exits.

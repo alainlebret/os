@@ -4,15 +4,14 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * Chapter "Interprocess communication" / Chapitre "Communication interprocessus"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +19,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h> /* pid_t */
+#include <sys/wait.h>
+#include <sys/mman.h>
+
+#define INTEGER_SIZE sizeof(int)
+#define ITERATIONS 10
 
 /**
  * @author Alain Lebret (2011)
@@ -36,16 +45,6 @@
  * This code is based on the example proposed by:  Janet Davis (2006) and Henry
  * Walker (2004).
  */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h> /* pid_t */
-#include <sys/wait.h>
-#include <sys/mman.h>
-
-#define INTEGER_SIZE sizeof(int)
-#define ITERATIONS 10
 
 /**
  * Handles a fatal error. It displays a message, then exits.
@@ -143,7 +142,7 @@ int main(void)
     shared_memory = create_shared_memory();
 
     pid = fork();
-    if (pid < 0) {
+    if (pid == -1) {
         handle_fatal_error("Error using fork().\n");
     }
     if (pid > 0) {

@@ -4,15 +4,14 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * Chapter "Network communication" / Chapitre "Communication par sockets"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +20,15 @@
  * limitations under the License.
  */
 
+#include <unistd.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <netinet/in.h> /* Internet structures and functions. */
+#include <sys/socket.h> /* Socket functions. */
+
+#define FOREVER for (;;)
+#define MAX_LINE 16384
 
 /**
  * @file rotn_server.c
@@ -31,24 +39,16 @@
  * each incoming connection.
  */
 
-#include <unistd.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <netinet/in.h> /* Internet structures and functions. */
-#include <sys/socket.h> /* Socket functions. */
-
-#define FOREVER for(;;)
-#define MAX_LINE 16384
-
 char rot_char(char c, int rot)
 {
-    char result = c;
+    char result;
 
-    if ((c >= 'a' && c <= 'm') || (c >= 'A' && c <= 'M'))
+    result = c;
+    if ((c >= 'a' && c <= 'm') || (c >= 'A' && c <= 'M')) {
         result += rot;
-    else if ((c >= 'n' && c <= 'z') || (c >= 'N' && c <= 'Z'))
+    } else if ((c >= 'n' && c <= 'z') || (c >= 'N' && c <= 'Z')) {
         result -= rot;
+    }
 
     return result;
 }
@@ -56,9 +56,10 @@ char rot_char(char c, int rot)
 void handle_child(int fd)
 {
     char outbuf[MAX_LINE + 1];
-    size_t outbuf_used = 0;
+    size_t outbuf_used;
     ssize_t result;
 
+    outbuf_used = 0;
     FOREVER {
         char ch;
 
@@ -115,7 +116,6 @@ void run(void)
         return;
     }
 
-
     FOREVER {
         struct sockaddr_storage ss;
         socklen_t slen = sizeof(ss);
@@ -133,7 +133,7 @@ void run(void)
     }
 }
 
-int main(int c, char **v)
+int main(int argc, char *argv[])
 {
     run();
     exit(EXIT_SUCCESS);

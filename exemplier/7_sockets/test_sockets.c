@@ -4,15 +4,14 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * Chapter "Network communication" / Chapitre "Communication par sockets"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,11 +20,6 @@
  * limitations under the License.
  */
 
-/**
- * @author Alain Lebret
- * @version	1.0
- * @date 2012-04-10
- */
 
 #include <stdio.h>
 #include <stdlib.h>     /* exit() */
@@ -38,19 +32,37 @@
 #define FOREVER for(;;)
 
 /**
+ * @author Alain Lebret
+ * @version	1.0
+ * @date 2012-04-10
+ */
+
+/**
+ * @file test_sockets.c
+ */
+
+/**
  * New handler of the SIGINT signal.
  * @param signal Number of the signal
  */
 void handle(int signal)
 {
-    printf("SIGINT signal received!\n");
-
-    exit(EXIT_SUCCESS);
+    if (signal == SIGINT) {
+        printf("SIGINT signal received!\n");
+        exit(EXIT_SUCCESS);
+    }
 }
 
-int main()
+int main(void)
 {
-    int s1, s2, s3, s4, s5, s6, s7, s8; /* socket descriptors for the test */
+    int s1; /* socket descriptors for the test */
+    int s2;
+    int s3;
+    int s4;
+    int s5;
+    int s6;
+    int s7;
+    int s8;
     struct sigaction action;
 
     action.sa_handler = &handle;

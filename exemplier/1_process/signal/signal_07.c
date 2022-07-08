@@ -4,15 +4,14 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * "Processes & signals" / "Processus et signaux"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,8 +47,10 @@ unsigned char nb_calls = 7;
  */
 void handle_seven_lifes(int signal)
 {
-    nb_calls--;
-    printf("Still have %d lifes....\n", (int) nb_calls);
+    if (signal == SIGUSR1) {
+        nb_calls--;
+        printf("Still have %d lifes....\n", (int) nb_calls);
+    }
 }
 
 /**
@@ -114,7 +115,7 @@ int main(void)
     pid_t pid;
 
     pid = fork();
-    if (pid < 0) {
+    if (pid == -1) {
         handle_fatal_error_and_exit("Error using fork().\n");
     }
 

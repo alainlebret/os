@@ -4,27 +4,20 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * Chapter "Interprocess communication" / Chapitre "Communication interprocessus"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-
-/**
- * @author Alain Lebret
- * @version	1.0
- * @date 2016-11-01
  */
 
 #include <stdio.h>
@@ -41,6 +34,19 @@
 #define MEMORY_PATH "/shm_name"
 
 /**
+ * @author Alain Lebret
+ * @version	1.0
+ * @date 2016-11-01
+ */
+
+/**
+ * @file posix_shm_server.c
+ *
+ * Example using a server and a client sharing memory.
+ * Link with \c -lrt.
+ */
+
+ /**
  * Structure to store a value and its square root.
  */
 struct memory_t {
@@ -72,9 +78,12 @@ int main(int argc, char *argv[])
 {
     int memory_descriptor;
     int value;
-    size_t memory_size = (1 * sizeof(struct memory_t));
+    size_t memory_size;
     struct memory_t *memory;
     struct sigaction action;
+
+    memory_size = (1 * sizeof(struct memory_t));
+
     action.sa_handler = &handle_sigint;
 
     sigaction(SIGINT, &action, NULL);
@@ -104,6 +113,7 @@ int main(int argc, char *argv[])
     fprintf(stderr, "Memory of %zu bytes allocated.\n", memory_size);
 
     value = 1;
+
     FOREVER {
         memory->value = value;
         memory->square_root = sqrt(value);
@@ -111,11 +121,4 @@ int main(int argc, char *argv[])
         value++;
     }
 
-    /*
-     * Unreachable: use a signal handler with the following code
-     * if (shm_unlink(MEMORY_PATH) != 0) {
-     *    handle_error("Error calling shm_unlink\n");
-     * }
-     * exit(EXIT_SUCCESS);
-     */
 }

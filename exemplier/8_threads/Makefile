@@ -1,82 +1,62 @@
-############################################################################
-# 'A Generic Makefile for Building Multiple main() Targets in $PWD'
-# Author:  Robert A. Nader (2012)
-# Email: naderra at some g
-# Web: xiberix
-############################################################################
-#  The purpose of this makefile is to compile to executable all C source
-#  files in CWD, where each .c file has a main() function, and each object
-#  links with a common LDFLAG.
-#
-#  This makefile should suffice for simple projects that require building
-#  similar executable targets.  For example, if your CWD build requires
-#  exclusively this pattern:
-#
-#  cc -c $(CFLAGS) main_01.c
-#  cc main_01.o $(LDFLAGS) -o main_01
-#
-#  cc -c $(CFLAGS) main_2..c
-#  cc main_02.o $(LDFLAGS) -o main_02
-#
-#  etc, ... a common case when compiling the programs of some chapter,
-#  then you may be interested in using this makefile.
-#
-#  What YOU do:
-#
-#  Set PRG_SUFFIX_FLAG below to either 0 or 1 to enable or disable
-#  the generation of a .exe suffix on executables
-#
-#  Set CFLAGS and LDFLAGS according to your needs.
-#
-#  What this makefile does automagically:
-#
-#  Sets SRC to a list of *.c files in PWD using wildcard.
-#  Sets PRGS BINS and OBJS using pattern substitution.
-#  Compiles each individual .c to .o object file.
-#  Links each individual .o to its corresponding executable.
-#
-###########################################################################
-#
-PRG_SUFFIX_FLAG := 0
-#
-CC := gcc
-LDFLAGS := -pthread
-CFLAGS_INC := -I.
-CFLAGS :=  $(CFLAGS_INC) -g -Wall -Wextra -pedantic -D_REENTRANT -DMUTEX
-#
-## ==================- NOTHING TO CHANGE BELOW THIS LINE ===================
-##
-SRCS := $(wildcard *.c)
-PRGS := $(patsubst %.c,%,$(SRCS))
-PRG_SUFFIX=.exe
-BINS := $(patsubst %,%$(PRG_SUFFIX),$(PRGS))
-## OBJS are automagically compiled by make.
-OBJS := $(patsubst %,%.o,$(PRGS))
-##
-all : $(BINS)
-##
-## For clarity sake we make use of:
-.SECONDEXPANSION:
-OBJ = $(patsubst %$(PRG_SUFFIX),%.o,$@)
-ifeq ($(PRG_SUFFIX_FLAG),0)
-	BIN = $(patsubst %$(PRG_SUFFIX),%,$@)
-else
-	BIN = $@
-endif
-## Compile the executables
-%$(PRG_SUFFIX) : $(OBJS)
-	$(CC) $(OBJ) -o $(BIN) $(LDFLAGS)
-##
-## $(OBJS) should be automagically removed right after linking.
-##
-veryclean:
-ifeq ($(PRG_SUFFIX_FLAG),0)
-	$(RM) $(PRGS)
-else
-	$(RM) $(BINS)
-endif
-##
-rebuild: veryclean all
-##
-## eof Generic_Multi_Main_PWD.makefile
+src = $(wildcard *.c)
+obj = $(src:.c=.o)
 
+CC=gcc
+CPPFLAGS=-DMUTEX -D_REENTRANT
+CFLAGS=-Wall -Wextra -pedantic -O2
+
+ifeq ($(shell uname -s), Darwin)
+LDFLAGS=-lpthread
+else
+LDFLAGS=-lrt -lpthread
+endif
+
+BIN= barrier pb_reentrant test_fork test_pthread thread_01 thread_02 thread_02_withmutex \
+     thread_with_conditions thread_with_shm_and_mutex thread_with_shm_without_mutex \
+     thread_with_signal without_pb_reentrant
+
+all: $(BIN)
+
+barrier: barrier.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+pb_reentrant: pb_reentrant.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+without_pb_reentrant: without_pb_reentrant.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+test_fork: test_fork.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+test_pthread: test_pthread.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+thread_01: thread_01.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+thread_02: thread_02.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+thread_02_withmutex: thread_02_withmutex.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+thread_with_conditions: thread_with_conditions.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+thread_with_shm_and_mutex: thread_with_shm_and_mutex.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+thread_with_shm_without_mutex: thread_with_shm_without_mutex.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+thread_with_signal: thread_with_signal.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+clean:
+	rm *.o
+
+distclean: clean
+	rm $(BIN)
+
+.PHONY: all clean distclean

@@ -4,15 +4,14 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * "Memory management" / "Gestion de la mémoire"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +19,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#define SHOW_ADDRESS(ID, I) printf("The id %s \t\t is at:%8X\n", ID, (unsigned long int)&I);
 
 /**
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
@@ -79,22 +86,17 @@
  * +------------------+
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-#define SHOW_ADDRESS(ID, I) printf("The id %s \t\t is at:%8X\n", ID, (unsigned long int)&I);
-
-int etext, edata, end;
-char *g_pointer = "String in C \n ";   /* initialized global */
-char g_buff[100];               /* uninitialized global */
-
+int etext;
+int edata;
+int end;
+char *g_pointer = "A string in C"; /* initialized global */
+char g_buff[100];                  /* uninitialized global */
 
 void pointer_function(int local_non_init)
 {
-    int local_init = 1;
+    int local_init;
+
+    local_init = 1;
 
     SHOW_ADDRESS(" LocUninit (inside PtrFct) ", local_non_init)
     if (local_non_init > 0) {
@@ -110,7 +112,6 @@ int main(int argc, char *argv[], char *envp[])
 
     int *int_ptr1 = (int *) malloc(10 * sizeof(int)); /* heap */
     int *int_ptr2 = (int *) malloc(10 * sizeof(int)); /* heap */
-
 
     strcpy(g_buff, " Layout of virtual 4_memory \n ");
 

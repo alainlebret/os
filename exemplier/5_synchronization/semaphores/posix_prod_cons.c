@@ -4,32 +4,20 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * "Process synchronization" / "Synchronisation des processus"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-
-/**
- * @author Alain Lebret (2011)
- * @version	1.2
- * @date 2011-12-01
-
-/**
- * @file posix_prod_cons.c
- *
- * Producer-consumer program using a POSIX semaphore.
  */
 
 #include <stdio.h>
@@ -42,11 +30,23 @@
 #include <semaphore.h>
 
 #define FOREVER for (;;)
-#define BUFFER_SIZE 5
+#define BUFFER_SIZE  5
 #define BUFFER_SPACE 0
-#define BUFFER_USED 1
-#define MEM_PATH "/theshm"
-#define SEM_PATH "/thesemaphore"
+#define BUFFER_USED  1
+#define MEM_PATH     "/theshm"
+#define SEM_PATH     "/thesemaphore"
+
+/**
+ * @author Alain Lebret (2011)
+ * @version	1.2
+ * @date 2011-12-01
+ */
+
+/**
+ * @file posix_prod_cons.c
+ *
+ * Producer-consumer program using a POSIX semaphore.
+ */
 
 typedef sem_t semaphore_t;
 
@@ -85,8 +85,8 @@ semaphore_t *open_semaphore(char *name)
     semaphore_t *sem = NULL;
 
     sem = sem_open(name, O_RDWR, S_IRUSR | S_IWUSR, 0);
-    if (sem < 0) {
-        sem_unlink(name);
+    if (sem == SEM_FAILED) {
+        sem_unlink(name); /* Try to remove the semaphore on file system */
         handle_fatal_error("Error trying to open semaphore\n");
     }
     return sem;
@@ -104,6 +104,7 @@ void destroy_semaphore(semaphore_t *sem, char *name)
     if (r < 0) {
         handle_fatal_error("Error trying to destroy semaphore\n");
     }
+
     r = sem_unlink(name);
     if (r < 0) {
         perror("Error trying to unlink semaphore\n");
@@ -111,7 +112,7 @@ void destroy_semaphore(semaphore_t *sem, char *name)
 }
 
 /**
- * Performs a P() operation ("wait") on a semaphore.
+ * Performs a P() operation ("wait", "lock", etC.) on a semaphore.
  * @param sem Pointer on the semaphore.
  */
 void P(semaphore_t *sem)
@@ -125,7 +126,7 @@ void P(semaphore_t *sem)
 }
 
 /**
- * Performs a V() operation ("signal") on a semaphore.
+ * Performs a V() operation ("signal", "release", etc.) on a semaphore.
  * @param sem Pointer on the semaphore.
  */
 void V(semaphore_t *sem)
@@ -144,16 +145,18 @@ void V(semaphore_t *sem)
  */
 void handler(int signal)
 {
-    sem_unlink(SEM_PATH);
-    shm_unlink(MEM_PATH);
-    exit(EXIT_SUCCESS);
+    if (signal == SIGINT) {
+        sem_unlink(SEM_PATH);
+        shm_unlink(MEM_PATH);
+        exit(EXIT_SUCCESS);
+    }
 }
 
 /**
  * Writes values to a shared buffer protected by a semaphore.
  * @param buffer Buffer to read on.
  */
-void produce()
+void produce(void)
 {
     int in_index;
     int next_value;
@@ -200,7 +203,7 @@ void produce()
  * @param buffer Buffer to read on.
  * @param id_semaphore Semaphore identifier used to protect critical section.
  */
-void consume()
+void consume(void)
 {
     int out_index;
     int next_value;
@@ -251,6 +254,7 @@ int main(void)
         consume();
     }
 
+    wait(NULL);
     wait(NULL);
 
     exit(EXIT_SUCCESS);

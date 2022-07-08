@@ -4,15 +4,14 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * "Processes & signals" / "Processus et signaux"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,7 +35,7 @@
 /**
  * @file signal_08.c
  *
- * A simple program to handle the SIGUSR1 signal. Just open another terminal
+ * A simple program to handle the SIGUSR1 signal. Open another terminal
  * while running this program and execute:
  * kill -s SIGUSR1 <PID>
  */
@@ -46,9 +45,11 @@ volatile sig_atomic_t got_usr1;
 /**
  * @brief Handles the signal SIGUSR1.
  */
-void sigusr1_handler(int sig)
+void sigusr1_handler(int signal)
 {
-    got_usr1 = 1;
+    if (signal == SIGUSR1) {
+        got_usr1 = 1;
+    }
 }
 
 int main(void)

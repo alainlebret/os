@@ -4,15 +4,14 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * Chapter "Interprocess communication" / Chapitre "Communication interprocessus"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +19,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/shm.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <time.h>
+#include <errno.h>
 
 /**
  * @author Alain Lebret
@@ -34,58 +45,51 @@
  * Link with \c -lrt.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <fcntl.h>
-#include <sys/shm.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <errno.h>
 
+/**
+ * Handles a fatal error. It displays a message, then exits.
+ */
 void handle_error(char *message);
 
 #define PAGESIZE 4096
 
-typedef struct vector_t {
+typedef struct vector {
     float x;
     float y;
     float z;
-} vector;
+} vector_t;
 
-typedef struct color_t {
+typedef struct color {
     unsigned char red;
     unsigned char green;
     unsigned char blue;
-} color;
+} color_t;
 
-typedef struct s1_t {
+typedef struct s1 {
     int id;
     char name[20];
     int age;
     char padding[PAGESIZE - 2 * sizeof(int) - 20 * sizeof(char)];
-} s1;
+} s1_t;
 
-typedef struct s2_t {
-    vector vec;
-    color col;
-    char padding[PAGESIZE - sizeof(vector) - 20 * sizeof(color)];
-} s2;
+typedef struct s2 {
+    vector_t vec;
+    color_t col;
+    char padding[PAGESIZE - sizeof(vector_t) - 20 * sizeof(color_t)];
+} s2_t;
 
-typedef struct s1_et_s2_t {
-    s1 a_s1;
-    s2 a_s2;
-} s1_and_s2;
+typedef struct s1_et_s2 {
+    s1_t a_s1;
+    s2_t a_s2;
+} s1_and_s2_t;
 
 
 int main(void)
 {
     int shm_fd;
     pid_t pid;
-    s1 *ptr1;
-    s2 *ptr2;
+    s1_t *ptr1;
+    s2_t *ptr2;
 
     srand(time(NULL));
 
@@ -95,16 +99,16 @@ int main(void)
         handle_error("Opening shared memory file failed: %s\n");
     }
 
-    ftruncate(shm_fd, sizeof(s1_and_s2));
+    ftruncate(shm_fd, sizeof(s1_and_s2_t));
 
     /* map the shared memory segment for struct s1 to the address space of the process */
-    ptr1 = (s1 *) mmap(NULL, sizeof(s1), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+    ptr1 = (s1_t *) mmap(NULL, sizeof(s1_t), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
     if (ptr1 == MAP_FAILED) {
         handle_error("Map failed: %s\n");
     }
 
     /* map the shared memory segment for struct s2 to the address space of the process */
-    ptr2 = (s2 *) mmap(NULL, sizeof(s2), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, sizeof(s1));
+    ptr2 = (s2_t *) mmap(NULL, sizeof(s2_t), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, sizeof(s1_t));
     if (ptr2 == MAP_FAILED) {
         handle_error("Map failed: %s\n");
     }
@@ -126,10 +130,10 @@ int main(void)
     }
 
     /* remove the mapped memory segments from the address space of the process */
-    if (munmap(ptr1, sizeof(s1)) == -1) {
+    if (munmap(ptr1, sizeof(s1_t)) == -1) {
         handle_error("Unmap ptr1 failed: %s\n");
     }
-    if (munmap(ptr2, sizeof(s2)) == -1) {
+    if (munmap(ptr2, sizeof(s2_t)) == -1) {
         handle_error("Unmap ptr2 failed: %s\n");
     }
 
@@ -144,9 +148,6 @@ int main(void)
     exit(EXIT_SUCCESS);
 }
 
-/**
- * Handles a fatal error. It displays a message, then exits.
- */
 void handle_error(char *message)
 {
     fprintf(stderr, "%s", message);

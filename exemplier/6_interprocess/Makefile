@@ -1,81 +1,113 @@
-############################################################################
-# 'A Generic Makefile for Building Multiple main() Targets in $PWD'
-# Author:  Robert A. Nader (2012)
-# Email: naderra at some g
-# Web: xiberix
-############################################################################
-#  The purpose of this makefile is to compile to executable all C source
-#  files in CWD, where each .c file has a main() function, and each object
-#  links with a common LDFLAG.
-#
-#  This makefile should suffice for simple projects that require building
-#  similar executable targets.  For example, if your CWD build requires
-#  exclusively this pattern:
-#
-#  cc -c $(CFLAGS) main_01.c
-#  cc main_01.o $(LDFLAGS) -o main_01
-#
-#  cc -c $(CFLAGS) main_2..c
-#  cc main_02.o $(LDFLAGS) -o main_02
-#
-#  etc, ... a common case when compiling the programs of some chapter,
-#  then you may be interested in using this makefile.
-#
-#  What YOU do:
-#
-#  Set PRG_SUFFIX_FLAG below to either 0 or 1 to enable or disable
-#  the generation of a .exe suffix on executables
-#
-#  Set CFLAGS and LDFLAGS according to your needs.
-#
-#  What this makefile does automagically:
-#
-#  Sets SRC to a list of *.c files in PWD using wildcard.
-#  Sets PRGS BINS and OBJS using pattern substitution.
-#  Compiles each individual .c to .o object file.
-#  Links each individual .o to its corresponding executable.
-#
-###########################################################################
-#
-PRG_SUFFIX_FLAG := 0
-#
-LDFLAGS := 
-CFLAGS_INC := -Wextra -ansi -pedantic
-CFLAGS := -g -Wall $(CFLAGS_INC)
-#
-## ==================- NOTHING TO CHANGE BELOW THIS LINE ===================
-##
-SRCS := $(wildcard *.c)
-PRGS := $(patsubst %.c,%,$(SRCS))
-PRG_SUFFIX=.exe
-BINS := $(patsubst %,%$(PRG_SUFFIX),$(PRGS))
-## OBJS are automagically compiled by make.
-OBJS := $(patsubst %,%.o,$(PRGS))
-##
-all : $(BINS)
-##
-## For clarity sake we make use of:
-.SECONDEXPANSION:
-OBJ = $(patsubst %$(PRG_SUFFIX),%.o,$@)
-ifeq ($(PRG_SUFFIX_FLAG),0)
-	BIN = $(patsubst %$(PRG_SUFFIX),%,$@)
-else
-	BIN = $@
-endif
-## Compile the executables
-%$(PRG_SUFFIX) : $(OBJS)
-	$(CC) $(OBJ)  $(LDFLAGS) -o $(BIN)
-##
-## $(OBJS) should be automagically removed right after linking.
-##
-veryclean:
-ifeq ($(PRG_SUFFIX_FLAG),0)
-	$(RM) $(PRGS)
-else
-	$(RM) $(BINS)
-endif
-##
-rebuild: veryclean all
-##
-## eof Generic_Multi_Main_PWD.makefile
+src = $(wildcard pipes/*.c posix_messages/*.c shared_memory/*.c unix_messages/*.c)
+obj = $(src:.c=.o)
 
+CC=gcc
+CPPFLAGS=
+CFLAGS=-Wall -Wextra -pedantic -O2
+
+ifeq ($(shell uname -s), Darwin)
+LDFLAGS=
+BIN= pipes/anonymous_pipe_01 pipes/anonymous_pipe_02 pipes/mkfifo_client pipes/mkfifo_server \
+     pipes/mkfifo_producer pipes/mkfifo_consumer \
+     shared_memory/mmap_buffer_01 shared_memory/mmap_buffer_02 shared_memory/mmap_buffer_03 \
+     shared_memory/mmap_buffer_04 shared_memory/posix_shm_client shared_memory/posix_shm_server \
+     shared_memory/posix_shm_simple_1 shared_memory/posix_shm_simple_2 shared_memory/posix_shm_simple_3 \
+     shared_memory/unix_shm shared_memory/unix_shm_consumer shared_memory/unix_shm_producer \
+     unix_messages/test_message unix_messages/test_msg_messages unix_messages/unix_msg_recv \
+     unix_messages/unix_msg_send
+else
+LDFLAGS=-lrt
+BIN= pipes/anonymous_pipe_01 pipes/anonymous_pipe_02 pipes/mkfifo_client pipes/mkfifo_server \
+     pipes/mkfifo_producer pipes/mkfifo_consumer \
+     posix_messages/posix_msg_receiver posix_messages/posix_msg_sender \
+     shared_memory/mmap_buffer_01 shared_memory/mmap_buffer_02 shared_memory/mmap_buffer_03 \
+     shared_memory/mmap_buffer_04 shared_memory/posix_shm_client shared_memory/posix_shm_server \
+     shared_memory/posix_shm_simple_1 shared_memory/posix_shm_simple_2 shared_memory/posix_shm_simple_3 \
+     shared_memory/unix_shm shared_memory/unix_shm_consumer shared_memory/unix_shm_producer \
+     unix_messages/test_message unix_messages/test_msg_messages unix_messages/unix_msg_recv \
+     unix_messages/unix_msg_send
+endif
+
+all: $(BIN)
+
+pipes/anonymous_pipe_01: pipes/anonymous_pipe_01.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+pipes/anonymous_pipe_02: pipes/anonymous_pipe_02.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+pipes/mkfifo_client: pipes/mkfifo_client.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+pipes/mkfifo_server: pipes/mkfifo_server.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+pipes/mkfifo_producer: pipes/mkfifo_producer.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+posix_messages/posix_msg_receiver: posix_messages/posix_msg_receiver.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+posix_messages/posix_msg_sender: posix_messages/posix_msg_sender.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+shared_memory/mmap_buffer_01: shared_memory/mmap_buffer_01.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+shared_memory/mmap_buffer_02: shared_memory/mmap_buffer_02.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+shared_memory/mmap_buffer_03: shared_memory/mmap_buffer_03.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+shared_memory/mmap_buffer_04: shared_memory/mmap_buffer_04.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+shared_memory/posix_shm_client: shared_memory/posix_shm_client.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+shared_memory/posix_shm_server: shared_memory/posix_shm_server.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+shared_memory/posix_shm_simple_1: shared_memory/posix_shm_simple_1.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+shared_memory/posix_shm_simple_2: shared_memory/posix_shm_simple_2.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+shared_memory/posix_shm_simple_3: shared_memory/posix_shm_simple_3.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+shared_memory/unix_shm: shared_memory/unix_shm.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+shared_memory/unix_shm_consumer: shared_memory/unix_shm_consumer.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+shared_memory/unix_shm_producer: shared_memory/unix_shm_producer.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+unix_messages/test_message: unix_messages/test_message.o unix_messages/message.o
+	$(CC) $^ -o $@ $(LDFLAGS)
+
+unix_messages/test_msg_messages: unix_messages/test_msg_messages.o unix_messages/message.o
+	$(CC) $^ -o $@ $(LDFLAGS)
+
+unix_messages/unix_msg_recv: unix_messages/unix_msg_recv.o unix_messages/message.o
+	$(CC) $^ -o $@ $(LDFLAGS)
+
+unix_messages/unix_msg_send: unix_messages/unix_msg_send.o unix_messages/message.o
+	$(CC) $^ -o $@ $(LDFLAGS)
+
+ifeq ($(shell uname -s), Darwin)
+clean:
+	rm pipes/*.o shared_memory/*.o unix_messages/*.o
+else
+clean:
+	rm pipes/*.o posix_messages/*.o shared_memory/*.o unix_messages/*.o
+endif
+
+distclean: clean
+	rm $(BIN)
+
+.PHONY: all clean distclean

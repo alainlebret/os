@@ -4,15 +4,14 @@
  * F-14050 Caen Cedex
  *
  * Unix System Programming Examples / Exemplier de programmation système Unix
- * Chapter "Threads" / Chapitre "Threads"
  *
- * Copyright (C) 1995-2016 Alain Lebret (alain.lebret@ensicaen.fr)
+ * Copyright (C) 1995-2022 Alain Lebret (alain.lebret [at] ensicaen [dot] fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +19,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include <pthread.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <stdio.h>
+#include <signal.h>
+#include <string.h>
+
+#define FOREVER for (;;)
 
 /**
  * @author Alain Lebret
@@ -36,17 +44,8 @@
  * On Linux, compile with gcc -Wall -Wextra -pedantic thread_with_signal.c -pthread
  */
 
-#include <pthread.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <stdio.h>
-#include <signal.h>
-#include <string.h>
-
-#define FOREVER for(;;)
-
 typedef struct data {
-    char name[10];
+    char name[12];
     int age;
 } data_t;
 
@@ -60,10 +59,11 @@ void func(data_t *p)
 {
     FOREVER {
         fprintf(stderr, "This is from thread function\n");
-        strcpy(p->name, "Mr. Linux Cons");
-        p->age = 50;
+        strcpy(p->name, "Linux Lover");
+        p->age = 55;
         sleep(2);
     }
+    /* Unreachable */
 }
 
 int main(void)
