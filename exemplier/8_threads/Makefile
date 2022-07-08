@@ -5,7 +5,7 @@ CC=gcc
 CPPFLAGS=-DMUTEX -D_REENTRANT
 CFLAGS=-Wall -Wextra -pedantic -O2
 
-ifeq ($(shell uname -s), Darwin)
+ifeq ($(uname -s), Darwin)
 LDFLAGS=-lpthread
 else
 LDFLAGS=-lrt -lpthread
