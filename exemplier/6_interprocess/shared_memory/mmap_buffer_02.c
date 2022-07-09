@@ -51,7 +51,7 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *message)
+void handle_fatal_error(const char *message)
 {
     fprintf(stderr, "%s", message);
     exit(EXIT_FAILURE);
@@ -65,9 +65,11 @@ void write_memory(int *buffer, int *begin, int *end)
     int i;
 
     for (i = 0; i < ITERATIONS; i++) {
-        while ((*begin + 1) % BUFFER_SIZE == *end);
+        while ((*begin + 1) % BUFFER_SIZE == *end) {}
+        
         buffer[*begin] = i * i;
         *begin = (*begin + 1) % BUFFER_SIZE;
+        
         printf("Parent: initial value %2d before writing in the buffer\n", i);
     }
 }
@@ -102,7 +104,9 @@ void read_memory(int *buffer, int *in, int *out)
 
     for (i = 0; i < ITERATIONS; i++) {
         sleep(1);  /* waiting for the memory update (not as good as semaphore) */
-        while (*in == *out);
+        
+        while (*in == *out) {}
+        
         value = buffer[*out];
         *out = (*out + 1) % BUFFER_SIZE;
         printf("Child: element %2d == %2d read from the buffer.\n", i, value);
@@ -165,7 +169,7 @@ int main(void)
     *in = *out = 0;          /* starting index */
 
     if (-1 == (pid = fork())) {
-        handle_fatal_error("Error using fork()\n");
+        handle_fatal_error("Error [fork()]: ");
     }
     if (0 == pid) {
         manage_child(buffer, in, out);
@@ -175,3 +179,4 @@ int main(void)
 
     exit(EXIT_SUCCESS);
 }
+

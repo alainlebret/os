@@ -65,7 +65,7 @@ void handle_sigchild(int signal)
  * It displays the given error message, then exits.
  * @param msg The error message to display before exiting.
  */
-void handle_fatal_error_and_exit(char *msg)
+void handle_fatal_error_and_exit(const char *msg)
 {
     perror(msg);
     exit(EXIT_FAILURE);
@@ -117,7 +117,7 @@ int main(void)
     pid = fork();
 
     if (pid == -1) {
-        handle_fatal_error_and_exit("Error using fork().\n");
+        handle_fatal_error_and_exit("Error [fork()]: ");
     }
 
     if (pid > 0) {

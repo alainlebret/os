@@ -63,7 +63,7 @@
  /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *message)
+void handle_fatal_error(const char *message)
 {
     fprintf(stderr, "%s", message);
     exit(EXIT_FAILURE);
@@ -81,7 +81,7 @@ int create_semaphores(int nbr_semaphores)
     /* permission 0600 = lecture/modification by user */
     if ((semid = semget(IPC_PRIVATE, nbr_semaphores, IPC_CREAT | 0600))
         < 0) {
-        handle_fatal_error("Error when creating semaphores!\n");
+        handle_fatal_error("Error when creating semaphores! ");
     }
 
     return semid;
@@ -93,7 +93,7 @@ int create_semaphores(int nbr_semaphores)
 void initialize_semaphore(int semid, int index, int valeur)
 {
     if (semctl(semid, index, SETVAL, valeur) < 0) {
-        handle_fatal_error("Error when initializing semaphore.\n");
+        handle_fatal_error("Error when initializing semaphore. ");
     }
 }
 
@@ -111,7 +111,7 @@ void sem_wait(int semid, int index)
     sops[0].sem_flg = 0;
 
     if (semop(semid, sops, 1) < 0) {
-        handle_fatal_error("Error using P().\n");
+        handle_fatal_error("Error using P(). ");
     }
 }
 
@@ -129,7 +129,7 @@ void sem_signal(int semid, int index)
     sops[0].sem_flg = 0;
 
     if (semop(semid, sops, 1) < 0) {
-        handle_fatal_error("Error using V().\n");
+        handle_fatal_error("Error using V(). ");
     }
 }
 
@@ -247,7 +247,7 @@ int main(void)
     for (i = 1; i <= NBR_PRODUCTERS; i++) {
         pid = fork();
         if (pid == -1) {
-            handle_fatal_error("Error when trying to fork producers.\n");
+            handle_fatal_error("Error when trying to fork producers. ");
         }
         if (pid == 0) {
             produce(i, buffer, in, out, semid);
@@ -259,7 +259,7 @@ int main(void)
     for (i = 1; i <= NBR_CONSUMERS; i++) {
         pid = fork();
         if (pid == -1) {
-            handle_fatal_error("Error when trying to fork consumers.\n");
+            handle_fatal_error("Error when trying to fork consumers. ");
         }
 
         if (pid == 0) {
@@ -279,10 +279,11 @@ int main(void)
     /* Remove the semaphore from the system and destroy the set of
      *  semaphores and data structure associated with it. */
     if (semctl(semid, 0, IPC_RMID) < 0) {
-        handle_fatal_error("Error removing semaphores.\n");
+        handle_fatal_error("Error removing semaphores. ");
         exit(EXIT_FAILURE);
     }
     printf("Semaphores removed.\n");
 
     exit(EXIT_SUCCESS);
 }
+

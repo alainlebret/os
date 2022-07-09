@@ -49,7 +49,7 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *message)
+void handle_fatal_error(const char *message)
 {
     fprintf(stderr, "%s", message);
     exit(EXIT_FAILURE);
@@ -129,7 +129,7 @@ void *create_shared_memory()
                                0);  /* ignored: only set when using a file */
 
     if (shared_memory == (void *) -1) {
-        handle_fatal_error("Error allocating shared memory using mmap!\n");
+        handle_fatal_error("Error [mmap()]: ");
     }
     return shared_memory;
 }
@@ -143,7 +143,7 @@ int main(void)
 
     pid = fork();
     if (pid == -1) {
-        handle_fatal_error("Error using fork().\n");
+        handle_fatal_error("Error [fork()]: ");
     }
     if (pid > 0) {
         manage_parent(shared_memory);
@@ -153,3 +153,4 @@ int main(void)
 
     exit(EXIT_SUCCESS);
 }
+

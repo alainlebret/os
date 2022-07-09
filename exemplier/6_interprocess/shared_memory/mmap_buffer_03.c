@@ -57,7 +57,7 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *message)
+void handle_fatal_error(const char *message)
 {
     fprintf(stderr, "%s", message);
     exit(EXIT_FAILURE);
@@ -74,17 +74,15 @@ int initialize_semaphores(void)
     /* permission 0600 = lecture/modification by user */
     if ((semid = semget(IPC_PRIVATE, NBR_SEMAPHORES, IPC_CREAT | 0600))
         < 0) {
-        handle_fatal_error("Error when creating semaphores!\n");
+        handle_fatal_error("Error [semget()]: ");
     }
 
     if (semctl(semid, BUFFER_SPACE, SETVAL, BUFFER_SIZE) < 0) {
-        handle_fatal_error(
-                "Error during initialization of the first semaphore.\n");
+        handle_fatal_error("Error first [semctrl()]: ");
     }
 
     if (semctl(semid, BUFFER_USED, SETVAL, 0) < 0) {
-        handle_fatal_error(
-                "Error during initialization of the second semaphore.\n");
+        handle_fatal_error("Error second [semctrl()]: ");
     }
 
     return semid;
@@ -104,7 +102,7 @@ void sem_wait(int semid, int index)
     sops[0].sem_flg = 0;
 
     if (semop(semid, sops, 1) < 0) {
-        handle_fatal_error("Error using P().\n");
+        handle_fatal_error("Error using P(): ");
     }
 }
 
@@ -122,7 +120,7 @@ void sem_signal(int semid, int index)
     sops[0].sem_flg = 0;
 
     if (semop(semid, sops, 1) < 0) {
-        handle_fatal_error("Error using V().\n");
+        handle_fatal_error("Error using V(): ");
     }
 }
 
@@ -216,7 +214,7 @@ void *create_shared_memory()
                                0);  /* ignored: set when using a file */
 
     if (shared_memory == (void *) -1) {
-        handle_fatal_error("Error allocating shared memory using mmap!\n");
+        handle_fatal_error("Error [mmap()]: ");
     }
     return shared_memory;
 }
@@ -251,7 +249,7 @@ int main(void)
     semaphores = initialize_semaphores();
 
     if (-1 == (pid = fork())) {
-        handle_fatal_error("Error using fork()\n");
+        handle_fatal_error("Error [fork()]: ");
     }
     if (0 == pid) {
         manage_child(buffer, in, out, semaphores);
@@ -260,9 +258,10 @@ int main(void)
     }
 
     if (semctl(semaphores, 0, IPC_RMID) < 0) {
-        handle_fatal_error("Error when trying to remove semaphores.\n");
+        handle_fatal_error("Error when trying to remove semaphores. ");
     }
     printf("Semaphores have been removed.\n");
 
     exit(EXIT_SUCCESS);
 }
+

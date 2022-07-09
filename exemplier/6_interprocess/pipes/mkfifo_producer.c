@@ -20,11 +20,11 @@
  * limitations under the License.
  */
 
-#include <stdio.h>  /* printf() */
-#include <stdlib.h> /* exit() and execl()*/
-#include <unistd.h> /* fork() */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() and execl()*/
+#include <unistd.h>    /* fork() */
 #include <sys/types.h> /* pid_t and mkfifo() */
-#include <sys/stat.h> /* mkfifo() */
+#include <sys/stat.h>  /* mkfifo() */
 #include <ctype.h>
 #include <fcntl.h>
 #include <string.h>
@@ -47,7 +47,7 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg)
+void handle_fatal_error(const char *msg)
 {
     perror(msg);
     exit(EXIT_FAILURE);
@@ -90,12 +90,12 @@ int main(void)
      */
     pipe = create_pipe("./testfifo", S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
     if (pipe == -1) {
-        handle_fatal_error("\nError when trying to create the named pipe.\n");
+        handle_fatal_error("Error when trying to create named pipe!");
     }
 
     pd = open_pipe("./testfifo");
     if (pd == -1) {
-        handle_fatal_error("\nError when trying to open the named pipe.\n");
+        handle_fatal_error("Error when trying to open named pipe!");
     }
 
 
@@ -108,3 +108,4 @@ int main(void)
 
     exit(EXIT_SUCCESS);
 }
+

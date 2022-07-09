@@ -30,7 +30,7 @@
 
 #define QUESTION "cli2serv"
 #define RESPONSE "serv2cli"
-#define FOREVER for (;;)
+#define FOREVER  for (;;)
 
 /**
  * @author Alain Lebret <alain.lebret@ensicaen.fr>

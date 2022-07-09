@@ -49,7 +49,7 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_error(char *message);
+void handle_error(const char *message);
 
 #define PAGESIZE 4096
 
@@ -96,7 +96,7 @@ int main(void)
     /* create the shared memory segment as if it was a file */
     shm_fd = shm_open("/pipeautique3", O_CREAT | O_RDWR, 0644);
     if (shm_fd == -1) {
-        handle_error("Opening shared memory file failed: %s\n");
+        handle_error("Error [shm_open()]: ");
     }
 
     ftruncate(shm_fd, sizeof(s1_and_s2_t));
@@ -104,22 +104,21 @@ int main(void)
     /* map the shared memory segment for struct s1 to the address space of the process */
     ptr1 = (s1_t *) mmap(NULL, sizeof(s1_t), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
     if (ptr1 == MAP_FAILED) {
-        handle_error("Map failed: %s\n");
+        handle_error("Error [mmap() ptr1]: ");
     }
 
     /* map the shared memory segment for struct s2 to the address space of the process */
     ptr2 = (s2_t *) mmap(NULL, sizeof(s2_t), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, sizeof(s1_t));
     if (ptr2 == MAP_FAILED) {
-        handle_error("Map failed: %s\n");
+        handle_error("Error [mmap() ptr2]: ");
     }
 
     printf("> %p\n", (void *) ptr1);
     printf("> %p\n", (void *) ptr2);
 
     pid = fork();
-
     if (pid < 0) {
-        handle_error("Shared memory failed: %s\n");
+        handle_error("Error [fork()]: ");
     }
     if (pid > 0) { /* parent process */
         strcpy(ptr1->name, "Monkeypox");
@@ -131,15 +130,15 @@ int main(void)
 
     /* remove the mapped memory segments from the address space of the process */
     if (munmap(ptr1, sizeof(s1_t)) == -1) {
-        handle_error("Unmap ptr1 failed: %s\n");
+        handle_error("Error [munmap() ptr1]: ");
     }
     if (munmap(ptr2, sizeof(s2_t)) == -1) {
-        handle_error("Unmap ptr2 failed: %s\n");
+        handle_error("Error [munmap() ptr2]: ");
     }
 
     /* close the shared memory segment as if it was a file */
     if (close(shm_fd) == -1) {
-        handle_error("Close failed: %s\n");
+        handle_error("Error [close()]: ");
     }
 
     if (pid > 0) {
@@ -148,8 +147,8 @@ int main(void)
     exit(EXIT_SUCCESS);
 }
 
-void handle_error(char *message)
+void handle_error(const char *message)
 {
-    fprintf(stderr, "%s", message);
+    perror(message);
     exit(EXIT_FAILURE);
 }

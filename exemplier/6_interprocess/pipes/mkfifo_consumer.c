@@ -20,11 +20,11 @@
  * limitations under the License.
  */
 
-#include <stdio.h>  /* printf() */
-#include <stdlib.h> /* exit() and execl()*/
-#include <unistd.h> /* pour fork() */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() and execl()*/
+#include <unistd.h>    /* pour fork() */
 #include <sys/types.h> /* pid_t and mkfifo() */
-#include <sys/stat.h> /* mkfifo() */
+#include <sys/stat.h>  /* mkfifo() */
 #include <ctype.h>
 #include <fcntl.h>
 #include <string.h>
@@ -64,7 +64,7 @@ int open_pipe(const char *name)
 
     pd = open(name, O_RDONLY);
     if (pd == -1) {
-        handle_fatal_error("\nError when trying to open the named pipe.\n");
+        handle_fatal_error("Error [open()]: ");
     }
     return pd;
 }
@@ -92,3 +92,4 @@ int main(void)
 
     exit(EXIT_SUCCESS);
 }
+

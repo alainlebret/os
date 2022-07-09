@@ -57,9 +57,9 @@ struct memory_t {
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_error(char *message)
+void handle_error(const char *message)
 {
-    fprintf(stderr, "%s", message);
+    perror(message);
     exit(EXIT_FAILURE);
 }
 
@@ -69,7 +69,7 @@ void handle_error(char *message)
 void handle_sigint(int signum)
 {
     if (shm_unlink(MEMORY_PATH) < 0) {
-        handle_error("Error calling shm_unlink\n");
+        handle_error("Error [shm_unlink()]: ");
     }
     exit(EXIT_SUCCESS);
 }
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
             O_RDWR,
             S_IRWXU | S_IRWXG);
     if (memory_descriptor < 0) {
-        handle_error("Error calling shm_open\n");
+        handle_error("Error [shm_open()]: ");
     }
 
     fprintf(stderr, "Shared memory object %s has been opened", MEMORY_PATH);
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
             memory_descriptor,
             0);
     if (memory == MAP_FAILED) {
-        handle_error("Error calling mmap\n");
+        handle_error("Error [mmap()]: ");
     }
     fprintf(stderr, "Shared memory of %zu bytes has been allocated\n",
             memory_size);
@@ -126,3 +126,4 @@ int main(int argc, char *argv[])
     }
 
 }
+

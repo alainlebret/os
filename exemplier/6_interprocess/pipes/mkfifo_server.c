@@ -133,3 +133,4 @@ void manage_server(int fdr, int fdq)
         write(fdr, response, 10);
     }
 }
+

@@ -20,9 +20,9 @@
  * limitations under the License.
  */
 
-#include <stdio.h>     /* printf() */
-#include <stdio.h>    /* sigaction */
-#include <string.h>    /* memset() */
+#include <stdio.h>    /* printf() */
+#include <string.h>   /* memset() */
+#include <signal.h>   /* sigaction() */
 
 #define FOREVER for (;;)
 

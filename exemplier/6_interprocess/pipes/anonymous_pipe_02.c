@@ -20,11 +20,11 @@
  * limitations under the License.
  */
 
-#include <stdio.h>  /* printf() */
-#include <stdlib.h> /* exit() and execl()*/
-#include <unistd.h> /* fork() */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() and execl()*/
+#include <unistd.h>    /* fork() */
 #include <sys/types.h> /* wait() */
-#include <sys/wait.h> /* wait() */
+#include <sys/wait.h>  /* wait() */
 #include <ctype.h>
 
 #define INPUT     1
@@ -49,7 +49,7 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg)
+void handle_fatal_error(const char *msg)
 {
     perror(msg);
     exit(EXIT_FAILURE);
@@ -107,12 +107,12 @@ int main(void)
     int anonymous_pipe[2]; /* pipe descriptors */
 
     if (pipe(anonymous_pipe) == -1) {
-        handle_fatal_error("Error creating pipe.\n");
+        handle_fatal_error("Error [pipe()]: ");
     }
 
     pid = fork();
     if (pid == -1) {
-        handle_fatal_error("Error using fork().\n");
+        handle_fatal_error("Error [fork()]: ");
     }
     if (pid > 0) {
         manage_parent(anonymous_pipe);
@@ -122,3 +122,4 @@ int main(void)
 
     exit(EXIT_SUCCESS);
 }
+

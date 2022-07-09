@@ -56,7 +56,7 @@ void display(char *prog, int *bytes, int n);
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_error(char *message);
+void handle_error(const char *message);
 
 int main(void)
 {
@@ -119,12 +119,12 @@ int main(void)
 
     /* remove the mapped memory segment from the address space of the process */
     if (munmap(shm_base, SIZE) == -1) {
-        handle_error("Unmap failed: %s\n");
+        handle_error("Error [unmap()]: ");
     }
 
     /* close the shared memory segment as if it was a file */
     if (close(shm_fd) == -1) {
-        handle_error("prod: Close failed: %s\n");
+        handle_error("Error prod / close() failed. ");
     }
 
     if (pid > 0) {
@@ -134,9 +134,9 @@ int main(void)
     exit(EXIT_SUCCESS);
 }
 
-void handle_error(char *message)
+void handle_error(const char *message)
 {
-    fprintf(stderr, "%s", message);
+    perror(message);
     exit(EXIT_FAILURE);
 }
 
@@ -150,3 +150,4 @@ void display(char *prog, int *values, int n)
     }
     printf("\n");
 }
+

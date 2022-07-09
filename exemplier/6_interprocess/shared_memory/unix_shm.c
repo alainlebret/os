@@ -50,9 +50,9 @@ sem_t *sem;        /* synch semaphore */
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *message)
+void handle_fatal_error(const char *message)
 {
-    fprintf(stderr, "%s", message);
+    perror(message);
     exit(EXIT_FAILURE);
 }
 
@@ -72,7 +72,7 @@ int initialize()
 
     shmid = shmget(shmkey, sizeof(int), 0644 | IPC_CREAT);
     if (shmid < 0) {  /* shared memory error check */
-        handle_fatal_error("Error trying to allocate shared memory\n");
+        handle_fatal_error("Error [shmget()]: ");
     }
 
     shared_value = (int *) shmat(shmid, NULL, 0); /* attach to memory */
@@ -151,7 +151,7 @@ int main(void)
     for (child_number = 0; child_number < number_children; child_number++) {
         pid = fork();
         if (pid < 0) {
-            handle_fatal_error("Error using fork().\n");
+            handle_fatal_error("Error [fork()]: ");
         } else if (pid == 0)
             break;  /* child processes */
     }
@@ -164,3 +164,4 @@ int main(void)
 
     exit(EXIT_SUCCESS);
 }
+

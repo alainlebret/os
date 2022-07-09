@@ -43,7 +43,7 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg)
+void handle_fatal_error(const char *msg)
 {
     perror(msg);
     exit(EXIT_FAILURE);
@@ -61,7 +61,7 @@ int get_msgq_id(key_t key)
 
     msgq_id = msgget(key, msg_flag);
     if (msgq_id < 0) {
-        handle_fatal_error("Error using msgget()\n");
+        handle_fatal_error("Error using msgget()! ");
     }
 
     return msgq_id;
@@ -87,7 +87,7 @@ int main(void)
     if (msgsnd(msgq_id, &message, length, IPC_NOWAIT) < 0) {
         printf("%d, %ld, %s, %lu\n", msgq_id, message.type, message.content.buffer,
                length);
-        handle_fatal_error("Error using msgsnd()\n");
+        handle_fatal_error("Error using msgsnd()! ");
     } else {
         printf("Message sent\n");
     }

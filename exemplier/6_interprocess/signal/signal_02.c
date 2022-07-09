@@ -21,7 +21,7 @@
  */
 
 #include <stdio.h>     /* printf() */
-#include <stdio.h>    /* exit() and execl()*/
+#include <stdlib.h>    /* exit() and execl()*/
 #include <unistd.h>    /* fork(), ...  */
 #include <signal.h>    /* sigaction() */
 #include <string.h>    /* memset() */

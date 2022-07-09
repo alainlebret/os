@@ -57,9 +57,9 @@ typedef struct data data_t;
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *message)
+void handle_fatal_error(const char *message)
 {
-    fprintf(stderr, "%s", message);
+    perror(message);
     exit(EXIT_FAILURE);
 }
 
@@ -72,23 +72,23 @@ int main(void)
 
     key = ftok(getenv("HOME"), 'A');
     if (key == -1) {
-        handle_fatal_error("Error using ftok()!\n");
+        handle_fatal_error("Error using ftok()! ");
     }
 
     id = shmget(key, sizeof(data_t), IPC_CREAT | IPC_EXCL | 0666);
     if (id == -1) {
         switch (errno) {
             case EEXIST:
-                handle_fatal_error("Segment already exists.\n");
+                handle_fatal_error("Segment already exists. ");
                 break;
             default:
-                handle_fatal_error("Error using shmget() !\n");
+                handle_fatal_error("Error using shmget()! ");
         }
     }
 
     shared_memory = (data_t *) shmat(id, NULL, SHM_R | SHM_W);
     if (NULL == shared_memory) {
-        handle_fatal_error("Error using shmat()!\n");
+        handle_fatal_error("Error using shmat()! ");
     }
 
     shared_memory->nb = 0;
@@ -107,13 +107,14 @@ int main(void)
     printf("---\n");
 
     if (shmdt((char *) shared_memory) == -1) {
-        handle_fatal_error("Error using shmdt() !\n");
+        handle_fatal_error("Error using shmdt()! ");
     }
 
     /* remove the memory segment */
     if (shmctl(id, IPC_RMID, NULL) == -1) {
-        handle_fatal_error("Error using shmctl/remove !\n");
+        handle_fatal_error("Error using shmctl()/remove! ");
     }
 
     exit(EXIT_SUCCESS);
 }
+

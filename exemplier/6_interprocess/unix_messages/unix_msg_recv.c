@@ -43,7 +43,7 @@
  /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg)
+void handle_fatal_error(const char *msg)
 {
     perror(msg);
     exit(EXIT_FAILURE);
@@ -61,7 +61,7 @@ int get_msgq_id(key_t key)
     msgq_id = msgget(key, msg_flag);
 
     if (msgq_id < 0) {
-        handle_fatal_error("Error using msgget()\n");
+        handle_fatal_error("Error using msgget()! ");
     }
 
     return msgq_id;
@@ -76,7 +76,7 @@ int main(void)
 
     /* Receive an answer of message type MSG_TYPE_HANDOUT */
     if (msgrcv(msgq_id, &message, MESSAGE_SIZE, MSG_TYPE_HANDOUT, 0) < 0) {
-        handle_fatal_error("Error using msgrcv()\n");
+        handle_fatal_error("Error using msgrcv()! ");
     }
 
     msg_display(&message);
