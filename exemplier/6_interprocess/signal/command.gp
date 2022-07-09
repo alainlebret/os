@@ -1,1 +1,1 @@
-
+plot sin(x)/x
