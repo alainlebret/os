@@ -44,10 +44,10 @@ int main(void)
 	fd = shm_open("/blabla", O_RDWR | O_CREAT, 0666);
 	printf("shm_open() returned %d (errno: %d / %s)\n", fd, errno, strerror(errno));
 
-	ftruncate(fd, SHM_SIZE);
+	if (ftruncate(fd, SHM_SIZE) == -1);
 
 	ptr = (int *)mmap(NULL, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-	printf("mmap') returned %p (errno: %d / %s)\n", ptr, errno, strerror(errno));
+	printf("mmap') returned %p (errno: %d / %s)\n", (void *)ptr, errno, strerror(errno));
 
     *ptr = 20;
 
