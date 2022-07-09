@@ -20,10 +20,11 @@
  * limitations under the License.
  */
 
+#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <fcntl.h>
+#include <sys/wait.h>
 
 #define FOREVER for (;;)
 
@@ -63,9 +64,9 @@ int open_lockfile(const char *name)
 {
     int fd;
 
-    fd = open("test_lock", O_RDWR); /* must exist */
+    fd = open(name, O_RDWR); /* must exist */
     if (fd == -1) {
-        handle_fatal_error("Error opening the file.\n");
+        handle_fatal_error("Error [open()]: ");
     }
 
     return fd;
