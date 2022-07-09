@@ -44,21 +44,21 @@
  * A memmory mapping example using the \c mmap primitive.
  */
 
-size_t get_file_size(const char *filename)
+long get_file_size(const char *filename)
 {
     struct stat st;
 
     stat(filename, &st);
-    printf("%lld\n", st.st_size);
+    printf("%ld\n", st.st_size);
 
-    return (size_t) st.st_size;
+    return (long int) st.st_size;
 }
 
 int main(int argc, char **argv)
 {
     int fd;
-    int i;
-    size_t file_size;
+    long i;
+    long file_size;
     char *projection;
 
     file_size = get_file_size(argv[1]);
@@ -70,7 +70,9 @@ int main(int argc, char **argv)
     assert(projection != MAP_FAILED);
 
     /* Write the content to the terminal */
-    write(TERMINAL, projection, file_size);
+    if (write(TERMINAL, projection, file_size) == -1) {
+        perror("Error using write(): ");
+    }
 
     /* Do some stuff with data */
     for (i = 0; i < file_size; i++) {

@@ -43,14 +43,14 @@
  * Memory mapping using mmap. This program do the same as the \em cp command.
  */
 
-size_t get_file_size(const char *filename)
+long get_file_size(const char *filename)
 {
     struct stat st;
 
     stat(filename, &st);
-    printf("%lld\n", st.st_size);
+    printf("%ld\n", st.st_size);
 
-    return (size_t) st.st_size;
+    return (long) st.st_size;
 }
 
 int main(int argc, char *argv[])
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     int fdout;
     char *src;
     char **dst;
-    size_t file_size;
+    long file_size;
 
     if (argc != 3) {
         printf("Usage: mmap2 <src> <dest>\n");
@@ -75,7 +75,9 @@ int main(int argc, char *argv[])
     lseek(fdout, file_size - 1, SEEK_SET);
 
     /* Write an empty char */
-    write(fdout, "", 1);
+    if (write(fdout, "", 1) == -1) {
+        perror("Error using write(): ");
+    }
 
     /* Project the input file in memory */
     src = mmap(NULL, file_size, PROT_READ, MAP_SHARED, fdin, 0);
