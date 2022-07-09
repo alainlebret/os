@@ -23,7 +23,7 @@
 #include <stdint.h>    /* C99 int types */
 #include <inttypes.h>  /* C99 int types */
 #include <stdio.h>     /* printf() */
-#include <stdio.h>    /* exit() and execl()*/
+#include <stdlib.h>    /* exit() and execl()*/
 #include <unistd.h>    /* fork() */
 #include <sys/types.h> /* pid_t */
 #include <sys/wait.h>  /* wait() */
