@@ -48,7 +48,7 @@ typedef sem_t semaphore_t;
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char message[])
+void handle_fatal_error(const char *message)
 {
     fprintf(stderr, "%s\n", message);
     exit(EXIT_FAILURE);
@@ -65,7 +65,7 @@ semaphore_t *create_and_open_semaphore(char *name)
 
     sem = sem_open(name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, 1);
     if (sem == SEM_FAILED) {
-        handle_fatal_error("Error trying to create semaphore\n");
+        handle_fatal_error("Error [sem_open()]: ");
     }
     return sem;
 }
@@ -82,7 +82,7 @@ semaphore_t *open_semaphore(char *name)
     sem = sem_open(name, O_RDWR, S_IRUSR | S_IWUSR, 0);
     if (sem == SEM_FAILED) {
         sem_unlink(name); /* Try to unlink it */
-        handle_fatal_error("Error trying to open semaphore\n");
+        handle_fatal_error("Error [sem_unlink()]: ");
     }
     return sem;
 }
@@ -97,11 +97,11 @@ void destroy_semaphore(semaphore_t *sem, char *name)
 
     r = sem_close(sem);
     if (r < 0) {
-        handle_fatal_error("Error trying to destroy semaphore\n");
+        handle_fatal_error("Error [sem_close()]: ");
     }
     r = sem_unlink(name);
     if (r < 0) {
-        perror("Error trying to unlink semaphore\n");
+        perror("Error [sem_unlink()]: ");
     }
 }
 
@@ -115,7 +115,7 @@ void P(semaphore_t *sem)
 
     r = sem_wait(sem);
     if (r < 0) {
-        handle_fatal_error("Error with P() operation\n");
+        handle_fatal_error("Error [P()]: ");
     }
 }
 
@@ -129,7 +129,7 @@ void V(semaphore_t *sem)
 
     sem_post(sem);
     if (r < 0) {
-        handle_fatal_error("Error with V() operation\n");
+        handle_fatal_error("Error [V()]: ");
     }
 }
 
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
         switch (toupper(choice)) {
             case 'P':
                 P(sem);
-                printf("P() -- Now access the critical section\n");
+                printf("P() -- Access the critical section\n");
                 break;
             case 'V':
                 V(sem);
@@ -170,3 +170,4 @@ int main(int argc, char *argv[])
 
     exit(EXIT_SUCCESS);
 }
+

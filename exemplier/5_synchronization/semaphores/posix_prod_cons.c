@@ -23,10 +23,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <signal.h>
 #include <sys/mman.h>
 #include <sys/types.h>
-#include <fcntl.h>
+#include <sys/wait.h>
 #include <semaphore.h>
 
 #define FOREVER for (;;)
@@ -53,7 +54,7 @@ typedef sem_t semaphore_t;
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg)
+void handle_fatal_error(const char *msg)
 {
     perror(msg);
     exit(EXIT_FAILURE);
@@ -70,7 +71,7 @@ semaphore_t *create_and_open_semaphore(char *name)
 
     sem = sem_open(name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, 1);
     if (sem == SEM_FAILED) {
-        handle_fatal_error("Error trying to create semaphore\n");
+        handle_fatal_error("Error [sem_open()]: ");
     }
     return sem;
 }
@@ -87,7 +88,7 @@ semaphore_t *open_semaphore(char *name)
     sem = sem_open(name, O_RDWR, S_IRUSR | S_IWUSR, 0);
     if (sem == SEM_FAILED) {
         sem_unlink(name); /* Try to remove the semaphore on file system */
-        handle_fatal_error("Error trying to open semaphore\n");
+        handle_fatal_error("Error [sem_unlink()]: ");
     }
     return sem;
 }
@@ -102,12 +103,12 @@ void destroy_semaphore(semaphore_t *sem, char *name)
 
     r = sem_close(sem);
     if (r < 0) {
-        handle_fatal_error("Error trying to destroy semaphore\n");
+        handle_fatal_error("Error [sem_close()]: ");
     }
 
     r = sem_unlink(name);
     if (r < 0) {
-        perror("Error trying to unlink semaphore\n");
+        perror("Error [sem_unlink()]: ");
     }
 }
 
@@ -121,7 +122,7 @@ void P(semaphore_t *sem)
 
     r = sem_wait(sem);
     if (r < 0) {
-        handle_fatal_error("Error with P() operation\n");
+        handle_fatal_error("Error [P()]: ");
     }
 }
 
@@ -135,7 +136,7 @@ void V(semaphore_t *sem)
 
     sem_post(sem);
     if (r < 0) {
-        handle_fatal_error("Error with V() operation\n");
+        handle_fatal_error("Error [V()]: ");
     }
 }
 
@@ -173,13 +174,17 @@ void produce(void)
 
     shmd = shm_open(MEM_PATH, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     if (shmd < 0) {
-        handle_fatal_error("Error when creating shared memory\n");
+        handle_fatal_error("Error [shm_open()]: ");
     }
-    ftruncate(shmd, BUFFER_SIZE);
+    
+    if (ftruncate(shmd, BUFFER_SIZE) == -1) {
+        handle_fatal_error("Error [ftruncate()]: ");        
+    }
+    
     buffer = (int *) mmap(NULL, BUFFER_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED,
                           shmd, 0);
     if (buffer == MAP_FAILED) {
-        handle_fatal_error("Error calling mmap\n");
+        handle_fatal_error("Error [mmap()]: ");
     }
 
     sem = create_and_open_semaphore(SEM_PATH);
@@ -220,12 +225,13 @@ void consume(void)
 
     shmd = shm_open(MEM_PATH, O_RDWR, S_IRUSR | S_IWUSR);
     if (shmd < 0) {
-        handle_fatal_error("Error when creating shared memory\n");
+        handle_fatal_error("Error [shm_open()]: ");
     }
+    
     buffer = (int *) mmap(NULL, BUFFER_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED,
                           shmd, 0);
     if (buffer == MAP_FAILED) {
-        handle_fatal_error("Error calling mmap\n");
+        handle_fatal_error("Error [mmap()]: ");
     }
 
     sem = open_semaphore(SEM_PATH);
@@ -259,3 +265,4 @@ int main(void)
 
     exit(EXIT_SUCCESS);
 }
+

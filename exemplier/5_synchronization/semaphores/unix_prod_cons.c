@@ -53,7 +53,7 @@ typedef int semaphore_t;
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg)
+void handle_fatal_error(const char *msg)
 {
     perror(msg);
     exit(EXIT_FAILURE);
@@ -74,7 +74,7 @@ void modify_semaphore_value(semaphore_t sem, int sem_num, int new_value)
     sb[0].sem_flg = 0;
 
     if (semop(sem, sb, 1) != 0) {
-        handle_fatal_error("Error trying to modify semaphore's value\n");
+        handle_fatal_error("Error [semop()]: ");
     }
 }
 
@@ -171,7 +171,7 @@ int main(void)
     /* creation of the set of 2 IPC semaphores */
     id_semaphore = semget(IPC_PRIVATE, 2, 0644 | IPC_CREAT | IPC_EXCL);
     if (id_semaphore == -1) {
-        handle_fatal_error("Error creating the set of semaphores\n");
+        handle_fatal_error("Error [segmet()]: ");
     }
 
     /* initialization of the two semaphores */
@@ -183,7 +183,7 @@ int main(void)
                        0644 | IPC_CREAT | IPC_EXCL);
     if (id_memory == -1) {
         semctl(id_semaphore, 0, IPC_RMID);
-        handle_fatal_error("Error creating the shared memory\n");
+        handle_fatal_error("Error [semctl()]: ");
     }
     buffer = shmat(id_memory, NULL, 0);
 

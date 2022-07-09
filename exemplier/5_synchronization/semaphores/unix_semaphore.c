@@ -49,7 +49,7 @@ typedef int semaphore_t;
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char message[])
+void handle_fatal_error(const char *message)
 {
     perror(message);
     exit(EXIT_FAILURE);
@@ -66,11 +66,11 @@ semaphore_t create_semaphore(key_t key)
 
     sem = semget(key, 1, IPC_CREAT | 0666);
     if (sem < 0) {
-        handle_fatal_error("Error trying to create semaphore\n");
+        handle_fatal_error("Error [semget()]: ");
     }
     r = semctl(sem, 0, SETVAL, 0);      /* initial value = 0 */
     if (r < 0) {
-        handle_fatal_error("Error trying to initialize semaphore\n");
+        handle_fatal_error("Error [semctl()]: ");
     }
 
     return sem;
@@ -83,7 +83,7 @@ semaphore_t create_semaphore(key_t key)
 void destroy_semaphore(semaphore_t sem)
 {
     if (semctl(sem, 0, IPC_RMID, 0) != 0)
-        handle_fatal_error("Error trying to destroy semaphore\n");
+        handle_fatal_error("Error [semctl()]: ");
 }
 
 /**
@@ -100,7 +100,7 @@ void modify_semaphore_value(semaphore_t sem, int new_value)
     sb[0].sem_flg = 0;
 
     if (semop(sem, sb, 1) != 0)
-        handle_fatal_error("Error trying to modify semaphore's value\n");
+        handle_fatal_error("Error [semop()]: ");
 }
 
 /**
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 
     if (argc != 2) {
         fprintf(stderr, "Usage: %s cle\n", argv[0]);
-        handle_fatal_error("Error: bad number of arguments.\n");
+        handle_fatal_error("Error :");
     }
     key = atoi(argv[1]);
     sem = create_semaphore(key);
@@ -166,3 +166,4 @@ int main(int argc, char *argv[])
 
     exit(EXIT_SUCCESS);
 }
+
