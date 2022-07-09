@@ -76,11 +76,13 @@ int main(int argc, char *argv[])
         handle_fatal_error_and_exit("Error opening a file.\n");
     }
 
-    /* Jump to 1 byte of where we want the file to end. */
+    /* Jump to where we want the file to end. */
     lseek(fd, length - 1, SEEK_SET);
 
     /* Write a single 0 byte. */
-    write(fd, &zero, 1);
+    if (write(fd, &zero, 1) == -1) {
+        perror("Unable to write a byte at the end of the file: ");
+    }
 
     close(fd);
 
