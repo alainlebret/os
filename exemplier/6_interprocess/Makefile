@@ -7,28 +7,68 @@ CFLAGS=-Wall -Wextra -pedantic -O2
 
 ifeq ($(uname -s), Darwin)
 LDFLAGS=-lm -lpthread
-BIN= pipes/anonymous_pipe_01 pipes/anonymous_pipe_02 pipes/mkfifo_client pipes/mkfifo_server \
-     pipes/mkfifo_producer pipes/mkfifo_consumer \
-     shared_memory/mmap_buffer_01 shared_memory/mmap_buffer_02 shared_memory/mmap_buffer_03 \
-     shared_memory/mmap_buffer_04 shared_memory/posix_shm_client shared_memory/posix_shm_server \
-     shared_memory/posix_shm_simple_1 shared_memory/posix_shm_simple_2 shared_memory/posix_shm_simple_3 \
-     shared_memory/unix_shm shared_memory/unix_shm_consumer shared_memory/unix_shm_producer \
-     unix_messages/test_message unix_messages/test_msg_messages unix_messages/unix_msg_recv \
-     unix_messages/unix_msg_send
+BIN=  signal/signal_01 signal/signal_02 signal/signal_03 signal/signal_04 \
+      signal/signal_05 signal/signal_06 signal/signal_07 signal/signal_08a \
+      signal/signal_08b signal/signal_09 pipes/anonymous_pipe_01 \
+      pipes/anonymous_pipe_02 pipes/mkfifo_client pipes/mkfifo_server \
+      pipes/mkfifo_producer pipes/mkfifo_consumer shared_memory/mmap_buffer_01 \
+      shared_memory/mmap_buffer_02 shared_memory/mmap_buffer_03 \
+      shared_memory/mmap_buffer_04 shared_memory/posix_shm_client \
+      shared_memory/posix_shm_server shared_memory/posix_shm_simple_1 \
+      shared_memory/posix_shm_simple_2 shared_memory/posix_shm_simple_3 \
+      shared_memory/unix_shm shared_memory/unix_shm_consumer \
+      shared_memory/unix_shm_producer unix_messages/test_message \
+      unix_messages/test_msg_messages unix_messages/unix_msg_recv \
+      unix_messages/unix_msg_send
 else
 LDFLAGS=-lrt -lm -lpthread
-BIN= pipes/anonymous_pipe_01 pipes/anonymous_pipe_02 pipes/mkfifo_client pipes/mkfifo_server \
-     pipes/mkfifo_producer pipes/mkfifo_consumer \
-     posix_messages/posix_msg_receiver posix_messages/posix_msg_sender \
-     shared_memory/mmap_buffer_01 shared_memory/mmap_buffer_02 shared_memory/mmap_buffer_03 \
-     shared_memory/mmap_buffer_04 shared_memory/posix_shm_client shared_memory/posix_shm_server \
-     shared_memory/posix_shm_simple_1 shared_memory/posix_shm_simple_2 shared_memory/posix_shm_simple_3 \
-     shared_memory/unix_shm shared_memory/unix_shm_consumer shared_memory/unix_shm_producer \
-     unix_messages/test_message unix_messages/test_msg_messages unix_messages/unix_msg_recv \
-     unix_messages/unix_msg_send
+BIN=  signal/signal_01 signal/signal_02 signal/signal_03 signal/signal_04 \
+      signal/signal_05 signal/signal_06 signal/signal_07 signal/signal_08a \
+      signal/signal_08b signal/signal_09 pipes/anonymous_pipe_01 \
+      pipes/anonymous_pipe_02 pipes/mkfifo_client pipes/mkfifo_server \
+      pipes/mkfifo_producer pipes/mkfifo_consumer \
+      posix_messages/posix_msg_receiver posix_messages/posix_msg_sender \
+      shared_memory/mmap_buffer_01 shared_memory/mmap_buffer_02 \
+      shared_memory/mmap_buffer_03 shared_memory/mmap_buffer_04 \
+      shared_memory/posix_shm_client shared_memory/posix_shm_server \
+      shared_memory/posix_shm_simple_1 shared_memory/posix_shm_simple_2 \
+      shared_memory/posix_shm_simple_3 shared_memory/unix_shm \
+      shared_memory/unix_shm_consumer shared_memory/unix_shm_producer \
+      unix_messages/test_message unix_messages/test_msg_messages \
+      unix_messages/unix_msg_recv unix_messages/unix_msg_send
 endif
 
 all: $(BIN)
+
+signal/signal_01: signal/signal_01.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+signal/signal_02: signal/signal_02.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+signal/signal_03: signal/signal_03.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+signal/signal_04: signal/signal_04.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+signal/signal_05: signal/signal_05.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+signal/signal_06: signal/signal_06.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+signal/signal_07: signal/signal_07.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+signal/signal_08a: signal/signal_08a.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+signal/signal_08b: signal/signal_08b.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+signal/signal_09: signal/signal_09.o
+	$(CC) $< -o $@ $(LDFLAGS)
 
 pipes/anonymous_pipe_01: pipes/anonymous_pipe_01.o
 	$(CC) $< -o $@ $(LDFLAGS)
@@ -101,10 +141,10 @@ unix_messages/unix_msg_send: unix_messages/unix_msg_send.o unix_messages/message
 
 ifeq ($(shell uname -s), Darwin)
 clean:
-	rm pipes/*.o shared_memory/*.o unix_messages/*.o
+	rm signal/*.o pipes/*.o shared_memory/*.o unix_messages/*.o
 else
 clean:
-	rm pipes/*.o posix_messages/*.o shared_memory/*.o unix_messages/*.o
+	rm signal/*.o pipes/*.o posix_messages/*.o shared_memory/*.o unix_messages/*.o
 endif
 
 distclean: clean
