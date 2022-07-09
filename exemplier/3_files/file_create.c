@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     /* Create the file.  */
     fd = open(filename, O_WRONLY | O_EXCL | O_CREAT, mode);
     if (fd == -1) {
-        handle_fatal_error_and_exit("Error opening a file.\n");
+        handle_fatal_error_and_exit("Error [open()]: ");
     }
 
     close(fd);

@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     filename = argv[1];
     fd = open(filename, O_RDONLY);
     if (fd == -1) {
-        handle_fatal_error_and_exit("Error opening a file.\n");
+        handle_fatal_error_and_exit("Error [open()]: ");
     }
 
     offset = 0;

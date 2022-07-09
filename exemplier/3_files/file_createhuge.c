@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     /* Open a new file. */
     fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, 0666);
     if (fd == -1) {
-        handle_fatal_error_and_exit("Error opening a file.\n");
+        handle_fatal_error_and_exit("Error [open()]: ");
     }
 
     /* Jump to where we want the file to end. */
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 
     /* Write a single 0 byte. */
     if (write(fd, &zero, 1) == -1) {
-        perror("Unable to write a byte at the end of the file: ");
+        perror("Error [write()]: ");
     }
 
     close(fd);
