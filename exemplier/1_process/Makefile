@@ -1,77 +1,44 @@
-src = $(wildcard process/*.c signal/*.c)
+src = $(wildcard *.c)
 obj = $(src:.c=.o)
 
 CC=gcc
 CPPFLAGS=
 CFLAGS=-Wall -Wextra -pedantic -O2
 LDFLAGS=
-BIN= process/process_01 process/process_02 process/process_03 process/process_04a \
-     process/process_04b process/process_05 process/process_06a process/process_06b \
-     process/process_07 signal/signal_01 signal/signal_02 signal/signal_03 \
-     signal/signal_04 signal/signal_05 signal/signal_06 signal/signal_07 \
-     signal/signal_08a signal/signal_08b signal/signal_09
+BIN= process_01 process_02 process_03 process_04a process_04b process_05 \
+     process_06a process_06b process_07
 
 all: $(BIN)
 
-process/process_01: process/process_01.o
+process_01: process_01.o
 	$(CC) $< -o $@ $(LDFLAGS)
 
-process/process_02: process/process_02.o
+process_02: process_02.o
 	$(CC) $< -o $@ $(LDFLAGS)
 
-process/process_03: process/process_03.o
+process_03: process_03.o
 	$(CC) $< -o $@ $(LDFLAGS)
 
-process/process_04a: process/process_04a.o
+process_04a: process_04a.o
 	$(CC) $< -o $@ $(LDFLAGS)
 
-process/process_04b: process/process_04b.o
+process_04b: process_04b.o
 	$(CC) $< -o $@ $(LDFLAGS)
 
-process/process_05: process/process_05.o
+process_05: process_05.o
 	$(CC) $< -o $@ $(LDFLAGS)
 
-process/process_06a: process/process_06a.o
+process_06a: process_06a.o
 	$(CC) $< -o $@ $(LDFLAGS)
 
-process/process_06b: process/process_06b.o
+process_06b: process_06b.o
 	$(CC) $< -o $@ $(LDFLAGS)
 
-process/process_07: process/process_07.o
-	$(CC) $< -o $@ $(LDFLAGS)
-
-signal/signal_01: signal/signal_01.o
-	$(CC) $< -o $@ $(LDFLAGS)
-
-signal/signal_02: signal/signal_02.o
-	$(CC) $< -o $@ $(LDFLAGS)
-
-signal/signal_03: signal/signal_03.o
-	$(CC) $< -o $@ $(LDFLAGS)
-
-signal/signal_04: signal/signal_04.o
-	$(CC) $< -o $@ $(LDFLAGS)
-
-signal/signal_05: signal/signal_05.o
-	$(CC) $< -o $@ $(LDFLAGS)
-
-signal/signal_06: signal/signal_06.o
-	$(CC) $< -o $@ $(LDFLAGS)
-
-signal/signal_07: signal/signal_07.o
-	$(CC) $< -o $@ $(LDFLAGS)
-
-signal/signal_08a: signal/signal_08a.o
-	$(CC) $< -o $@ $(LDFLAGS)
-
-signal/signal_08b: signal/signal_08b.o
-	$(CC) $< -o $@ $(LDFLAGS)
-	
-signal/signal_09: signal/signal_09.o
+process_07: process_07.o
 	$(CC) $< -o $@ $(LDFLAGS)
 
 clean:
-	rm process/*.o signal/*.o
+	rm *.o
 
 distclean: clean
 	rm $(BIN)
