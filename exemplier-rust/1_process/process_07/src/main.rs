@@ -15,28 +15,24 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 ///
-use libc::{WEXITSTATUS, WIFEXITED};
+use libc::{getpgrp, WEXITSTATUS, WIFEXITED};
 use nix::sys::wait::wait;
 use nix::unistd::{fork, getpid, getppid, sleep, ForkResult};
-use std::os::unix::process::CommandExt;
 use std::process;
-use std::process::{exit, Command};
+use std::process::exit;
 
 ///
-/// Another program that clones a process using the fork() primitive. The
-/// child is replaced by a new program using the exec() function.
+/// A simple program about a process and its group.
 ///
 
 ///
-/// Manages the child process. The child process is calling the exec()
-/// function to execute the "gnuplot" command.
+/// Manages the child process by just displaying its PID and group.
 ///
 fn manage_child() {
     println!("Child process (PID n° {})", process::id());
-    println!("Child is going to be replaced by Gnuplot program.");
-    Command::new("gnuplot")
-        .args(["-persist", "command.gp"])
-        .exec();
+    unsafe {
+        println!("Child's group: {}.", getpgrp());
+    }
     exit(0);
 }
 
