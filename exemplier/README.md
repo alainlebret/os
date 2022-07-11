@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Ce sous-répertoire contient les exemples du cours de systèmes d'exploitation
+Ce sous-répertoire contient les exemples en langage C du cours de systèmes d'exploitation
 présentés à :
 
 * L'université Paris-Est de 2011 à 2014
@@ -13,7 +13,7 @@ Ces exemples de code sont fournis sous licence [Apache 2.0](http://www.apache.or
 
 ----
 
-This repository contains some system programming examples used in different courses:
+This repository contains some system programming examples in C used in different courses:
 
 * Paris-Est University, France, from 2011 to 2014
 
