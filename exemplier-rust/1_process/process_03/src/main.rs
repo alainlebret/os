@@ -1,4 +1,3 @@
-use nix::sys::wait::wait;
 ///
 /// Unix System Programming Examples / Exemplier de programmation système Unix
 ///
@@ -16,38 +15,49 @@ use nix::sys::wait::wait;
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 ///
-use nix::unistd::{fork, ForkResult};
+extern crate nix;
+
+use nix::sys::wait::wait;
+use nix::unistd::{fork, sleep, ForkResult};
 use std::process;
 use std::process::exit;
 
 ///
-/// A simple program that clones a process using the fork() primitive.
+/// A simple program that clones a process using the fork() primitive and uses
+/// sleep() to block parent and child processes.
 ///
 
 ///
 /// Manages the child process.
 ///
-fn manage_child() {
+fn manage_child(duration: u32) {
     println!("Child process (PID n° {})", process::id());
-    println!("Instructions of child process...");
+    println!("Child will be blocked during {} seconds...", duration);
+    sleep(duration);
+    println!("Child has finished to sleep.");
 }
 
 ///
-/// Manages the parent process.
+/// Manages the parent process. The parent process is blocked during DURATION
+/// seconds and waits for his child.
 ///
-fn manage_parent() {
+fn manage_parent(duration: u32) {
     println!("Parent process (PID n° {})", process::id());
-    println!("Instructions of parent process...");
+    println!("Parent will be blocked during {} seconds...", duration);
+    sleep(duration);
+    println!("Parent has finished to sleep.");
 }
 
 fn main() {
+    let duration = 5;
+
     match unsafe { fork() } {
         Ok(ForkResult::Child) => {
-            manage_child();
+            manage_child(duration);
         }
 
         Ok(ForkResult::Parent { child }) => {
-            manage_parent();
+            manage_parent(duration);
             wait().expect("Unable to wait for my child to end!");
         }
 
@@ -55,5 +65,6 @@ fn main() {
             panic!("Error [fork()]: {}", err);
         }
     };
+
     exit(0);
 }

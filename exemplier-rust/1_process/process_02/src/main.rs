@@ -17,6 +17,7 @@
 ///
 extern crate nix;
 
+use nix::sys::wait::wait;
 use nix::unistd::{fork, ForkResult};
 use std::process;
 use std::process::exit;
@@ -64,6 +65,7 @@ fn main() {
                 process::id(),
                 own_variable
             );
+            wait().expect("Unable to wait for my child to end!");
         }
 
         Err(err) => {
