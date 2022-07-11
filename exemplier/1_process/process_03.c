@@ -53,7 +53,8 @@ void handle_fatal_error_and_exit(const char *msg)
 /**
  * @brief Manages the parent process. 
  *
- * The parent process is blocked during \em DURATION seconds and waits for is child.
+ * The parent process is blocked during \em DURATION seconds and waits for his
+ * child.
  */
 void manage_parent()
 {
