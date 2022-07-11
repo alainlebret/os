@@ -15,22 +15,18 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 ///
-
-use std::fs;
+use nix::sys::statvfs::statvfs;
 use std::process::exit;
 
 ///
-/// Copy from keyboard to a file.
+/// A simple example that uses statvfs() to extract blocks size.
 ///
 
 fn main() {
-    let mut buffer: String;
-
-    buffer = String::new();
-    std::io::stdin()
-        .read_line(&mut buffer)
-        .expect("Unable to read from standard input!");
-    fs::write("file.out", buffer).expect("Unable to open file!");
+    println!(
+        "FS block size: {} bytes",
+        statvfs("/").unwrap().block_size()
+    );
 
     exit(0);
 }
