@@ -77,7 +77,7 @@ void manage_parent()
 /**
  * @brief Manages the child process. 
  *
- * The child process is calling the execlp()) function to execute the
+ * The child process is calling the execlp() function to execute the
  * \em ls command.
  */
 void manage_child()
