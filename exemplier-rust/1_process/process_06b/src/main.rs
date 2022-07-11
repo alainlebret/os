@@ -18,24 +18,26 @@
 use libc::{WEXITSTATUS, WIFEXITED};
 use nix::sys::wait::wait;
 use nix::unistd::{fork, getpid, getppid, sleep, ForkResult};
+use std::os::unix::process::CommandExt;
 use std::process;
-use std::process::exit;
+use std::process::{exit, Command};
 
 ///
-/// A simple program that clones a process using the fork() primitive. The
-/// parent is waiting for his child to finish.
+/// Another program that clones a process using the fork() primitive. The
+/// child is overlayed by a new program using the exec() functions.
 ///
 
 ///
-/// Manages the child process. The child process is blocked during "duration"
-/// seconds.
+/// Manages the child process. The child process is calling the exec()
+/// function to execute the "gnuplot" command.
 ///
-fn manage_child(duration: u32) {
+fn manage_child() {
     println!("Child process (PID n° {})", process::id());
-    println!("Child will be blocked during {} seconds...", duration);
-    sleep(duration);
-    println!("Child has finished to sleep.");
-    println!("The PID of my parent is {}.", getppid());
+    println!("Child is going to be replaced by Gnuplot program.");
+    Command::new("gnuplot")
+        .args(["-persist", "command.gp"])
+        .exec();
+    exit(0);
 }
 
 ///
@@ -46,12 +48,11 @@ fn manage_parent() {
 }
 
 fn main() {
-    let duration = 20;
     let status = 0;
 
     match unsafe { fork() } {
         Ok(ForkResult::Child) => {
-            manage_child(duration);
+            manage_child();
         }
 
         Ok(ForkResult::Parent { child }) => {
