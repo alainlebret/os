@@ -39,7 +39,7 @@ fn manage_child(duration: u32) {
 /// Manages the parent process. The parent process do not wait for his child
 /// and it dies.
 ///
-fn manage_parent(duration: u32) {
+fn manage_parent() {
     println!("Parent process (PID n° {})", process::id());
 }
 
@@ -52,7 +52,7 @@ fn main() {
         }
 
         Ok(ForkResult::Parent { child }) => {
-            manage_parent(duration);
+            manage_parent();
             println!("Dying...");
             exit(0);
         }
