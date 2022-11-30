@@ -123,7 +123,7 @@ void V(semaphore_t *sem)
 {
     int r = 0;
 
-    sem_post(sem);
+    r = sem_post(sem);
     if (r < 0) {
         handle_fatal_error("Error [V()]: ");
     }
