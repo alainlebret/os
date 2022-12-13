@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 	
 	/* 
 	 * the citizen threads have already started and are waiting
-	 * on the condition.
+	 * on the condition to wake up.
 	 */
 	sleep(1);
 	pthread_create(&threads[0], NULL, timer_begin_new_day, &thread_ids[0]);
