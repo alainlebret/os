@@ -6,7 +6,7 @@ CPPFLAGS=
 CFLAGS=-Wall -Wextra -pedantic -O2
 LDFLAGS=
 BIN= process_01 process_02 process_03 process_04a process_04b process_05 \
-     process_06a process_06b process_07
+     process_06a process_06b process_07 process_08 process_09 moving_window
 
 all: $(BIN)
 
@@ -36,6 +36,15 @@ process_06b: process_06b.o
 
 process_07: process_07.o
 	$(CC) $< -o $@ $(LDFLAGS)
+
+process_08: process_08.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+process_09: process_09.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
+moving_window: moving_window.c
+	$(CC) -o $@ $< `pkg-config --cflags --libs gtk+-3.0` -lm
 
 clean:
 	rm *.o
