@@ -73,7 +73,7 @@ int main(void)
     pid_t pid;
 
     pid = fork();
-    if (pid == 1) {
+    if (pid == -1) {
         handle_fatal_error_and_exit("Error [fork()]: ");
     }
     if (pid > 0) {
