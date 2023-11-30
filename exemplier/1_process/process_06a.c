@@ -25,16 +25,14 @@
 #include <sys/wait.h>  /* wait() */
 
 /**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.1
- * @date 2017-12-31
- */
-
-/**
  * @file process_06a.c
  *
  * A simple program that clones a process using the \c fork() primitive. The
  * child is overlayed by a new program using the \c exec() family functions.
+ *
+ * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @version	1.1
+ * @date 2017-12-31
  */
 
 /**
@@ -107,5 +105,5 @@ int main(void)
         manage_child();
     }
 
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }

@@ -25,15 +25,13 @@
 #include <sys/wait.h>  /* wait(), WIFEXITED and WEXITSTATUS */
 
 /**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.1
- * @date 2017-12-31
- */
-
-/**
  * @file process_08.c
  *
  * A simple program about a process that executes Gtk windows through his childs.
+ *
+ * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @version	1.1
+ * @date 2017-12-31
  */
 static char *path = "./moving_window";
 

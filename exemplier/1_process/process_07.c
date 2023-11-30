@@ -25,15 +25,13 @@
 #include <sys/wait.h>  /* wait(), WIFEXITED and WEXITSTATUS */
 
 /**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.1
- * @date 2017-12-31
- */
-
-/**
  * @file process_07.c
  *
  * A simple program about a process and its group.
+ *
+ * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @version	1.1
+ * @date 2017-12-31
  */
 
 /**
@@ -105,5 +103,5 @@ int main(void)
         manage_child();
     }
 
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }

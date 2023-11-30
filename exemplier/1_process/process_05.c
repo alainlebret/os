@@ -27,16 +27,14 @@
 #define DURATION 20
 
 /**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.1
- * @date 2017-12-31
- */
-
-/**
  * @file process_05.c
  *
  * A simple program that clones a process using the \c fork() primitive. The
  * parent is waiting for his child to finish.
+ *
+ * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @version	1.1
+ * @date 2017-12-31
  */
 
 /**
@@ -110,5 +108,5 @@ int main(void)
         manage_child();
     }
 
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }
