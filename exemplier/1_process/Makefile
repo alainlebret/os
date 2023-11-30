@@ -40,6 +40,9 @@ process_07: process_07.o
 process_08: process_08.o
 	$(CC) $< -o $@ $(LDFLAGS)
 
+process_09: process_09.o
+	$(CC) $< -o $@ $(LDFLAGS)
+
 moving_window: moving_window.c
 	$(CC) -o $@ $< `pkg-config --cflags --libs gtk+-3.0` -lm
 
