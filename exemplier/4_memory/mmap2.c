@@ -28,15 +28,13 @@
 #include <assert.h>
 
 /**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2011-12-01
- */
-
-/**
  * @file mmap2.c
  *
  * Memory mapping using mmap. This program do the same as the \em cp command.
+ *
+ * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @version	1.0
+ * @date 2011-12-01
  */
 
 long get_file_size(const char *filename)
@@ -86,6 +84,6 @@ int main(int argc, char *argv[])
     /* Performs a memory copy from src to dst */
     memcpy(dst, src, file_size);
 
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }
 

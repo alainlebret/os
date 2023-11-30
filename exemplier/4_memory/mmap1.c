@@ -29,15 +29,13 @@
 #define TERMINAL 1
 
 /**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2011-12-01
- */
-
-/**
  * @file mmap1.c
  *
  * A memmory mapping example using the \c mmap primitive.
+ *
+ * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @version	1.0
+ * @date 2011-12-01
  */
 
 long get_file_size(const char *filename)
@@ -89,6 +87,6 @@ int main(int argc, char **argv)
 
     close(fd);
 
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }
 
