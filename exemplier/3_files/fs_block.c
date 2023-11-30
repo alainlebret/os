@@ -21,27 +21,32 @@
 #include <sys/statvfs.h>
 
 /**
+ * @file fs_block.c
+ *
+ * A simple example that uses \c statvfs to extract blocks size.
+ *
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
  * @version	1.0
  * @date 2011-12-01
  */
 
-/**
- * @file fs_block.c
- *
- * A simple example that uses \c statvfs to extract blocks size.
- */
-
-int main(void)
+int main(int argc, char *argv[])
 {
+    struct statvfs fs_stats;
     int result;
-    struct statvfs stat;
 
-    result = statvfs("/", &stat);
-    if (result == -1) {
+    if (argc != 2) {
+        printf("Usage: %s <path>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
-    printf("FS block size: %d bytes \n", (int) (stat.f_bsize));
 
-    exit(EXIT_SUCCESS);
+    result = statvfs(argv[1], &fs_stats);
+    if (result == -1) {
+        perror("Error [statvfs]: ");
+        exit(EXIT_FAILURE);
+    }
+    
+    printf("FS block size: %lu bytes\n", fs_stats.f_bsize);
+
+    return EXIT_SUCCESS;
 }

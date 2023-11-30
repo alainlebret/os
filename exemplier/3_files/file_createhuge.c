@@ -26,15 +26,13 @@
 #define GIGABYTE 1024*1024*1024
 
 /**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2011-12-01
- */
-
-/**
  * @file file_createhuge.c
  *
  * A simple example that uses the \c lseek primitive to create a huge file.
+ *
+ * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @version	1.0
+ * @date 2011-12-01
  */
 
 /**
@@ -73,14 +71,16 @@ int main(int argc, char *argv[])
     }
 
     /* Jump to where we want the file to end. */
-    lseek(fd, length - 1, SEEK_SET);
+    if (lseek(fd, length - 1, SEEK_SET) == -1) {
+        handle_fatal_error_and_exit("Error [lseek()]: ");
+    }
 
     /* Write a single 0 byte. */
-    if (write(fd, &zero, 1) == -1) {
-        perror("Error [write()]: ");
+    if (write(fd, &zero, 1) != 1) {
+        handle_fatal_error_and_exit("Error [write()]: ");
     }
 
     close(fd);
 
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }

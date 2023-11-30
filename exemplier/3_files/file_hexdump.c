@@ -26,16 +26,14 @@
 #define BUFFER_SIZE 20
 
 /**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2011-12-01
- */
-
-/**
  * @file file_hexdump.c
  *
  * An example of using \c the read primitive to display the hexadecimal dump of
  * a file.
+ *
+ * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @version	1.0
+ * @date 2011-12-01
  */
 
 /**
@@ -59,13 +57,11 @@ int main(int argc, char *argv[])
     ssize_t bytes_read;
     int i;
 
-    /* argc should be 2 */
     if (argc != 2) {
         printf("Usage: %s <filename>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    /* Open the file for reading. */
     filename = argv[1];
     fd = open(filename, O_RDONLY);
     if (fd == -1) {
@@ -75,22 +71,21 @@ int main(int argc, char *argv[])
     offset = 0;
 
     do {
-        /* Read the next line of 20 bytes.  */
         bytes_read = read(fd, buffer, sizeof(buffer));
+        if (bytes_read == -1) {
+            close(fd);
+            handle_fatal_error_and_exit("Error [read()]: ");
+        }
 
-        /* Display the offset in the file followed by the bytes themselves.  */
         printf("0x%06x : ", (unsigned int) offset);
-
         for (i = 0; i < bytes_read; ++i) {
             printf("%02x ", buffer[i]);
         }
         printf("\n");
 
-        /* Keep position in the file.  */
         offset += bytes_read;
     } while (bytes_read == sizeof(buffer));
 
     close(fd);
-
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }

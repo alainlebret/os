@@ -1,4 +1,4 @@
-src = $(wildcard *.c)
+rc = $(wildcard *.c)
 obj = $(src:.c=.o)
 
 CC=gcc

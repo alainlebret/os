@@ -16,46 +16,51 @@
  * limitations under the License.
  */
 
-#include <unistd.h> /* write and read */
-#include <fcntl.h>  /* open, O_CREAT, O_WRONLY */
-#include <stdlib.h> /* exit */
+#include <unistd.h>  /* write and read */
+#include <fcntl.h>   /* open, O_CREAT, O_WRONLY */
+#include <stdlib.h>  /* exit */
+#include <string.h>  /* strerror */
+#include <errno.h>   /* errno */
+
+/**
+ * @file file_copy.c
+ *
+ * Copy typed keys from keyboard to a file.
+ *
+ * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @version	1.0
+ * @date 2011-12-01
+ */
 
 #define SIZE            80
 #define STANDARD_ERROR   2
 #define STANDARD_OUTPUT  1
 #define KEYBOARD         0
 
-/**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2011-12-01
- */
-
-/**
- * @file file_copy.c
- *
- * Copy typed keys from keyboard to a file.
- */
-
 int main(void)
 {
     int fd;
     ssize_t nbcar;
-    char buffer[SIZE];
+    char buffer[SIZE] = {0};
 
     fd = open("file.out", O_CREAT | O_WRONLY, 0644);
     if (fd == -1) {
-        write(STANDARD_ERROR, "Error opening a file\n", 25);
+        write(STANDARD_ERROR, strerror(errno), strlen(strerror(errno)));
+        write(STANDARD_ERROR, "\n", 1);
         exit(EXIT_FAILURE);
     }
 
-    write(STANDARD_OUTPUT, "File opened with success\n", 30);
+    write(STANDARD_OUTPUT, "File opened with success\n", 26);
 
     while ((nbcar = read(KEYBOARD, buffer, SIZE)) > 0) {
         if (write(fd, buffer, (size_t) nbcar) == -1) {
+            write(STANDARD_ERROR, strerror(errno), strlen(strerror(errno)));
+            write(STANDARD_ERROR, "\n", 1);
+            close(fd);
             exit(EXIT_FAILURE);
         }
     }
 
-    exit(EXIT_SUCCESS);
+    close(fd);
+    return EXIT_SUCCESS;
 }

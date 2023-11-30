@@ -24,15 +24,13 @@
 #include <sys/types.h>
 
 /**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2011-12-01
- */
-
-/**
  * @file file_create.c
  *
  * A simple program that shows using the \c open primitive to create a new file.
+ *
+ * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @version	1.0
+ * @date 2011-12-01
  */
 
 
@@ -71,5 +69,5 @@ int main(int argc, char *argv[])
 
     close(fd);
 
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }
