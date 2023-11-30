@@ -25,17 +25,15 @@
 #define DURATION 20
 
 /**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.1
- * @date 2017-12-31
- */
-
-/**
  * @file process_04b.c
  *
  * A simple program that clones a process using the \c fork() primitive, and
  * where the parent process dies before his child. The child process becomes
  * orphean.
+ *
+ * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @version	1.1
+ * @date 2017-12-31
  */
 
 /**
@@ -99,5 +97,5 @@ int main(void)
         manage_child();
     }
 
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }

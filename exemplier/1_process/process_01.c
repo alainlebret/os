@@ -23,15 +23,13 @@
 #include <sys/types.h> /* pid_t */
 
 /**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.1
- * @date 2017-12-31
- */
-
-/**
  * @file process_01.c
  *
  * A simple program that clones a process using the \c fork() primitive.
+ *
+ * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @version	1.1
+ * @date 2017-12-31
  */
 
 /**
@@ -73,7 +71,7 @@ int main(void)
     pid_t pid;
 
     pid = fork();
-    if (pid == 1) {
+    if (pid == -1) {
         handle_fatal_error_and_exit("Error [fork()]: ");
     }
     if (pid > 0) {
@@ -82,5 +80,5 @@ int main(void)
         manage_child();
     }
 
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }

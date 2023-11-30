@@ -19,6 +19,7 @@
 #include <gtk/gtk.h>
 #include <signal.h>
 #include <math.h>
+#include <stdlib.h>
 
 GdkRGBA initial_color;
 GdkRGBA color;
@@ -176,5 +177,5 @@ int main(int argc, char *argv[]) {
     /* Main GTK loop */
 	gtk_main();
 
-    return 0;
+    return EXIT_SUCCESS;
 }

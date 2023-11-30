@@ -26,16 +26,14 @@
 #define DURATION 5
 
 /**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.1
- * @date 2017-12-31
- */
-
-/**
  * @file process_03.c
  *
  * A simple program that clones a process using the \c fork() primitive and uses
  * sleep() to block parent and child processes.
+ *
+ * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @version	1.2
+ * @date 2023-10-15
  */
 
 /**
@@ -56,7 +54,7 @@ void handle_fatal_error_and_exit(const char *msg)
  * The parent process is blocked during \em DURATION seconds and waits for his
  * child.
  */
-void manage_parent()
+void manage_parent(pid_t child_pid)
 {
     printf("Parent process (PID %"
     PRId32
@@ -68,7 +66,10 @@ void manage_parent()
     sleep(DURATION);
 
     printf("Parent has finished to sleep.\n");
-    wait(NULL);
+    waitpid(child_pid, &status, 0);
+    if (WIFEXITED(status)) {
+        printf("Child process exited with status %d\n", WEXITSTATUS(status));
+    }
 }
 
 /**
@@ -100,10 +101,10 @@ int main(void)
     }
 
     if (pid > 0) {
-        manage_parent();
+        manage_parent(pid);
     } else {
         manage_child();
     }
 
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }

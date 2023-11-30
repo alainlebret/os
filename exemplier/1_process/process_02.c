@@ -25,16 +25,14 @@
 #include <sys/wait.h>  /* wait() */
 
 /**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.1
- * @date 2017-12-31
- */
-
-/**
  * @file process_02.c
  *
  * A simple program that clones a process using the \c fork() primitive and
  * shows the evolution of a variable in parent and child processes.
+ *
+ * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @version	1.1
+ * @date 2017-12-31
  */
 
 /**
@@ -95,5 +93,5 @@ int main(void)
     PRId32
     "\n", getpid(), own_variable);
 
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }
