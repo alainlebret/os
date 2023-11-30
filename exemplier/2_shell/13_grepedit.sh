@@ -23,13 +23,22 @@
 # limitations under the License.
 #
 
-# A script to demonstrate the use of 'case' in Bash for pattern matching
+# Script to open files containing a specific word in Vim
 
-echo -n "Enter an integer value x such as: 1 < x < 10 : "
-read -r x
+if [ $# -le 1 ]; then
+  echo "Usage: $0 <word> <file1> [<file2> ...]"
+  exit 1
+fi
 
-echo "Checking the value of x using case statement:"
-case $x in
-  [2-9]) echo "x = $x";;
-  *) echo "Bad choice! The number must be between 2 and 9.";;
-esac
+word=$1
+shift
+
+echo "Searching for files containing the word '$word'..."
+while [ $# -gt 0 ]; do
+  if [ -f "$1" ] && [ -r "$1" ] && grep -q "${word}" "$1"; then
+    vim "$1"
+  else
+    echo "Word '$word' not found or file '$1' cannot be read."
+  fi
+  shift
+done

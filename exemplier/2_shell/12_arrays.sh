@@ -23,13 +23,27 @@
 # limitations under the License.
 #
 
-# A script to demonstrate the use of 'case' in Bash for pattern matching
+# A simple script to demonstrate the use of arrays in Bash
 
-echo -n "Enter an integer value x such as: 1 < x < 10 : "
-read -r x
+# Define an array of programming languages
+languages=("C" "C++" "Java" "Scala" "Python")
 
-echo "Checking the value of x using case statement:"
-case $x in
-  [2-9]) echo "x = $x";;
-  *) echo "Bad choice! The number must be between 2 and 9.";;
-esac
+# Iterate over the array and print each language
+echo "List of programming languages:"
+for language in "${languages[@]}"; do
+    echo "Language: $language"
+done
+
+# Add a new language to the array
+echo "Adding 'Rust' to the list of programming languages..."
+languages+=("Rust")
+
+# Print the updated array
+echo "Updated list of programming languages:"
+for language in "${languages[@]}"; do
+    echo "Language: $language"
+done
+
+# Demonstrating other array operations
+echo "The first language in the list is: ${language[0]}" # Accessing the first element
+echo "The list of languages contains ${#languages[@]} elements." # Number of elements in the array
