@@ -25,12 +25,6 @@
 #define FOREVER for(;;)
 
 /**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2011-12-01
- */
-
-/**
  * @file memory_03.c
  *
  * Memory mapping of a process using a dynamic library.
@@ -38,6 +32,10 @@
  * \code{bash}
  * cat /proc/<PID>/maps
  * \endcode
+ *
+ * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @version	1.0
+ * @date 2011-12-01
  */
 
 int main(void)

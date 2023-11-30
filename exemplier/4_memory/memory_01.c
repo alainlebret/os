@@ -22,20 +22,18 @@
 #include <sys/types.h> /* pid_t and mkfifo() */
 
 /**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2011-12-01
- */
-
-/**
  * @file memory_01.c
  *
  * Gets the page size from the virtual memory.
+ *
+ * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @version	1.0
+ * @date 2011-12-01
  */
 
 int main(void)
 {
     printf("Size of page on this system: %d bytes\n", getpagesize());
 
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }

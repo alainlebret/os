@@ -142,6 +142,6 @@ int main(int argc, char *argv[], char *envp[])
     SHOW_ADDRESS(" i ", i);
     pointer_function(stack_calls);
 
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }
 

@@ -22,16 +22,14 @@
 #include <sys/types.h> /* pid_t and mkfifo() */
 
 /**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2011-12-01
- */
-
-/**
  * @file memory_05b.c
  *
  * This example highlights the memory leak problem. Compile it with \em -g
- * option and run the valgring program
+ * option and run the valgring program.
+ *
+ * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @version	1.0
+ * @date 2011-12-01
  */
 
 int main(void)
@@ -42,6 +40,6 @@ int main(void)
 
     pause();
 
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }
 

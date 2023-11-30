@@ -24,12 +24,6 @@
 #define FOREVER for (;;)
 
 /**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2011-12-01
- */
-
-/**
  * @file memory_04.c
  *
  * Memory mapping of a process using a heap.
@@ -40,6 +34,10 @@
  *
  * This example also highlights the memory leak problem. Compile the program
  * with \em -g and run valgrind.
+ *
+ * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @version	1.0
+ * @date 2011-12-01
  */
 
 int main(void)

@@ -20,13 +20,11 @@
 #include <stdlib.h>
 
 /**
+ * @file memory_07.c
+ *
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
  * @version	1.0
  * @date 2019-01-21
- */
-
-/**
- * @file memory_07.c
  */
 
 int f(void)
@@ -47,6 +45,6 @@ int main(int argc, char *argv[])
     printf("location of stack: %p\n", (void *)&val);
     printf("location of heap: %p\n", malloc(100e8));
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
