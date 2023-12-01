@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2022 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,11 @@
 /**
  * @file lock_file.c
  *
+ * This program demonstrates file locking by attempting to lock a file named 
+ * test_lock. If the file is already locked by another process, it waits and
+ * retries until it can acquire the lock. Once locked, it holds the lock for
+ * 5 seconds before unlocking and exiting.
+ *
  * Example using file locking.
  * \code{.bash}
  *   $ touch test_lock
@@ -40,7 +45,7 @@
  *   19358 has unlocked the file
  * \endcode
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */
