@@ -6,7 +6,7 @@ This sub-section focuses on file locking mechanisms in C for synchronization pur
 
 | File Name      | Description | Link |
 |----------------|-------------|------|
-| `lock_file.c`  | Shows how to lock a file | [View](https://github.com/alainlebret/os/blob/master/exemplier/5_synchronization/file_locking/src/lock_file.c) |
+| `lock_file.c`  | Demonstrates file locking by attempting to lock a file named test_lock. | [View](https://github.com/alainlebret/os/blob/master/exemplier/5_synchronization/file_locking/src/lock_file.c) |
 
 
 ## Semaphores
