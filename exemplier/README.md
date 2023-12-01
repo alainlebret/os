@@ -5,15 +5,15 @@
 Ce dépôt contient une collection d'exemples de programmation système en C, utilisés dans mes cours à l'Université Paris-Est, France (2011-2014), et à l'ENSICAEN, France (depuis 2016). Ces exemples couvrent divers aspects de la programmation système tels que la gestion des processus, la communication inter-processus, les sockets, et plus encore.
 
 ## Table des Matières
-- [1_process](1_process/README.md)
-- [2_shell](2_shell/README.md)
-- [3_files](3_files/README.md)
-- [4_memory](4_memory/README.md)
-- [5_synchronization](5_synchronization/README.md)
-- [6_interprocess](6_interprocess/README.md)
-- [7_sockets](7_sockets/README.md)
-- [8_threads](8_threads/README.md)
-- [9_various](9_various/README.md)
+- [Processus](1_process/README.md)
+- [Scripts Bash](2_shell/README.md)
+- [Fichiers](3_files/README.md)
+- [Mémoire](4_memory/README.md)
+- [Synchronisation](5_synchronization/README.md)
+- [Communication interprocessus](6_interprocess/README.md)
+- [Réseau et sockets](7_sockets/README.md)
+- [Threads](8_threads/README.md)
+- [Divers](9_various/README.md)
 
 ## Utilisation
 
@@ -31,15 +31,15 @@ Ces exemples de code sont fournis sous licence [Apache 2.0](http://www.apache.or
 This repository contains a collection of system programming examples in C, used in courses at Paris-Est University, France (2011-2014), and ENSICAEN, France (since 2016). These examples cover various aspects of system programming such as process management, interprocess communication, sockets, and more.
 
 ## Table of Contents
-- [1_process](1_process/README.md)
-- [2_shell](2_shell/README.md)
-- [3_files](3_files/README.md)
-- [4_memory](4_memory/README.md)
-- [5_synchronization](5_synchronization/README.md)
-- [6_interprocess](6_interprocess/README.md)
-- [7_sockets](7_sockets/README.md)
-- [8_threads](8_threads/README.md)
-- [9_various](9_various/README.md)
+- [Processes](1_process/README.md)
+- [Bash Scripts](2_shell/README.md)
+- [Files](3_files/README.md)
+- [Memory](4_memory/README.md)
+- [Synchronization](5_synchronization/README.md)
+- [Interprocess Communication](6_interprocess/README.md)
+- [Network and Sockets](7_sockets/README.md)
+- [Threads](8_threads/README.md)
+- [Various](9_various/README.md)
 
 ## Usage
 
