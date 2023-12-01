@@ -14,7 +14,11 @@ CPPFLAGS = -I $(INC_DIR)
 CFLAGS = -Wall -Wextra -pedantic -O2
 LDFLAGS =
 
-all: $(bins)
+all: directories $(bins)
+
+# Rule to create directories
+directories:
+	@mkdir -p $(BIN_DIR) $(INC_DIR)
 
 $(BIN_DIR)/$(BIN): $(obj)
 	$(CC) $^ -o $@ $(LDFLAGS)
