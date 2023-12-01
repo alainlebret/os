@@ -21,7 +21,7 @@ This sub-section focuses on the use of semaphores for synchronization in C. Belo
 | `unix_semaphore.c`    | Shows how a System V semaphore work | [View](https://github.com/alainlebret/os/blob/master/exemplier/5_synchronization/semaphores/src/unix_semaphore.c) |
 
 
-# Various Examples
+## Various Examples
 
 This sub-section contains various examples related to synchronization mechanisms in C. Below is a list of the source files with links to their content.
 
