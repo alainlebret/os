@@ -1,6 +1,6 @@
 # Section
 
-This section contains examples related to process management in C. Below is a list of the source files with links to their content on GitHub.
+This section contains examples related to process management in C. Below is a list of the source files with links to their content.
 
 | File Name          | Description | Link |
 |--------------------|-------------|------|
