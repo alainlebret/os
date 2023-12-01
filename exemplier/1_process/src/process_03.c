@@ -25,11 +25,11 @@
 
 /**
  * @file process_03.c
+ * @brief This program demonstrates the use of fork() to create a child process
+ * and uses sleep() to block both parent and child processes for a specified 
+ * duration.
  *
- * A simple program that clones a process using the \c fork() primitive and uses
- * sleep() to block parent and child processes.
- *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.2
  * @date 2023-10-15
  */

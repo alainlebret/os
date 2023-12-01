@@ -26,11 +26,11 @@
 
 /**
  * @file process_02.c
+ * @brief This program demonstrates process cloning using fork() and explores
+ * how a variable's value changes independently in the parent and child 
+ * processes.
  *
- * A simple program that clones a process using the \c fork() primitive and
- * shows the evolution of a variable in parent and child processes.
- *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.1
  * @date 2017-12-31
  */

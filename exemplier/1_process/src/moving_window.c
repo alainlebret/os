@@ -21,6 +21,27 @@
 #include <math.h>
 #include <stdlib.h>
 
+/**
+ * @file moving_window.c
+ *
+ * @brief This program creates a GTK window that changes its background 
+ * color in response to SIGUSR1 and SIGUSR2 signals. It demonstrates 
+ * inter-process communication using UNIX signals and GTK for GUI.
+ *
+ * The program is a GTK-based application that displays a window with 
+ * a specified initial color and position. It sets up signal handlers for
+ * SIGUSR1 and SIGUSR2. When these signals are received, the background 
+ * color of the window changes to predefined colors (ensicaen_color1 and 
+ * ensicaen_color2). Additionally, the program demonstrates the use of 
+ * random color generation close to the initial color, signal handling in 
+ * a GUI application, and basic GTK window creation and manipulation. This 
+ * example is useful for understanding how to integrate system-level signal
+ * handling with graphical user interfaces in C.
+ *
+ * @author Alain Lebret
+ * @version 1.0
+ * @date 2023-09-10
+ */
 GdkRGBA initial_color;
 GdkRGBA color;
 GtkWidget *window;
@@ -108,7 +129,7 @@ int main(int argc, char *argv[]) {
 	GtkWidget *label;
 	char pid_text[100];
 	
-	/* Set up the SIGALRM signal handler using sigaction */
+	/* Set up SIGUSR1 and SIGUSR2 signal handlers using sigaction */
     struct sigaction sa1;
     struct sigaction sa2;
     
@@ -116,7 +137,7 @@ int main(int argc, char *argv[]) {
     sigemptyset(&sa1.sa_mask); /* Clear any blocked signals during the execution of the signal handler */
     
 	if (sigaction(SIGUSR1, &sa1, NULL) == -1) {
-        perror("Error setting up sigaction for SIGALRM");
+        perror("Error setting up sigaction for SIGUSR1");
         return 1;
     }
 
@@ -124,7 +145,7 @@ int main(int argc, char *argv[]) {
     sigemptyset(&sa2.sa_mask); /* Clear any blocked signals during the execution of the signal handler */
     
 	if (sigaction(SIGUSR2, &sa2, NULL) == -1) {
-        perror("Error setting up sigaction for SIGALRM");
+        perror("Error setting up sigaction for SIGUSR2");
         return 1;
     }
 

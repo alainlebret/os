@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-#include <inttypes.h>  /* C99 int types */
+#include <inttypes.h>  /* For PRId32 macro */
 #include <stdio.h>     /* printf() */
 #include <stdlib.h>    /* exit() */
 #include <unistd.h>    /* fork() */
@@ -24,10 +24,14 @@
 
 /**
  * @file process_01.c
+ * @brief A simple program that demonstrates the use of the fork() system call
+ * to create a child process. 
  *
- * A simple program that clones a process using the \c fork() primitive.
+ * It separates the behavior of the parent and child processes into different 
+ * functions, printing their respective process IDs and executing distinct 
+ * instructions.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.1
  * @date 2017-12-31
  */
