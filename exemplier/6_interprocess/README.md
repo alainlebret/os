@@ -47,3 +47,33 @@ This sub-section contains examples related to the use of shared memory for inter
 | `unix_shm.c`               | Child processes IPC/sharing System V memory and POSIX semaphore | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/shared_memory/src/unix_shm.c) |
 | `unix_shm_consumer.c`      | Consumer using an IPC/System V shared memory | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/shared_memory/src/unix_shm_consumer.c) |
 | `unix_shm_producer.c`      | Producer using an IPC/System V shared memory | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/shared_memory/src/unix_shm_producer.c) |
+
+
+# Signal Handling
+
+This sub-section contains examples related to signal handling for interprocess communication in C. Below is a list of the source files with links to their content.
+
+| File Name         | Description | Link |
+|-------------------|-------------|------|
+| `signal_01.c`     | Defines the new handler of the SIGINT signal | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_01.c) |
+| `signal_02.c`     | Handles SIGALRM | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_02.c) |
+| `signal_03.c`     | Handles SIGALRM to create a clock | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_03.c) |
+| `signal_04.c`     | Handles SIGCHLD | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_04.c) |
+| `signal_05.c`     | Handles many signals | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_05.c) |
+| `signal_06.c`     | Manages masks to block signals | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_06.c) |
+| `signal_07.c`     | Handles SIGUSR1 | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_07.c) |
+| `signal_08a.c`    | Handles SIGUSR1 without masking other signals | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_08a.c) |
+| `signal_08b.c`    | Handles SIGUSR1 and masking other signals  | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_08b.c) |
+| `signal_09.c`     | Setups a signal handler with 3 arguments including `siginfo_t` | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_09.c) |
+
+
+# IPC/System V Messages
+
+This sub-section contains examples related to the use of IPC/System message queues for interprocess communication in C. Below is a list of the source files with links to their content.
+
+| File Name.          | Description | Link |
+|---------------------|-------------|------|
+| `message.c`         | Creates and displays messages (used by all programs) | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/unix_messages/src/message.c) |
+| `test_message.c`    | Tests the functions in n | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/unix_messages/src/test_message.c) |
+| `unix_msg_recv.c`   | Receives a message through an IPC/System V queue | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/unix_messages/src/unix_msg_recv.c) |
+| `unix_msg_send.c`   | Sends a message through an IPC/System V queue | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/unix_messages/src/unix_msg_send.c) |
