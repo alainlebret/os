@@ -26,12 +26,12 @@
 
 /**
  * @file process_09.c
+ * @brief Another simple program that uses execvp() to executes different
+ * applications with arguments.
  *
- * Another simple program that uses execvp() to executes different applications with arguments.
- *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.1
- * @date 2023-09-19
+ * @author Alain Lebret
+ * @version	1.0
+ * @date 2023-09-10
  */
 
 int main(void)
@@ -46,31 +46,40 @@ int main(void)
 							"-new-tab", "-url", "https://gitlab.ecole.ensicaen.fr", NULL };
 	char *firefox_args2[] = { "firefox", "--search", "chatgpt", NULL };
 	char *gedit_args[] = { "gedit", "pointeurs_et_cie1.c", NULL };
-	char *vlc_args[] = { "vlc", "http://web.ecole.ensicaen.fr/~alebret/ressources/mister_trololo.mp4", NULL };
+	char *vlc_args[] = { "vlc", "resources/mister_trololo.mp4", NULL };
 	
 	pid1 = fork();
+	
 	if (pid1 == 0) { /* child 1 executes firefox with args 1 */
-		execvp("/usr/bin/firefox", firefox_args1);
-	} else { /* le père attend */
+	    execvp("/usr/bin/firefox", firefox_args1);
+	    perror("execvp failed for firefox_args1");
+	    exit(EXIT_FAILURE);
+	} else {
 		pid2 = fork();
-		if (pid2 == 0) { /* child 2 executes firefox with args 2 */
-			execvp("/usr/bin/firefox", firefox_args2);
-		} else {
+	    if (pid2 == 0) { /* child 2 executes firefox with args 2 */
+	        execvp("/usr/bin/firefox", firefox_args2);
+	        perror("execvp failed for firefox_args2");
+	        exit(EXIT_FAILURE);
+	    } else {
 			pid3 = fork();
-			if (pid3 == 0) { /* child 3 executes gedit with args */
-				execvp("/usr/bin/gedit", gedit_args);
-			} else {
+	        if (pid3 == 0) { /* child 3 executes gedit with args */
+	            execvp("/usr/bin/gedit", gedit_args);
+	            perror("execvp failed for gedit_args");
+	            exit(EXIT_FAILURE);
+	        } else {
 				pid4 = fork();
-				if (pid4 == 0) {
-					execvp("/usr/bin/vlc", vlc_args);
-				} else {
+	            if (pid4 == 0) {
+	                execvp("/usr/bin/vlc", vlc_args);
+	                perror("execvp failed for vlc_args");
+	                exit(EXIT_FAILURE);
+	            } else {
 					wait(NULL);
 					wait(NULL);
 					wait(NULL);
 					wait(NULL);					
-				}
-			}
-		}
+	            }
+	        }
+	    }
 	}
 
 	return EXIT_SUCCESS;

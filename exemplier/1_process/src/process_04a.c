@@ -24,11 +24,10 @@
 
 /**
  * @file process_04a.c
- *
- * A simple program that clones a process using the \c fork() primitive, but
- * without waiting child process, which then becomes a zombie!
+ * @brief A simple program that clones a process using the fork() primitive,
+ * but without waiting child process, which then becomes a zombie!
  * 
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.1
  * @date 2017-12-31
  */
@@ -55,9 +54,7 @@ void handle_fatal_error_and_exit(const char *msg)
  */
 void manage_parent()
 {
-    printf("Parent process (PID %"
-    PRId32
-    ")\n", getpid());
+    printf("Parent process (PID %" PRId32 ")\n", getpid());
     printf("Parent will never wait for his child to finish\n");
 
     FOREVER {}

@@ -26,11 +26,11 @@
 
 /**
  * @file process_06a.c
+ * @brief A simple program that clones a process using the fork() primitive.
+ * The child is overlayed by a new program using the exec() family 
+ * functions.
  *
- * A simple program that clones a process using the \c fork() primitive. The
- * child is overlayed by a new program using the \c exec() family functions.
- *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.1
  * @date 2017-12-31
  */

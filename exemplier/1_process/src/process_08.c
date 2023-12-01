@@ -29,9 +29,9 @@
  *
  * A simple program about a process that executes Gtk windows through his childs.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.1
- * @date 2017-12-31
+ * @date 2023-09-10
  */
 
 static char *path = "./moving_window";
@@ -55,15 +55,15 @@ void manage_son1() {
  * This block will be executed by the second son
  */
 void manage_son2() {
-	/* Arguments for the GTK application */
-	char *args[] = {"bin/moving_window", "350", "100", "#bca850", NULL};
+    /* Arguments for the GTK application */
+    char *args[] = {"moving_window", "350", "100", "#bca850", NULL};
 
-	/* Execute the GTK application */
-	execvp(path, args);
+    /* Execute the GTK application */
+    execvp(path, args);
 
-	/* If execvp() fails */
-	perror("execvp failed for son 2");
-	exit(EXIT_FAILURE);	
+    /* If execvp() fails */
+    perror("execvp failed for son 2");
+    exit(EXIT_FAILURE);    
 }
 
 int main(void) {

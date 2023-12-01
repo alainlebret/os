@@ -1,6 +1,8 @@
 #!/bin/bash
 #
-# A script that runs a command every 1 minute
+# This Bash script sends SIGUSR1 to the process with ID $1 and SIGUSR2
+# to the process with ID $2, repeating this action every minute 
+# indefinitely.
 
 while true; do
     echo "Sending SIGUSR1 to " $1
