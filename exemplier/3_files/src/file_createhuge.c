@@ -28,9 +28,9 @@
 /**
  * @file file_createhuge.c
  *
- * A simple example that uses the \c lseek primitive to create a huge file.
+ * A simple example that uses the lseek() primitive to create a huge file.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */

@@ -31,7 +31,7 @@
  * An example of using \c the read primitive to display the hexadecimal dump of
  * a file.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */

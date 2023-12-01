@@ -25,9 +25,10 @@
 /**
  * @file file_copy.c
  *
- * Copy typed keys from keyboard to a file.
+ * Copies the text typed on the keyboard to a file named file.out. It reads input 
+ * from the keyboard and writes it to the file until there is no more input.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */

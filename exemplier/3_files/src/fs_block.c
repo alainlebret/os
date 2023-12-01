@@ -23,9 +23,9 @@
 /**
  * @file fs_block.c
  *
- * A simple example that uses \c statvfs to extract blocks size.
+ * A simple example that uses statvfs() to extract blocks size.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */

@@ -26,9 +26,9 @@
 /**
  * @file file_create.c
  *
- * A simple program that shows using the \c open primitive to create a new file.
+ * A simple program that shows using the open() primitive to create a new file.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */
