@@ -1,4 +1,4 @@
-# Section
+# Process Examples
 
 This section contains examples related to process management in C. Below is a list of the source files with links to their content.
 
