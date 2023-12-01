@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2022 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,13 @@
 
 /**
  * @file posix_semaphore.c
+ * @brief A simple program used to implement a POSIX semaphore.
  *
- * A simple program used to implement a POSIX semaphore.
+ * This program is an interactive demonstration of POSIX semaphore usage. It
+ * allows the user to perform semaphore operations like wait (P), signal (V),
+ * destroy the semaphore (X), or quit the program (Q).
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */

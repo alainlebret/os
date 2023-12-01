@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2022 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,11 @@
  *
  * Example using a System V semaphore.
  *
- * @author Alain Lebret <alain.rene.lebret@gmail.com>
+ * This program is an interactive demonstration of System V semaphore usage. 
+ * It allows the user to perform semaphore operations like wait (P), signal
+ * (V), destroy the semaphore (X), or quit the program (Q).
+ *
+ * @author Alain Lebret
  * @author Michel Billaud <michel.billaud@labri.fr>
  * @version	1.1
  * @date 2011-12-01

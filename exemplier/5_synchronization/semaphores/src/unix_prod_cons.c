@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2022 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,13 @@
 /**
  * @file prod_cons.c
  *
- * Producer-consumer program using a set of two IPC semaphores.
+ * #brief Producer-consumer program using a set of two System V IPC semaphores.
+ *
+ * This program demonstrates the producer-consumer problem solution using 
+ * System V IPC semaphores for synchronization and shared memory for 
+ * communication. It creates two processes, one for producing data and the
+ * other for consuming it, with a shared buffer protected by a set of two 
+ * semaphores.
  *
  * @author Alain Lebret (2011)
  * @author Janet Davis (2006)
