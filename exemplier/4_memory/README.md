@@ -1,30 +1,16 @@
-------------------------------------------------------------------------------
-# Memory
-------------------------------------------------------------------------------
+# Memory Examples
 
-------------------------------------------------------------------------------
-## File projection on memory
-------------------------------------------------------------------------------
-The `mmap`function allows to project a file onto a memory segment in memory.
-The `munmap` function frees this memory segment.
+This section contains examples related to memory management in C. Below is a list of the source files with links to their content.
 
-Files: `mmap_01.c`, `mmap_02.c` in memory_mapping directory
-
-------------------------------------------------------------------------------
-## Shared memory
-------------------------------------------------------------------------------
-
-1. Sharing memory between parents and child processes
-   The shared memory uses the previous memory mapping mechanism, but without
-   using files.
-
-Files: `mmap_buffer_01.c`, `mmap_buffer_02.c`, `mmap_buffer_03.c` and
-`mmap_buffer_04.c`
-
-2. Sharing memory between distinct processes
-   This mechanism allows multiple processes to share memory segments. Each memory
-   segment is identified by a *key*. When a segment is attached to a process, data
-   are accessible in memory through a pointer.
-
-Files: `shm_producer.c` and `shm_consumer.c` in shared_memory directory
-
+| File Name       | Description | Link |
+|-----------------|-------------|------|
+| memory_01.c     | Gets the page size from the virtual memory | [View](https://github.com/alainlebret/os/blob/master/exemplier/4_memory/src/memory_01.c) |
+| memory_02.c     | Shows the memory of a simple process | [View](https://github.com/alainlebret/os/blob/master/exemplier/4_memory/src/memory_02.c) |
+| memory_03.c     | Shows the memory of a simple process using a library | [View](https://github.com/alainlebret/os/blob/master/exemplier/4_memory/src/memory_03.c) |
+| memory_04.c     | Highlights the memory leak problem | [View](https://github.com/alainlebret/os/blob/master/exemplier/4_memory/src/memory_04.c) |
+| memory_05a.c    | Highlights the memory leak problem | [View](https://github.com/alainlebret/os/blob/master/exemplier/4_memory/src/memory_05a.c) |
+| memory_05b.c    | Highlights the memory leak problem | [View](https://github.com/alainlebret/os/blob/master/exemplier/4_memory/src/memory_05b.c) |
+| memory_06.c     | Memory map (ref.: [Gray](https://www.oreilly.com/library/view/interprocess-communications-in/0130460427/) | [View](https://github.com/alainlebret/os/blob/master/exemplier/4_memory/src/memory_06.c) |
+| memory_07.c     | Shows about stack | [View](https://github.com/alainlebret/os/blob/master/exemplier/4_memory/src/memory_07.c) |
+| mmap1.c         | Shows how to project a file onto a memory segment in memory | [View](https://github.com/alainlebret/os/blob/master/exemplier/4_memory/src/mmap1.c) |
+| mmap2.c         | Shows how to project a file onto a memory segment in memory | [View](https://github.com/alainlebret/os/blob/master/exemplier/4_memory/src/mmap2.c) |
