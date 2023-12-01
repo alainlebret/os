@@ -42,4 +42,8 @@ This sub-section contains examples related to the use of shared memory for inter
 | `posix_shm_client.c`       | A client sharing memory with a server (client version) | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/shared_memory/src/posix_shm_client.c) |
 | `posix_shm_server.c`       | A client sharing memory with a server (server version) | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/shared_memory/src/posix_shm_server.c) |
 | `posix_shm_simple_1.c`     | Example using parent and child processes sharing memory | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/shared_memory/src/posix_shm_simple_1.c) |
-| `posix_shm_simple_2.c`     | Another example using parent and child processes sharing memory | [View](https://github.com/alainle
+| `posix_shm_simple_2.c`     | Another example using parent and child processes sharing memory | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/shared_memory/src/posix_shm_simple_2.c) |
+| `posix_shm_simple_3.c`     | Parent and child processes sharing a complex structure memory | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/shared_memory/src/posix_shm_simple_3.c) |
+| `unix_shm.c`               | Child processes IPC/sharing System V memory and POSIX semaphore | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/shared_memory/src/unix_shm.c) |
+| `unix_shm_consumer.c`      | Consumer using an IPC/System V shared memory | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/shared_memory/src/unix_shm_consumer.c) |
+| `unix_shm_producer.c`      | Producer using an IPC/System V shared memory | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/shared_memory/src/unix_shm_producer.c) |
