@@ -26,9 +26,9 @@
 #include <semaphore.h>      /* sem_open(), sem_destroy(), sem_wait().. */
 
 /**
- * @file posix_shm.c
+ * @file unix_shm.c
  *
- * Example using child processes sharing memory using POSIX semaphore.
+ * Example using child processes sharing System V memory and POSIX semaphore.
  * Link with \c -lpthread.
  *
  * @author Alain Lebret
@@ -38,7 +38,7 @@
 
 int shmid;         /* shared memory id */
 int *shared_value; /* shared variable */
-sem_t *sem;        /* synch semaphore */
+sem_t *sem;        /* sync semaphore */
 
 /**
  * Handles a fatal error. It displays a message, then exits.
