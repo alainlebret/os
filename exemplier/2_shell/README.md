@@ -6,7 +6,7 @@ This section contains examples of Bash scripting in Unix-like systems. These scr
 |-----------------------|---------------------------------------------------------------------------|------|
 | `1_hello.sh`            | Demonstrates the use of the `echo` command with different string delimiters | [1_hello.sh](https://github.com/alainlebret/os/blob/master/exemplier/2_shell/1_hello.sh) |
 | `2_clean.sh`            | Shows how to remove files by creating a temporary trash directory         | [2_clean.sh](https://github.com/alainlebret/os/blob/master/exemplier/2_shell/2_clean.sh) |
-| `3_variables_01.sh`     | Demonstrates variables and their contents using echo                      | [3_variables_01.sh](https://github.com/alainlebret/os/blob/master/exemplier/2_shell/3_variables_01.sh) |
+| `3_variables_01.sh`     | Demonstrates variables and their contents using `echo`                      | [3_variables_01.sh](https://github.com/alainlebret/os/blob/master/exemplier/2_shell/3_variables_01.sh) |
 | `3_variables_02.sh`     | Illustrates the difference between simple and double quotes               | [3_variables_02.sh](https://github.com/alainlebret/os/blob/master/exemplier/2_shell/3_variables_02.sh) |
 | `4_read.sh`             | Reads input from the user                                                 | [4_read.sh](https://github.com/alainlebret/os/blob/master/exemplier/2_shell/4_read.sh) |
 | `5_substitution_01.sh`  | Shows command substitution (example 1)                                    | [5_substitution_01.sh](https://github.com/alainlebret/os/blob/master/exemplier/2_shell/5_substitution_01.sh) |
