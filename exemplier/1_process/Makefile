@@ -16,7 +16,11 @@ LDFLAGS =
 COLOR_PROGS_CFLAGS = `pkg-config --cflags gtk+-3.0`
 COLOR_PROGS_LDFLAGS = `pkg-config --libs gtk+-3.0`
 
-all: $(bins)
+all: directories $(bins)
+
+# Rule to create directories
+directories:
+	@mkdir -p $(BIN_DIR) $(INC_DIR)
 
 # Rule for moving_window file
 $(BIN_DIR)/moving_window: $(SRC_DIR)/moving_window.c
