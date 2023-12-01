@@ -81,12 +81,12 @@ int main(void)
      * Create a new pipe named "testfifo" with read/write permissions for owner,
      * and with read permissions for group and others.
      */
-    pipe = create_pipe("./testfifo", S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
+    pipe = create_pipe("testfifo", S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
     if (pipe == -1) {
         handle_fatal_error("Error when trying to create named pipe!");
     }
 
-    pd = open_pipe("./testfifo");
+    pd = open_pipe("testfifo");
     if (pd == -1) {
         handle_fatal_error("Error when trying to open named pipe!");
     }
@@ -97,7 +97,7 @@ int main(void)
     write(pd, buffer, BUFFER_SIZE);
 
     close(pd);
-    unlink("./testfifo");
+    unlink("testfifo");
 
     return EXIT_SUCCESS;
 }

@@ -68,7 +68,7 @@ int main(void)
     int pd;
     ssize_t message_length;
 
-    pd = open_pipe("./testfifo");
+    pd = open_pipe("testfifo");
 
     strcpy(buffer, "");
     message_length = read(pd, buffer, BUFFER_SIZE);
