@@ -1,6 +1,6 @@
 # File and directory Examples
 
-This section contains examples related to file operations in C. Below is a list of the source files with links to their content on GitHub.
+This section contains examples related to file operations in C. Below is a list of the source files with links to their content.
 
 | File Name          | Description | Link |
 |--------------------|-------------|------|
