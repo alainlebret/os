@@ -26,7 +26,7 @@
  *
  * Gets the page size from the virtual memory.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */

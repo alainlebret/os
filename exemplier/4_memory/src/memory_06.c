@@ -15,21 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-#define SHOW_ADDRESS(ID, I) printf("The id %s \t\t is at:%8lX\n", ID, (unsigned long int)&I);
-
 /**
  * @file memory_06.c
  *
- * Example using memory. It is based on an example from the following book:
- * John Shapley Gray. "Interprocess Communications in Linux: The Nooks and 
- * Crannies". Prentice Hall. 2003.
+ * This program demonstrates the memory layout of a process in a Unix/Linux
+ * environment by printing the addresses of various functions, global 
+ * variables, and dynamically allocated memory, illustrating how different 
+ * segments (text, data, heap, stack) are organized in memory. It is based
+ * on the code by John Shapley Gray.
+ *
+ * Ref.: John Shapley Gray. "Interprocess Communications in Linux: The Nooks 
+ * and Crannies". Prentice Hall. 2003.
  *
  * +------------------+
  * |  TEXT            | x     = main()
@@ -77,6 +79,8 @@
  * |                  |
  * +------------------+
  */
+
+#define SHOW_ADDRESS(ID, I) printf("The id %s \t\t is at:%8lX\n", ID, (unsigned long int)&I);
 
 int etext;
 int edata;

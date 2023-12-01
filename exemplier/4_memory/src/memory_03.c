@@ -27,13 +27,15 @@
 /**
  * @file memory_03.c
  *
- * Memory mapping of a process using a dynamic library.
- * Just run the program and verify its memory mapping using the command:
+ * This program continuously calculates the square root of random numbers, 
+ * allowing for inspection of its memory mapping, particularly to observe 
+ * the use of the math library (libm).
+ * Verify its memory mapping using the command:
  * \code{bash}
  * cat /proc/<PID>/maps
  * \endcode
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */

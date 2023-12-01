@@ -33,9 +33,9 @@
  * \endcode
  *
  * This example also highlights the memory leak problem. Compile the program
- * with \em -g and run valgrind.
+ * using -g and run valgrind.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */

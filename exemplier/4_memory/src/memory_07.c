@@ -15,14 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 
 /**
  * @file memory_07.c
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * This program demonstrates the memory layout of a process by printing the
+ * addresses of the main function, another function, a local variable (stack),
+ * and a dynamically allocated memory block (heap).
+ *
+ * @author Alain Lebret
  * @version	1.0
  * @date 2019-01-21
  */
@@ -32,18 +35,18 @@ int f(void)
     int val;
 
     val = 1;
-    printf("location of stack: %p\n", (void *)&val);
+    printf("Location of stack: %p\n", (void *)&val);
 
     return val;
 }
 
 int main(void)
 {
-    printf("location of main code: %p\n", main);
-    printf("location of f() code: %p\n", f);
+    printf("Location of main code: %p\n", main);
+    printf("Location of f() code: %p\n", f);
     int val = f();
-    printf("location of stack: %p\n", (void *)&val);
-    printf("location of heap: %p\n", malloc(100e8));
+    printf("Location of stack: %p\n", (void *)&val);
+    printf("Location of heap: %p\n", malloc(100e8));
 
     return EXIT_SUCCESS;
 }

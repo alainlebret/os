@@ -22,15 +22,15 @@
 #include <sys/types.h> /* pid_t and mkfifo() */
 
 /**
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2011-12-01
- */
-
-/**
  * @file memory_05b.c
  *
- * This example highlights the memory leak problem.
+ * This program allocates memory for an array of 10 integers, pauses (waiting 
+ * for a signal), and then properly frees the allocated memory before exiting, 
+ * demonstrating proper memory management.
+ *
+ * @author Alain Lebret
+ * @version	1.0
+ * @date 2011-12-01
  */
 
 int main(void)

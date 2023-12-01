@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include <stdio.h>     /* printf() */
 #include <stdlib.h>    /* exit() and execl()*/
 #include <unistd.h>    /* fork(), close() */
@@ -30,9 +29,12 @@
 /**
  * @file mmap2.c
  *
- * Memory mapping using mmap. This program do the same as the \em cp command.
+ * This program replicates the functionality of the cp command by using memory
+ * mapping. It maps the contents of a source file into memory, then maps a 
+ * destination file into memory, and performs a memory copy from the source to
+ * the destination.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */
@@ -86,4 +88,3 @@ int main(int argc, char *argv[])
 
     return EXIT_SUCCESS;
 }
-

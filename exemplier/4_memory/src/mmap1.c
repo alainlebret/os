@@ -26,17 +26,19 @@
 #include <ctype.h>     /* isalpha(), isspace() */
 #include <assert.h>
 
-#define TERMINAL 1
-
 /**
  * @file mmap1.c
  *
- * A memmory mapping example using the \c mmap primitive.
+ * This program demonstrates memory mapping of a file using mmap(). It maps the
+ * contents of a specified file into memory, writes the content to the terminal,
+ * processes the data, and then unmaps the memory.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */
+
+#define TERMINAL 1
 
 long get_file_size(const char *filename)
 {

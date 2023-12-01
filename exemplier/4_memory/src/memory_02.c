@@ -27,13 +27,11 @@
 /**
  * @file memory_02.c
  *
- * Memory mapping of a simple process.
- * Just run the program and verify its memory mapping using the command:
- * \code{bash}
- * cat /proc/<PID>/maps
- * \endcode
+ * This program runs for approximately 4 minutes, during which its memory mapping 
+ * can be inspected using system tools (cat /proc/<PID>/maps). It is designed to 
+ * aid in understanding the memory layout of a process.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */

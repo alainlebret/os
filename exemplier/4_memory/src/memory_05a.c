@@ -24,10 +24,12 @@
 /**
  * @file memory_05b.c
  *
- * This example highlights the memory leak problem. Compile it with \em -g
- * option and run the valgring program.
+ * This program allocates memory for an array of 10 integers and then pauses, 
+ * creating an intentional memory leak for analysis with memory profiling tools
+ * like Valgrind.
+ * Compile it with -g option and run the Valgrind program.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */
