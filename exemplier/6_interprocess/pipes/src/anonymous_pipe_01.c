@@ -28,7 +28,7 @@
  *
  * A simple program that uses an anonymous pipe between a parent and its child.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2022-06-01
  */
@@ -53,24 +53,27 @@ void handle_fatal_error(const char *msg)
  * @param pipe The anonymous pipe descriptors.
  * @param pid_child The PID of the child to send values.
  */
-void manage_parent(int pipe[])
-{
+void manage_parent(int pipe[]) {
     char byte;
-	ssize_t ret;
+    ssize_t ret;
 
     printf("Parent process (PID %d)\n", getpid());
     close(pipe[OUTPUT]);
 
     do {
-		ret = read(KEYBOARD, &byte, BYTE_SIZE);
+        ret = read(KEYBOARD, &byte, BYTE_SIZE);
         if (ret == -1) {
-			break;
-        } else {
+            perror("Error reading from keyboard");
+            break;
+        } else if (ret != 0) {
             if (isalnum(byte)) {
-                write(pipe[INPUT], &byte, 1);
+                if (write(pipe[INPUT], &byte, BYTE_SIZE) == -1) {
+                    perror("Error writing to pipe");
+                    break;
+                }
             }
         }
-    } while (ret == BYTE_SIZE);
+    } while (ret > 0);
     close(pipe[INPUT]);
 
     wait(NULL);
@@ -82,25 +85,26 @@ void manage_parent(int pipe[])
  * numeral digits and displays the result.
  * @param pipe The anonymous pipe descriptors
  */
-void manage_child(int pipe[])
-{
+void manage_child(int pipe[]) {
     char byte;
-    int letters;
-    int digits;
+    int letters = 0, digits = 0;
+    ssize_t ret;
 
-    letters = 0;
-    digits = 0;
     printf("Child process (PID %d)\n", getpid());
-    printf("Enter C-D to end.\n");
+    printf("Enter Ctrl-D (EOF) to end.\n");
     close(pipe[INPUT]);
 
-    while (read(pipe[OUTPUT], &byte, BYTE_SIZE) > 0) {
+    while ((ret = read(pipe[OUTPUT], &byte, BYTE_SIZE)) > 0) {
         if (isdigit(byte)) {
             digits++;
-        } else {
+        } else if (isalpha(byte)) {
             letters++;
         }
     }
+    if (ret == -1) {
+        perror("Error reading from pipe");
+    }
+
     printf("\n%d digits received\n", digits);
     printf("%d letters received\n", letters);
 }

@@ -29,7 +29,7 @@
  * Another simple program that uses an anonymous pipe between a parent and its
  * child.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */
@@ -39,6 +39,7 @@
 #define KEYBOARD  0
 #define STOP     -1
 #define INTEGER_SIZE sizeof(int)
+#define BUFFER_SIZE   100
 
 /**
  * Handles a fatal error. It displays a message, then exits.
@@ -54,18 +55,28 @@ void handle_fatal_error(const char *msg)
  * them in the pipe. It sends -1 to stop communication.
  * @param pipe The anonymous pipe descriptors
  */
-void manage_parent(int pipe[])
-{
+void manage_parent(int pipe[]) {
     int integer;
+    char buffer[BUFFER_SIZE];
 
     printf("Parent process (PID %d)\n", getpid());
     close(pipe[OUTPUT]);
 
-    integer = 0;
-
-    while (integer != STOP) {
-        scanf("%d", &integer);
-        write(pipe[INPUT], &integer, INTEGER_SIZE);
+    while (1) {
+        if (fgets(buffer, BUFFER_SIZE, stdin) == NULL) {
+            break; /* Break on EOF or error */
+        }
+        if (sscanf(buffer, "%d", &integer) != 1) {
+            fprintf(stderr, "Invalid input\n");
+            continue;
+        }
+        if (write(pipe[INPUT], &integer, INTEGER_SIZE) == -1) {
+            perror("Error writing to pipe");
+            break;
+        }
+        if (integer == STOP) {
+            break;
+        }
     }
     close(pipe[INPUT]);
 
@@ -78,18 +89,25 @@ void manage_parent(int pipe[])
  * It stops when receiving -1.
  * @param pipe The anonymous pipe descriptors
  */
-void manage_child(int pipe[])
-{
-    int integer;
+void manage_child(int pipe[]) {
+    int integer, bytesRead;
 
     printf("Child process (PID %d)\n", getpid());
     close(pipe[INPUT]);
 
-    integer = 0;
-
-    while (integer != STOP) {
-        read(pipe[OUTPUT], &integer, INTEGER_SIZE);
+    while (1) {
+        bytesRead = read(pipe[OUTPUT], &integer, INTEGER_SIZE);
+        if (bytesRead == -1) {
+            perror("Error reading from pipe");
+            break;
+        }
+        if (bytesRead == 0) { /* Pipe is closed */
+            break;
+        }
         printf("\nValue received: %d\n", integer);
+        if (integer == STOP) {
+            break;
+        }
     }
     close(pipe[OUTPUT]);
     printf("Child has finished.\n");
