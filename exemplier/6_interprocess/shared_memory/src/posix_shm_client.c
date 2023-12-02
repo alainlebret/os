@@ -67,11 +67,31 @@ void handle_sigint(int signum)
     exit(EXIT_SUCCESS);
 }
 
+/**
+ * Checks if new data is available in the shared memory.
+ *
+ * @param memory The shared memory segment.
+ * @param last_read The last read data from the shared memory.
+ * @return 1 if new data is available, 0 otherwise.
+ */
+int check_for_new_data(struct memory_t *memory, struct memory_t *last_read) {
+    /* Check if the current data is different from the last read data */
+    if (memory->value != last_read->value || 
+        memory->square_root != last_read->square_root) {
+		/* Update last_read to the current data */
+        last_read->value = memory->value;
+        last_read->square_root = memory->square_root;
+        return 1; /* New data is available */
+    }
+    return 0; /* No new data */
+}
+
 int main(int argc, char *argv[])
 {
     int memory_descriptor;
     size_t memory_size;
     struct memory_t *memory;
+    struct memory_t last_read = {0, 0};
     struct sigaction action;
 
     memory_size = (1 * sizeof(struct memory_t));
@@ -91,12 +111,19 @@ int main(int argc, char *argv[])
 
     if (MAC_OSX) { /* MAC OS X abnormality about ftruncate */
         struct stat mapstat;
-        if (-1 != fstat(memory_descriptor, &mapstat)
-            && mapstat.st_size == 0) {
-            ftruncate(memory_descriptor, memory_size);
+        if (fstat(memory_descriptor, &mapstat) == -1) {
+            handle_error("Error [fstat()]: ");
+        }
+
+        if (mapstat.st_size == 0) {
+            if (ftruncate(memory_descriptor, memory_size) == -1) {
+                handle_error("Error [ftruncate()]: ");
+            }
         }
     } else {
-        ftruncate(memory_descriptor, memory_size);
+        if (ftruncate(memory_descriptor, memory_size) == -1) {
+            handle_error("Error [ftruncate()]: ");
+        }
     }
 
     memory = (struct memory_t *) mmap(
@@ -115,7 +142,13 @@ int main(int argc, char *argv[])
     FOREVER {
         printf("Value is %d ... ", memory->value);
         printf("and its square root is %f \n", memory->square_root);
+        if (check_for_new_data(memory, &last_read)) { 
+            printf("New data read from shared memory.\n");
+        }
         sleep(3);
     }
 
+    if (munmap(memory, memory_size) == -1) {
+        perror("munmap"); 
+    }
 }
