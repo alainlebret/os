@@ -16,20 +16,22 @@
  * limitations under the License.
  */
 #include <stdio.h>    /* printf() */
+#include <stdlib.h>   /* exit() */
 #include <string.h>   /* memset() */
 #include <signal.h>   /* sigaction() */
+#include <unistd.h>   /* pause() */
 
 /**
  * @file signal_05.c
  *
  * A simple program that uses POSIX signals and handles many signals.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2011-12-01
+ * @author Alain Lebret
+ * @version	1.1
+ * @date 2023-12-01
  */
 
-#define FOREVER for (;;)
+volatile sig_atomic_t exit_flag = 0;
 
 /**
  * @brief Defines a naive handler to display the received signal number.
@@ -39,18 +41,20 @@ void handle(int signal)
 {
     printf("Signal number %d has been received.\n", signal);
     fflush(stdout);
+
+    if (signal == SIGINT || signal == SIGTERM) {
+        exit_flag = 1;
+    }
 }
 
 int main(void)
 {
     struct sigaction action;
-
+	
     /* Clean up the structure before using it */
     memset(&action, '\0', sizeof(action));
-
     /* Set the new handler */
     action.sa_handler = &handle;
-
     /* We do not block any specific signal */
     sigemptyset(&action.sa_mask);
 
@@ -59,8 +63,11 @@ int main(void)
     sigaction(SIGQUIT, &action, 0);
     sigaction(SIGTERM, &action, 0);
 
-    FOREVER {}
+    while (!exit_flag) {
+        pause(); /* Wait for a signal */
+    }
 
-    /* Unreachable: use <Ctrl-C> to exit */
+    printf("Exiting more gracefully.\n");
 
+    return EXIT_SUCCESS;
 }

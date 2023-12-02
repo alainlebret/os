@@ -27,9 +27,9 @@
  *
  * A simple program that uses POSIX signals and handles the SIGUSR1 signal.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2011-12-01
+ * @author Alain Lebret
+ * @version	1.1
+ * @date 2022-04-11
  */
 
 unsigned char nb_calls = 7;
@@ -62,7 +62,7 @@ void handle_fatal_error_and_exit(const char *msg)
  * @brief Manages the parent process. 
  *
  * It decrements the number of lifes before sending the signal SIGUSR1 to 
- * his child.
+ * his child and waiting for his death.
  */
 void manage_parent(pid_t child)
 {
@@ -73,6 +73,10 @@ void manage_parent(pid_t child)
         printf("Parent: sending SIGUSR1 to the child %d...\n", child);
         kill(child, SIGUSR1);
     }
+
+    int status;
+    waitpid(child, &status, 0); /* Wait for the child to exit */
+    printf("Parent: Child exited. Parent exiting.\n");
 
     exit(EXIT_SUCCESS);
 }

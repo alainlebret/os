@@ -26,7 +26,7 @@
  *
  * A simple program that uses POSIX signals and handles SIGALRM.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */
@@ -50,6 +50,7 @@ int main(void)
     struct sigaction action;
     int value;
     int remaining_time;
+    int result;
 
     /* Clean up the structure before using it */
     memset(&action, '\0', sizeof(action));
@@ -61,17 +62,19 @@ int main(void)
     sigaction(SIGALRM, &action, NULL);
 
     printf("You have %d seconds to enter a number: ", DURATION);
-
     /* The OS will send an alarm signal to the process in 'DURATION' sec. */
     alarm(DURATION);
 
     /* Wait for the user to enter a value */
-    scanf("%d", &value);
+    result = scanf("%d", &value);
+    if (result < 1) {
+        printf("Failed to read a valid number.\n");
+        return EXIT_FAILURE;
+    }
 
     /* Deactivate the sending of an alarm signal by the OS */
     remaining_time = alarm(0);
-
-    printf("\nElapsed time: %d seconds.\n", 5 - remaining_time);
+    printf("\nYou entered the number %d with %d seconds remaining.\n", value, remaining_time);
 
     return EXIT_SUCCESS;
 }

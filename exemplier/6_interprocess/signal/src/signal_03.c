@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 #include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() */
 #include <unistd.h>    /* fork() */
 #include <signal.h>    /* sigaction() */
 #include <string.h>    /* memset() */
@@ -23,11 +24,11 @@
 /**
  * @file signal_03.c
  *
- * A simple program that uses POSIX signals and handles SIGALRM.
+ * A simple program that uses POSIX signals and handles SIGALRM to create a clock.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2011-12-01
+ * @author Alain Lebret
+ * @version	1.0.1
+ * @date 2023-12-01
  */
 
 #define FOREVER for (;;)
@@ -35,6 +36,18 @@
 unsigned int h = 0; /* Hours */
 unsigned int m = 0; /* Minutes */
 unsigned int s = 0; /* Seconds */
+
+/** 
+ * @brief Defines the new handler of the SIGINT signal.
+ * @param signal Number of the signal
+ */
+void handle_sigint(int signal)
+{
+    if (signal == SIGINT) {
+        printf("Terminating...\n");
+        exit(EXIT_SUCCESS);
+    }
+}
 
 /** 
  * @brief Defines the new handler of the SIGALRM signal.
@@ -64,21 +77,27 @@ void tick(int signal)
 int main(void)
 {
     struct sigaction action;
+    struct sigaction sigint_action;
 
     /* Clean up the structure before using it */
     memset(&action, '\0', sizeof(action));
-
     /* Set the new handler */
     action.sa_handler = &tick;
-
     /* Install the new handler of the SIGALRM signal */
     sigaction(SIGALRM, &action, NULL);
+
+	/* Same for SIGINT */
+    memset(&sigint_action, '\0', sizeof(sigint_action));
+    sigint_action.sa_handler = &handle_sigint;
+    sigaction(SIGINT, &sigint_action, NULL);
 
     /* Ask the OS to send a SIGALRM signal in 1 second */
     alarm(1);
 
     /* Waiting for SIGALRM signal */
-    FOREVER {}
+    while (1) {
+        pause();
+    }
 
     /* Unreachable: use <Ctrl-C> to exit */
 

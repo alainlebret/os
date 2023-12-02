@@ -30,8 +30,8 @@
  *
  * A simple program that uses POSIX signals and handles SIGINT.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
+ * @author Alain Lebret
+ * @version	1.0.1
  * @date 2011-12-01
  */
 
@@ -59,6 +59,8 @@ int main(void)
 
     /* Install the new handler of the SIGINT signal */
     sigaction(SIGINT, &action, NULL);
+
+    printf("Program started. Press Ctrl-C to send SIGINT.\n");
 
     /* Wait for the signal SIGINT (<Ctrl-C>) */
     pause();

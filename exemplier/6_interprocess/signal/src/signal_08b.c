@@ -31,7 +31,7 @@
  * What if using the following command?
  * kill -s SIGINT <PID>
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01 
  */
@@ -45,8 +45,6 @@ void sigusr1_handler(int signal)
 {
     if (signal == SIGUSR1) {
         got_usr1 = 1;
-    } else {
-    	printf("Wow! This should not be possible!");
     }
 }
 

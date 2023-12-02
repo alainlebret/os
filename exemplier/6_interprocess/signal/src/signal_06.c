@@ -17,7 +17,7 @@
  */
 #include <stdio.h>     /* printf() */
 #include <stdlib.h>    /* exit() and execl()*/
-#include <unistd.h>    /* fork() */
+#include <unistd.h>    /* fork() and pause() */
 #include <sys/types.h> /* pid_t */
 #include <signal.h>    /* sigaction */
 
@@ -26,9 +26,9 @@
  *
  * A simple program that uses POSIX signals and manages masks to block signals.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2011-12-01
+ * @author Alain Lebret
+ * @version	1.1
+ * @date 2022-04-22
  */
 
 #define NBR_SIGNALS 2
@@ -46,26 +46,25 @@ int main(void)
     sigset_t old_mask;
     sigset_t pending_signals;
 
-    /*
-     * Create a mask to block the two signals.
-     */
+   /*
+    * Create a mask to block the two signals.
+    */
     sigemptyset(&new_mask);
     for (i = 0; i < NBR_SIGNALS; i++) {
         sigaddset(&new_mask, signals[i]);
     }
 
-    /*
-     * Exchange old and new masks
-     */
+   /*
+    * Exchange old and new masks
+    */
     sigprocmask(SIG_SETMASK, &new_mask, &old_mask);
 
-    /*
-     * Sleep for 20 seconds (maybe enough to try sending CTRL-C and SIGTERM and
-     * SIGHUP signals)...
-     */
+   /*
+    * Sleep for 20 seconds (maybe enough to try sending CTRL-C and SIGTERM and
+    * SIGHUP signals)...
+    */
     printf("20 seconds to send <CTRL>-C and kill -15 %d to this process\n", getpid());
     sleep(20);
-    printf("\nEnd of blocking \n");
 
     /* Get the list of pending signals */
     sigpending(&pending_signals);
@@ -76,6 +75,10 @@ int main(void)
             printf("Pending signal %d has been blocked.\n", i);
         }
     }
+
+    /* Unblocking signals */
+    sigprocmask(SIG_SETMASK, &old_mask, NULL);
+    printf("\nSignals unblocked. Normal operation resumed.\n");
 
     return EXIT_SUCCESS;
 }

@@ -28,33 +28,50 @@
  * A simple program that setups a signal handler with 3 arguments, including
  * siginfo_t.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
- * @date 2011-12-01
+ * @date 2022-04-12
  */
 
 #define FOREVER for (;;)
 
 void hdl(int signal, siginfo_t *siginfo, void *context)
 {
-    printf("Sending PID: %ld, UID: %ld\n", (long) siginfo->si_pid, (long) siginfo->si_uid);
+    if (signal == SIGTERM) {
+        printf("Sending PID: %ld, UID: %ld\n", (long) siginfo->si_pid, (long) siginfo->si_uid);
+    }
+}
+
+void sigint_handler(int signal)
+{
+    if (signal == SIGINT) {
+        printf("SIGINT received, exiting.\n");
+        exit(EXIT_SUCCESS);
+    }
 }
 
 int main(int argc, char *argv[])
 {
     struct sigaction action;
+	struct sigaction sigint_action;
 
     /* Clean up the structure before using it */
     memset(&action, '\0', sizeof(action));
-
     /* Use the sa_sigaction field because the handles has two additional parameters */
     action.sa_sigaction = &hdl;
-
     /* The SA_SIGINFO flag tells sigaction() to use the sa_sigaction field, not sa_handler. */
     action.sa_flags = SA_SIGINFO;
 
     if (sigaction(SIGTERM, &action, NULL) < 0) {
-        perror("Error using sigaction");
+        perror("Error using sigaction for SIGTERM");
+        exit(EXIT_FAILURE);
+    }
+
+	/* Normal signal handler installation for SIGINT */
+    memset(&sigint_action, '\0', sizeof(sigint_action));
+    sigint_action.sa_handler = sigint_handler;
+    if (sigaction(SIGINT, &sigint_action, NULL) < 0) {
+        perror("Error using sigaction for SIGINT");
         exit(EXIT_FAILURE);
     }
 
@@ -62,6 +79,5 @@ int main(int argc, char *argv[])
         sleep(10);
     }
 
-    /* Unreachable: use <Ctrl-C> to exit */
-
+    return EXIT_SUCCESS;
 }

@@ -28,12 +28,14 @@
  *
  * A simple program that uses POSIX signals and handles SIGCHLD.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */
 
 #define FOREVER for (;;)
+
+int child_exited = 0;
 
 /** 
  * @brief Defines a new handler of the SIGCHLD signal in charge of suppressing
@@ -46,9 +48,10 @@ void handle_sigchild(int signal)
     int status;
 
     if (signal == SIGCHLD) {
-        child = wait(&status);
-        printf("My child (%d) died. He will not be a zombie. I can stop working :-)\n", child);
-        exit(EXIT_SUCCESS);
+        while ((child = waitpid(-1, &status, WNOHANG)) > 0) {
+            printf("My child (%d) died. He will not be a zombie.\n", child);
+        }
+        child_exited = 1;
     }
 }
 
@@ -73,21 +76,22 @@ void manage_parent()
 
     /* Clean up the structure before using it */
     memset(&action, '\0', sizeof(action));
-
     /* Set the new handler */
     action.sa_handler = &handle_sigchild;
+	/* We ensure that certain system calls are automatically restarted if interrupted by a signal */
+    action.sa_flags = SA_RESTART;
 
     /* Install the new handler of the SIGCHLD signal */
     sigaction(SIGCHLD, &action, NULL);
 
     printf("Parent process (PID %d)\n", getpid());
-    printf("Signal %d will be received and handled by the parent.\n", SIGCHLD);
 
-    FOREVER {
+    while (!child_exited) {
         printf("Parent: I am working...\n");
         sleep(2);
     }
 
+    printf("Parent: My child has exited, so I can stop working :-)\n");
 }
 
 /**
