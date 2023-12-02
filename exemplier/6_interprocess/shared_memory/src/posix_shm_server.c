@@ -61,9 +61,10 @@ void handle_error(const char *message)
  */
 void handle_sigint(int signum)
 {
-    if (shm_unlink("MEMORY_PATH") < 0) {
+    if (shm_unlink(MEMORY_PATH) < 0) {
         handle_error("Error [shm_unlink()]: ");
     }
+    fprintf(stderr, "Shared memory %s unlinked successfully.\n", MEMORY_PATH);
     exit(EXIT_SUCCESS);
 }
 
@@ -91,7 +92,9 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "Shared memory object %s has been created\n", MEMORY_PATH);
 
-    ftruncate(memory_descriptor, memory_size);
+    if (ftruncate(memory_descriptor, memory_size) == -1) {
+        handle_error("Error [ftruncate()]: ");
+    }
 
     memory = (struct memory_t *) mmap(
             NULL,
@@ -110,8 +113,12 @@ int main(int argc, char *argv[])
     FOREVER {
         memory->value = value;
         memory->square_root = sqrt(value);
+        fprintf(stderr, "Updated shared memory: value = %d, square root = %f\n",
+                memory->value, memory->square_root);
         sleep(5);
         value++;
     }
 
+    munmap(memory, memory_size);
+    close(memory_descriptor);
 }
