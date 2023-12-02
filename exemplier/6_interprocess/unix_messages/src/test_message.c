@@ -23,10 +23,11 @@
 
 /**
  * @file test_messages.c
+ * @brief Test message handling functions.
  *
  * @author Alain Lebret
- * @version	1.0
- * @date 2012-04-10
+ * @version	1.1
+ * @date 2022-04-15
  */
 
 int main(int argc, char *argv[])
@@ -35,12 +36,6 @@ int main(int argc, char *argv[])
     struct timeval time;
     double begin;
     double end;
-
-    if (argc != 1) {
-        fprintf(stderr, "Testing messages\n");
-        fprintf(stderr, "Usage: %s \n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
 
     printf("\n---------- Beginning of %s ----------\n", argv[0]);
 
@@ -60,3 +55,4 @@ int main(int argc, char *argv[])
 
     return EXIT_SUCCESS;
 }
+

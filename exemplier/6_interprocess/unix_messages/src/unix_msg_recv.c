@@ -29,11 +29,14 @@
  * Consumer program using a System V IPC message mechanism.
  *
  * @author Alain Lebret
- * @version	1.0
- * @date 2012-04-10
+ * @version	1.0.1
+ * @date 2012-04-12
  */
 
- /**
+#define MSGQ_KEY 1234
+#define MSGQ_PERM 0666
+
+/**
  * Handles a fatal error. It displays a message, then exits.
  */
 void handle_fatal_error(const char *msg)
@@ -49,8 +52,8 @@ int get_msgq_id(key_t key)
 {
     int msgq_id;
     int msg_flag;
-
-    msg_flag = 0666;
+	
+	msg_flag = MSGQ_PERM;
     msgq_id = msgget(key, msg_flag);
 
     if (msgq_id < 0) {
@@ -65,7 +68,7 @@ int main(void)
     int msgq_id;
     message_t message;
 
-    msgq_id = get_msgq_id(1234);
+	msgq_id = get_msgq_id(MSGQ_KEY);
 
     /* Receive an answer of message type MSG_TYPE_HANDOUT */
     if (msgrcv(msgq_id, &message, MESSAGE_SIZE, MSG_TYPE_HANDOUT, 0) < 0) {

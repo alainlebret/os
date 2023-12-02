@@ -30,8 +30,11 @@
  *
  * @author Alain Lebret
  * @version	1.0
- * @date 2012-04-10
+ * @date 2012-04-12
  */
+
+#define MSGQ_KEY 1234
+#define MSGQ_PERM (IPC_CREAT | 0666)
 
 /**
  * Handles a fatal error. It displays a message, then exits.
@@ -50,8 +53,7 @@ int get_msgq_id(key_t key)
     int msgq_id;
     int msg_flag;
 
-    msg_flag = IPC_CREAT | 0666;
-
+    msg_flag = MSGQ_PERM;
     msgq_id = msgget(key, msg_flag);
     if (msgq_id < 0) {
         handle_fatal_error("Error using msgget()! ");
@@ -66,7 +68,7 @@ int main(void)
     message_t message;
     size_t length;
 
-    msgq_id = get_msgq_id(1234);
+    msgq_id = get_msgq_id(MSGQ_KEY);
 
     /* Message type */
     message.type = MSG_TYPE_HANDOUT;
