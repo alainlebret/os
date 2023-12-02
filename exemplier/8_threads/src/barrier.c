@@ -25,14 +25,26 @@
 #include "pthread_barrier.h"
 #endif
 
+#ifndef THREAD_COUNT
+#define THREAD_COUNT 5
+#endif
+
 /**
  * @file barrier.c
+ * @brief Demonstrates the use of pthread_barrier for thread synchronization.
  *
- * A simple program to show pthread_barrier synchronization.
+ * This program creates a number of threads defined by THREAD_COUNT, each waiting
+ * for a random period before reaching a synchronization point, implemented using
+ * a pthread_barrier. Once all threads have reached this point, they continue their
+ * execution.
+ *
+ * Usage:
+ *     Compile with -lpthread flag (gcc -lpthread barrier.c)
+ *     Run the executable
  *
  * @author Alain Lebret
- * @version	1.0
- * @date 2012-04-10
+ * @version 1.0
+ * @date 2021-04-16
  */
 
 pthread_barrier_t barrier;
@@ -76,7 +88,7 @@ int main(void)
         status = pthread_create(&tid[i], NULL, doit, arg);
         if (status != 0) {
             perror("pthread_create failed");
-            free(arg);  // Free the allocated memory in case of failure
+            free(arg);  /* Free the allocated memory in case of failure */
             exit(EXIT_FAILURE);
         }
     }
