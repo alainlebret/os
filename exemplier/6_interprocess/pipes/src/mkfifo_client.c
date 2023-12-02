@@ -27,9 +27,9 @@
  * @file mkfifo_client.c
  *
  * A client program that sends a request to a server to calculate a <op> b.
- * They both communicate using two fifos (cli2serv and serv2cli).
+ * They both communicate using two fifos.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */
@@ -79,19 +79,32 @@ void manage_client(int fdr, int fdq)
 {
     char response[11];
     char query[11];
+    ssize_t bytes_written, bytes_read;
 
     FOREVER {
+        printf("Enter expression (a <op> b): ");
         if (fgets(query, 11, stdin) == NULL) {
+            perror("Error reading from stdin");
             exit(EXIT_FAILURE);
         }
-        write(fdq, query, 10);
-        printf("Client -> %s \n", query);
+        bytes_written = write(fdq, query, strlen(query));
+        if (bytes_written == -1) {
+            perror("Error writing to pipe");
+            break;
+        }
 
-        read(fdr, response, 10);
-        printf("Server -> %s \n", response);
+        bytes_read = read(fdr, response, 10);
+        if (bytes_read == -1) {
+            perror("Error reading from pipe");
+            break;
+        }
+        response[bytes_read] = '\0'; /* Null-terminate the response */
+
+        printf("Client -> %s\n", query);
+        printf("Server -> %s\n", response);
+
         if (strcmp(response, "OK") == 0) {
             break;
         }
     }
 }
-

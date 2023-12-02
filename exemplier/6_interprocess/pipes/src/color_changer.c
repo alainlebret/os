@@ -27,19 +27,22 @@
 
 /**
  * @file color_changer.c
- * @brief A program that changes its background color based on input from a named pipe.
+ * @brief A program that changes its background color based on input from a
+ * named pipe.
  *
- * This program, color_changer.c, is a GTK-based application that creates a window and 
- * continuously reads color values from a named pipe. It changes its background color 
- * to match the received color values, providing a dynamic visual display of colors.
- * When receiving "FIN", it unlinks the pipe and terminates.
+ * This program, color_changer.c, is a GTK-based application that creates 
+ * a window and continuously reads color values from a named pipe. It changes
+ * its background color to match the received color values, providing a 
+ * dynamic visual display of colors. When receiving "FIN", it unlinks the 
+ * pipe and terminates.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2023-09-23
+ * @author Alain Lebret
+ * @version	1.0.2
+ * @date 2023-12-02
  */
 
 #define COLORPIPE "colorpipe"
+#define COLOR_NAME_SIZE 50
 
 typedef struct {
     GtkWidget *window;
@@ -48,12 +51,15 @@ typedef struct {
 
 void set_window_color(gpointer user_data) 
 {
-    ThreadData *thread_data = (ThreadData *)user_data;
-    GtkWidget *window = thread_data->window;
-    int pipe_fd = thread_data->pipe_fd;
-
-    char color_name[50];
+    ThreadData *thread_data;
+    GtkWidget *window;
+    int pipe_fd;
+	char color_name[COLOR_NAME_SIZE];
     ssize_t bytes_read;
+
+    thread_data = (ThreadData *)user_data;
+    window = thread_data->window;
+    pipe_fd = thread_data->pipe_fd;
 
     while ((bytes_read = read(pipe_fd, color_name, sizeof(color_name))) > 0) {
         color_name[bytes_read - 1] = '\0'; /* Enlève le caractère de fin de passage à la ligne */

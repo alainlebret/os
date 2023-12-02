@@ -27,7 +27,7 @@
  * @file mkfifo_server.c
  *
  * A server program that returns the result of a a+b request sent by a client.
- * They both communicate using fifos (cli2serv and serv2cli).
+ * They both communicate using fifos.
  *
  * @author Alain Lebret <alain.lebret@ensicaen.fr>
  * @version	1.0
@@ -88,41 +88,48 @@ int main(void)
 
 void manage_server(int fdr, int fdq)
 {
-    int operand1;
-    int operand2;
-    int result;
+    int operand1, operand2, result;
     char operator;
     char question[11];
     char response[11];
+    ssize_t bytes_read, bytes_written;
 
     FOREVER {
-        read(fdq, question, 10);
-        sscanf(question, "%d%1s%d", &operand1, &operator, &operand2);
-        if (strncmp(question, "Pouce!", 6) == 0) {
-            strcpy(response, "OK");
-            write(fdr, response, 10);
+        bytes_read = read(fdq, question, 10);
+        if (bytes_read == -1) {
+            perror("Error reading from pipe");
             break;
         }
-        switch (operator) {
-            case '+' :
-                result = operand1 + operand2;
-                break;
-            case '-' :
-                result = operand1 - operand2;
-                break;
-            case '*' :
-                result = operand1 * operand2;
-                break;
-            case '/' :
-                result = (operand2 != 0) ? operand1 / operand2 : 32767;
-                break;
-            default :
-                return;
-        }
-        if (result == 32767) strcpy(response, "NaN");
+        question[bytes_read] = '\0'; /* Null-terminate the question */
 
-        sprintf(response, "%d", result);
-        write(fdr, response, 10);
+        if (strncmp(question, "Pouce!", 6) == 0) {
+            strcpy(response, "OK");
+            write(fdr, response, strlen(response) + 1); /* +1 for null terminator */
+            break;
+        }
+
+        if (sscanf(question, "%d%1s%d", &operand1, &operator, &operand2) < 3) {
+            strcpy(response, "Error");
+        } else {
+            switch (operator) {
+                case '+' : result = operand1 + operand2; break;
+                case '-' : result = operand1 - operand2; break;
+                case '*' : result = operand1 * operand2; break;
+                case '/' : result = (operand2 != 0) ? operand1 / operand2 : 32767; break;
+                default : strcpy(response, "Invalid Op"); continue;
+            }
+
+            if (result == 32767) {
+                strcpy(response, "NaN");
+            } else {
+                sprintf(response, "%d", result);
+            }
+        }
+
+        bytes_written = write(fdr, response, strlen(response) + 1);
+        if (bytes_written == -1) {
+            perror("Error writing to pipe");
+            break;
+        }
     }
 }
-

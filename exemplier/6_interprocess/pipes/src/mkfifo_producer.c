@@ -30,7 +30,7 @@
  * A producer program that uses a named pipe (FIFO) to send messages to a
  * consumer.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */
@@ -54,9 +54,10 @@ void handle_fatal_error(const char *msg)
  */
 int create_pipe(const char *name, mode_t mode)
 {
-    int pipe;
-    pipe = mkfifo(name, mode);
-    return pipe;
+    if (mkfifo(name, mode) == -1) {
+        handle_fatal_error("Error [mkfifo()]: ");
+    }
+    return 0; /* If mkfifo is successful */
 }
 
 /**
@@ -66,38 +67,33 @@ int create_pipe(const char *name, mode_t mode)
  */
 int open_pipe(const char *name)
 {
-    int pd;
-    pd = open(name, O_WRONLY);
+    int pd = open(name, O_WRONLY);
+    if (pd == -1) {
+        handle_fatal_error("Error [open()]: ");
+    }
     return pd;
 }
 
 int main(void)
 {
-    char buffer[BUFFER_SIZE];
-    int pd;
-    int pipe;
+    char buffer[BUFFER_SIZE] = "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium...";
+    ssize_t bytes_written;
 
-    /*
-     * Create a new pipe named "testfifo" with read/write permissions for owner,
-     * and with read permissions for group and others.
-     */
-    pipe = create_pipe("testfifo", S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
-    if (pipe == -1) {
-        handle_fatal_error("Error when trying to create named pipe!");
+   /*
+    * Create a new pipe named "testfifo" with read/write permissions for owner,
+    * and with read permissions for group and others.
+    */
+    create_pipe("testfifo", S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
+    int pd = open_pipe("testfifo");
+
+    bytes_written = write(pd, buffer, strlen(buffer));
+    if (bytes_written == -1) {
+        handle_fatal_error("Error writing to pipe");
     }
-
-    pd = open_pipe("testfifo");
-    if (pd == -1) {
-        handle_fatal_error("Error when trying to open named pipe!");
-    }
-
-
-    strcpy(buffer,
-           "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium...");
-    write(pd, buffer, BUFFER_SIZE);
 
     close(pd);
-    unlink("testfifo");
+    /* Consider if unlink("testfifo"); is appropriate here */
+    /* unlink("testfifo"); */
 
     return EXIT_SUCCESS;
 }

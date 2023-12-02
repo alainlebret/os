@@ -30,7 +30,7 @@
  * A consumer program that uses a named pipe (mkfifo) to receive messages from
  * a producer.
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2011-12-01
  */
@@ -64,16 +64,17 @@ int open_pipe(const char *name)
 
 int main(void)
 {
-    char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE] = {0};
     int pd;
     ssize_t message_length;
 
     pd = open_pipe("testfifo");
 
-    strcpy(buffer, "");
-    message_length = read(pd, buffer, BUFFER_SIZE);
+    message_length = read(pd, buffer, BUFFER_SIZE - 1); /* -1 to leave space for null terminator */
 
-    if (message_length > 0) {
+    if (message_length == -1) {
+        handle_fatal_error("Error [read()]: ");
+    } else if (message_length > 0) {
         printf("\nRead message from the pipe...\n");
         printf("%s\n", buffer);
     } else {
@@ -81,7 +82,8 @@ int main(void)
     }
 
     close(pd);
-    unlink("./testfifo");
+    /* Consider if unlink("./testfifo"); is appropriate here */
+    /* unlink("./testfifo"); */
 
     return EXIT_SUCCESS;
 }

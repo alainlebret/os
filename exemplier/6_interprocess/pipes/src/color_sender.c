@@ -45,50 +45,51 @@
  * Entrez une couleur en anglais (ex. : red, green, blue) : green
  * Entrez une couleur en anglais (ex. : red, green, blue) : FIN
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2023-09-23
  */
 
 #define COLORPIPE "colorpipe"
+#define COLOR_NAME_SIZE 50
 #define FOREVER for (;;)
 
-int main() 
-{
-    unlink(COLORPIPE);
 
-    /* Création du tube nommé */
-    if (mkfifo(COLORPIPE, 0644) == -1) {
-        perror("Impossible de créer le tube");
-        exit(EXIT_FAILURE);
+void trim_newline(char *str) {
+    int len = strlen(str);
+    if (len > 0 && str[len - 1] == '\n') {
+        str[len - 1] = '\0';
     }
-	
+}
+
+int main(void) 
+{
     int pipe_fd = open(COLORPIPE, O_WRONLY);
     if (pipe_fd == -1) {
-        perror("Erreur lors de l'ouverture du tube pour y écrire");
+        perror("Error opening pipe for writing");
         exit(EXIT_FAILURE);
     }
 
-    char color_name[50];
+    char color_name[COLOR_NAME_SIZE];
     ssize_t bytes_written;
 
     FOREVER {
-        printf("Entrez une couleur en anglais (ex. : red, green, blue) : ");
+        printf("Enter a color name (e.g., red, green, blue): ");
         fgets(color_name, sizeof(color_name), stdin);
+        trim_newline(color_name); /* Suppression du caractère de fin de ligne */
 
         /* Ecriture de la couleur vers le tube */
-        bytes_written = write(pipe_fd, color_name, strlen(color_name));
+        bytes_written = write(pipe_fd, color_name, strlen(color_name) + 1);
         if (bytes_written == -1) {
-            perror("Erreur lors de l'écriture dans le tube");
+            perror("Error writing to pipe");
             close(pipe_fd);
             exit(EXIT_FAILURE);
         }
-		
+
 		/* Teste si l'entrée est le mot-clé "FIN" de manière à quitter */
-        if (strcmp(color_name, "FIN\n") == 0) {
+        if (strcmp(color_name, "FIN") == 0) {
             break;
         }
-		
     }
 
     close(pipe_fd);
