@@ -17,34 +17,36 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 
 /**
  * @file testbind1.c
+ * @brief Demonstrates creating and binding a TCP/IP stream socket.
+ *
+ * This program creates a TCP/IP stream socket and binds it to a specified
+ * port number on the local host. The program is a basic demonstration of
+ * socket programming in C.
  *
  * @author Alain Lebret
- * @version	1.0
+ * @version 1.0
  * @date 2012-04-10
  */
 
-/**
- * A simple test that creates a stream socket and gives it a name.
- * The host address is set to INADDR_ANY and the operating system
- * replaces that with the machine’s actual address.
- */
-int main(void)
-{
+int main(int argc, char *argv[]) {
     int sd;
-    int port;
+    int port = 5432;  /* Default port */
     struct sockaddr_in name;
 
-    port = 5432;
+    if (argc > 1) {
+        port = atoi(argv[1]);  /* Allow port to be set via command line */
+    }
 
     /* Create the socket */
     sd = socket(PF_INET, SOCK_STREAM, 0);
     if (sd < 0) {
-        fprintf(stderr, "socket() failed\n");
+        perror("socket() failed");
         exit(EXIT_FAILURE);
     }
 
@@ -54,9 +56,15 @@ int main(void)
     name.sin_addr.s_addr = htonl(INADDR_ANY);
 
     if (bind(sd, (struct sockaddr *) &name, sizeof(name)) < 0) {
-        fprintf(stderr, "bind() failed\n");
+        perror("bind() failed");
+        close(sd);
         exit(EXIT_FAILURE);
     }
+
+    /* Here you could call to listen() if needed */
+ 
+    printf("Socket bound to port %d\n", port);
+    close(sd);
 
     return EXIT_SUCCESS;
 }

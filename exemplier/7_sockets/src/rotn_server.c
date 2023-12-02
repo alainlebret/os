@@ -19,21 +19,34 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 #include <netinet/in.h> /* Internet structures and functions. */
 #include <sys/socket.h> /* Socket functions. */
 
 /**
  * @file rotn_server.c
+ * @brief A TCP server that performs ROTn obfuscation on received text.
  *
- * A TCP server that listens for connections on port 6789. It reads data
- * from its input (one line at a time), and writes out the ROTn obfuscation
- * of lines. It uses the Unix fork() primitive to create a new process for
- * each incoming connection.
+ * This server listens for TCP connections on port 6789. For each incoming
+ * connection, it forks a new process to handle the connection. It reads data
+ * from the connection, applies ROTn obfuscation, and sends the result back.
+ * The server also handles SIGCHLD signals to prevent zombie processes.
+ *
+ * @author Alain Lebret
+ * @version 1.0
+ * @date 2020-09-12
  */
 
 #define FOREVER for (;;)
 #define MAX_LINE 16384
 
+/**
+ * @brief Apply ROTn obfuscation to a character.
+ * 
+ * @param c Character to obfuscate.
+ * @param rot Number of positions to rotate.
+ * @return char The obfuscated character.
+ */
 char rot_char(char c, int rot)
 {
     char result;
@@ -48,13 +61,34 @@ char rot_char(char c, int rot)
     return result;
 }
 
-void handle_child(int fd)
-{
+/**
+ * @brief Signal handler for SIGCHLD.
+ *
+ * Cleans up zombie processes created by finished child processes.
+ *
+ * @param sig Signal number (not used).
+ */
+void sigchld_handler(int sig) {
+    /* Wait for all dead processes. */
+    /* We use a non-blocking call to avoid hanging if a child hasn't exited yet. */
+    while (waitpid(-1, NULL, WNOHANG) > 0);
+}
+
+/**
+ * @brief Handles a single client connection.
+ * 
+ * Reads data from the client, applies ROTn obfuscation, and sends it back.
+ * Closes the socket once the communication is done.
+ *
+ * @param fd File descriptor for the client socket.
+ */
+void handle_child(int fd) {
     char outbuf[MAX_LINE + 1];
     size_t outbuf_used;
     ssize_t result;
 
     outbuf_used = 0;
+
     FOREVER {
         char ch;
 
@@ -76,15 +110,22 @@ void handle_child(int fd)
             /* Send message to the socket of the incoming connection */
             send(fd, outbuf, outbuf_used, 0);
             outbuf_used = 0;
-            continue;
         }
     }
+
+    close(fd);  /* Close the client socket */
 }
 
-void run()
-{
+/**
+ * @brief Sets up and runs the ROTn server.
+ *
+ * Initializes the server socket, listens for incoming connections,
+ * and handles them by forking new processes.
+ */
+void run() {
     int listener;
     struct sockaddr_in sin;
+    struct sigaction sa;
 
     /*---- Configure settings of the server address struct ----*/
     /* Address family = Internet */
@@ -94,9 +135,10 @@ void run()
     /* Set port number, using htons function to use proper byte order */
     sin.sin_port = htons(6789);
 
-    /* Create the socket. The three arguments are: 1) Internet domain 2) Stream
-     * socket 3) Default protocol (TCP in this case)
-     */
+   /* 
+	* Create the socket. The three arguments are: 1) Internet domain 2) Stream
+    * socket 3) Default protocol (TCP in this case)
+    */
     listener = socket(AF_INET, SOCK_STREAM, 0);
 
     /* Bind the address struct to the socket */
@@ -111,26 +153,33 @@ void run()
         return;
     }
 
+    /* Set up SIGCHLD handler to prevent zombie processes */
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = &sigchld_handler;
+    sigaction(SIGCHLD, &sa, NULL);
+
     FOREVER {
         struct sockaddr_storage ss;
-        socklen_t slen = sizeof(ss);
-
+        socklen_t slen;
+		int fd;
+		
+        slen = sizeof(ss);
         /* Accept call creates a new socket for the incoming connection */
-        int fd = accept(listener, (struct sockaddr *) &ss, &slen);
+        fd = accept(listener, (struct sockaddr *) &ss, &slen);
         if (fd < 0) {
             perror("accept");
         } else {
             if (fork() == 0) {
                 handle_child(fd);
                 exit(EXIT_SUCCESS);
+            } else {
+                close(fd);  /* Parent doesn't need this socket */
             }
         }
     }
 }
 
-int main(void)
-{
+int main(void) {
     run();
-	
     return EXIT_SUCCESS;
 }

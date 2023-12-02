@@ -15,58 +15,70 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <stdio.h>
-#include <stdlib.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 /**
- * @file testbind2.c
+ * @file testgethostbyname.c
+ * @brief Demonstrates resolving a hostname to its IP address(es) using getaddrinfo.
  *
+ * This program takes a hostname as a command line argument and resolves it
+ * to its corresponding IP address(es).
  * @author Alain Lebret
- * @version	1.0
+ * @version 1.0
  * @date 2012-04-10
  */
 
 /**
- * A simple test that creates a stream socket and gives it a name.
+ * @brief Resolves the given hostname and prints its IP address(es).
+ * 
+ * @param hostname The hostname to resolve.
  */
-int main(int argc, char **argv)
-{
-    int sd;
-    int port;
-    struct sockaddr_in name;
-    struct hostent *hostinfo;
+void resolve_and_print(const char *hostname) {
+    struct addrinfo hints, *res, *p;
+    char ipstr[INET6_ADDRSTRLEN];
+    int status;
 
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC; /* AF_INET or AF_INET6 to force version */
+    hints.ai_socktype = SOCK_STREAM;
+
+    if ((status = getaddrinfo(hostname, NULL, &hints, &res)) != 0) {
+        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(status));
+        exit(EXIT_FAILURE);
+    }
+
+    printf("%s addresses: ", hostname);
+    for (p = res; p != NULL; p = p->ai_next) {
+        void *addr;
+        if (p->ai_family == AF_INET) { /* IPv4 */
+            struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
+            addr = &(ipv4->sin_addr);
+        } else { /* IPv6 */
+            struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)p->ai_addr;
+            addr = &(ipv6->sin6_addr);
+        }
+
+        /* Convert the IP to a string and print it: */
+        inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
+        printf("%s ", ipstr);
+    }
+    printf("\n");
+
+    freeaddrinfo(res); /* Free the linked list */
+}
+
+int main(int argc, char **argv) {
     if (argc < 2) {
         fprintf(stderr, "Usage: %s hostname\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    port = 6543;
-
-    /* Create the socket */
-    sd = socket(PF_INET, SOCK_STREAM, 0);
-    if (sd < 0) {
-        fprintf(stderr, "socket() failed\n");
-        exit(EXIT_FAILURE);
-    }
-
-    /* Give a name to the socket */
-    name.sin_family = AF_INET;
-    name.sin_port = htons(port);
-    hostinfo = gethostbyname(argv[1]);
-    if (hostinfo == NULL) {
-        fprintf(stderr, "Unknown host %s.\n", argv[1]);
-        exit(EXIT_FAILURE);
-    }
-    name.sin_addr = *(struct in_addr *) hostinfo->h_addr;
-
-    if (bind(sd, (struct sockaddr *) &name, sizeof(name)) < 0) {
-        fprintf(stderr, "bind() failed\n");
-        exit(EXIT_FAILURE);
-    }
-
+    resolve_and_print(argv[1]);
+    
     return EXIT_SUCCESS;
 }
