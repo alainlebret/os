@@ -27,6 +27,19 @@
 #include <errno.h>
 #include <string.h>
 
+/**
+ * @file without_synchro.c
+ *
+ * This program demonstrates inter-process communication using shared memory
+ * in a Unix-like environment. It creates a shared integer variable and 
+ * decrements this value in a critical section until it reaches zero, with
+ * both parent and child processes participating in the decrement operation.
+ *
+ * @author Alain Lebret
+ * @version	1.0
+ * @date 2023-11-27
+ */
+ 
 #define SHM_SIZE sizeof(int)
 
 int ended = 0;

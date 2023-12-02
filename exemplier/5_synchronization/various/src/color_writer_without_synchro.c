@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2022 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,14 @@
 /**
  * @file color_writer_without_synchro.c
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * This program continuously generates random RGB color values and writes
+ * them as a formatted string to a shared memory segment. It's designed
+ * to run indefinitely, updating the shared memory with new color data 
+ * every second.
+ *
+ * @author Alain Lebret
  * @version	1.0
- * @date 2023-09-07
+ * @date 2023-11-27
  */
 
 #define SHM_NAME "/color_memory"
