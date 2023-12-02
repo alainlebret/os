@@ -141,8 +141,16 @@ int main(void)
     }
     if (pid > 0) {
         manage_parent(shared_memory);
+        /* Cleanup in parent process */
+        if (munmap(shared_memory, INTEGER_SIZE) == -1) {
+            perror("munmap");
+        }
     } else {
         manage_child(shared_memory);
+        /* Cleanup in child process */
+        if (munmap(shared_memory, INTEGER_SIZE) == -1) {
+            perror("munmap");
+        }
     }
 
     return EXIT_SUCCESS;
