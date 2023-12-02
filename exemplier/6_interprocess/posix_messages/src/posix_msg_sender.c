@@ -15,10 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
+#include <string.h>
+#include <fcntl.h>
 #include <sys/time.h>
 
 #ifdef __APPLE__
@@ -29,21 +31,33 @@
 
 /**
  * @file posix_msg_sender.c
- * @brief A sender application using POSIX mqueue
- *
- * Compilation: gcc -o mqueue_sender posix_msg_sender.c -lrt
+ * @brief A sender application using POSIX mqueue.
  *
  * @author Alain Lebret
- * @version	1.0
- * @date 2016-11-01
+ * @version	1.1
+ * @date 2023-12-01
  */
 
-#define FOREVER for (;;)
+volatile sig_atomic_t keep_running = 1;
+
+void handle_sigint(int sig) {
+    keep_running = 0;
+}
 
 int main(int argc, char *argv[])
 {
     mqd_t mq;
-    struct timeval hour;
+    struct timeval hour;	
+    struct sigaction action;
+
+    /* Clean up the structure before using it */
+    memset(&action, '\0', sizeof(action));
+
+    /* Set the new handler */
+    action.sa_handler = &handle_sigint;
+
+    /* Install the new handler of the SIGINT signal */
+    sigaction(SIGINT, &action, NULL);
 
     if (argc != 2) {
         fprintf(stderr, "Usage: %s mqueue_name\n", argv[0]);
@@ -56,11 +70,13 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    FOREVER {
+    while (keep_running) {
         gettimeofday(&hour, NULL);
-        mq_send(mq, (char *) &hour, sizeof(hour), 1);
+        if (mq_send(mq, (char *) &hour, sizeof(hour), 1) == -1) {
+            perror("mq_send");
+            break;
+        }
     }
 
-    /* Unreachable: use <Ctrl-C> to exit */
+    mq_close(mq);
 }
-

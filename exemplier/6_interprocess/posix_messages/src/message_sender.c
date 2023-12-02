@@ -30,7 +30,7 @@
  * @file message_sender.c
  * @brief Send messages throught a message queue.
  * 
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @version	1.0
  * @date 2023-09-23
  */
@@ -48,11 +48,10 @@ int main(void) {
     struct mq_attr attr;
     Message msg;
 
-	mq_unlink(QUEUE_NAME);
-    
-	
-	/* Open the message queue */
-	memset(&attr, '\0', sizeof(attr));
+    mq_unlink(QUEUE_NAME); /* Evaluate if this is necessary */
+
+    /* Open the message queue */
+    memset(&attr, '\0', sizeof(attr));
     attr.mq_flags = 0;
     attr.mq_maxmsg = 10; /* Maximum number of messages in the queue */
     attr.mq_msgsize = sizeof(Message); /* Maximum message size */
@@ -73,7 +72,11 @@ int main(void) {
         }
 
         printf("Enter priority (0-9): ");
-        scanf("%d", &msg.priority);
+        if (scanf("%d", &msg.priority) != 1 || msg.priority < 0 || msg.priority > 9) {
+            fprintf(stderr, "Invalid priority. Please enter a number between 0 and 9.\n");
+            getchar(); /* Consume invalid input */
+            continue;
+        }
         getchar(); /* Consume newline */
 
         /* Send the message to the queue */

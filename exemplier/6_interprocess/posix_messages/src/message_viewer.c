@@ -30,8 +30,8 @@
  * @file message_viewer.c
  * @brief Receive messages throught a message queue.
  * 
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
+ * @author Alain Lebret
+ * @version	1.1
  * @date 2023-09-23
  */
 
@@ -49,21 +49,25 @@ GtkWidget *grid;
 GtkWidget *message_labels[10] = {NULL};
 
 void display_message(Message msg) {
+    if (msg.priority < 0 || msg.priority >= 10) {
+        fprintf(stderr, "Invalid message priority: %d\n", msg.priority);
+        return;
+    }
+
     /* Remove the old message label for the same priority */
     if (message_labels[msg.priority] != NULL) {
-        gtk_container_remove(GTK_CONTAINER(grid), message_labels[msg.priority]);
+        gtk_widget_destroy(message_labels[msg.priority]);
     }
 
     GtkWidget *label = gtk_label_new(msg.sentence);
-    
-    /* Adjust vertical alignment within the grid based on priority */
-    GtkAlignment *alignment = gtk_alignment_new(0.5, 0.0, 0.0, 0.0);
-    gtk_container_add(GTK_CONTAINER(alignment), label);
-    gtk_grid_attach(GTK_GRID(grid), GTK_WIDGET(alignment), 0, msg.priority, 1, 1);
+    gtk_widget_set_halign(label, GTK_ALIGN_START);  // Horizontal alignment
+    gtk_widget_set_valign(label, GTK_ALIGN_START);  // Vertical alignment
+
+    gtk_grid_attach(GTK_GRID(grid), label, 0, msg.priority, 1, 1);
 
     /* Store the new label for the same priority */
-    message_labels[msg.priority] = GTK_WIDGET(alignment);
-    
+    message_labels[msg.priority] = label;
+
     gtk_widget_show_all(window);
 }
 
@@ -102,7 +106,7 @@ int main(int argc, char *argv[]) {
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
     grid = gtk_grid_new();
-    gtk_grid_set_row_homogeneous(GTK_GRID(grid), FALSE); /* Not homogeneous to allow varying heights */
+    gtk_grid_set_row_homogeneous(GTK_GRID(grid), FALSE);
     gtk_container_add(GTK_CONTAINER(window), grid);
 
     /* Start reading messages from the memory queue */
