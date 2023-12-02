@@ -24,26 +24,39 @@
 /**
  * @file message.c
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
+ * @author Alain Lebret
  * @author Bruno Jacob <Bruno.Jacob@lium.univ-lemans.fr>
  * @version	1.1 – 2016-10-01
  */
 
- /**
+/**
  * Displays the type and content of the given message.
+ * @param message Pointer to the message to be displayed.
  */
 void msg_display(message_t *message)
 {
+    if (message == NULL) {
+        fprintf(stderr, "Error: NULL pointer provided to msg_display().\n");
+        return;
+    }
+
     printf("\tType: %ld\n", message->type);
     printf("\tContent: %s\n", message->content.buffer);
 }
 
 /**
- * Fills the given message vith the specified character.
+ * Fills the given message with the specified character.
+ * @param message Pointer to the message to be filled.
+ * @param value Character used to fill the message buffer.
  */
 void msg_fill(message_t *message, char value)
 {
     int i;
+
+    if (message == NULL) {
+        fprintf(stderr, "Error: NULL pointer provided to msg_fill.\n");
+        return;
+    }
 
     /* Type of the message */
     message->type = MSG_TYPE_HANDOUT;
@@ -52,5 +65,4 @@ void msg_fill(message_t *message, char value)
     for (i = 0; i < MESSAGE_SIZE; i++) {
         message->content.buffer[i] = value;
     }
-
 }
