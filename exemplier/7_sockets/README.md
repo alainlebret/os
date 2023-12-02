@@ -8,4 +8,4 @@ This section contains examples related to the use of sockets for network communi
 | test_sockets.c        | Tests sockets | [View](https://github.com/alainlebret/os/blob/master/exemplier/7_sockets/src/test_sockets.c) |
 | testbind1.c           | Demonstrates creating and binding a TCP/IP stream socket | [View](https://github.com/alainlebret/os/blob/master/exemplier/7_sockets/src/testbind1.c) |
 | testbind2.c           | Demonstrates creating and binding a TCP/IP stream socket to a specific host | [View](https://github.com/alainlebret/os/blob/master/exemplier/7_sockets/src/testbind2.c) |
-| testgethostbyname.c   |  | [View](https://github.com/alainlebret/os/blob/master/exemplier/7_sockets/src/testgethostbyname.c) |
+| testgethostbyname.c   | Demonstrates resolving a hostname to its IP address(es) using `getaddrinfo()` | [View](https://github.com/alainlebret/os/blob/master/exemplier/7_sockets/src/testgethostbyname.c) |
