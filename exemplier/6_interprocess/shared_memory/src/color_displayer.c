@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2022 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,109 +20,110 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 
+#include <gtk/gtk.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+
 /**
  * @file color_displayer.c
  *
+ * This program displays color data from a shared memory segment using GTK+ 3.
+ * It continuously updates the displayed colors based on the shared memory content.
+ *
  * @author Alain Lebret
- * @version	1.0
+ * @version 1.0
  * @date 2023-09-30
  */
 
-int *ptr;
-int MATRIX_SIZE;
+typedef struct {
+    int *ptr;        /*<! Pointer to the shared memory segment */
+    int matrix_size; /*<! Size of the color matrix */
+} SharedData;
 
-/* Cette fonction sera appelée toutes les 500 ms pour redessiner la fenêtre. */
+/** 
+ * Redraws window every 500 ms.
+ */
 gboolean timeout_callback(gpointer data) 
 {
     GtkWidget *darea = (GtkWidget *)data;
     gtk_widget_queue_draw(darea);
-    return TRUE;
+    return TRUE; /* Continue calling this function */
 }
 
+/**
+ * Handles the 'draw' event to render the color data.
+ */
 gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data) 
 {
+    SharedData *data;
     int i;
 	int j;
+	double red;
+	double green;
+	double blue;
 
-    for (i = 0; i < MATRIX_SIZE; i++) {
-        for (j = 0; j < MATRIX_SIZE; j++) {
-            double r = ptr[(i * MATRIX_SIZE + j) * 3] / 255.0;
-            double g = ptr[(i * MATRIX_SIZE + j) * 3 + 1] / 255.0;
-            double b = ptr[(i * MATRIX_SIZE + j) * 3 + 2] / 255.0;
-            cairo_set_source_rgb(cr, r, g, b);
+    data = (SharedData *)user_data;
+    for (i = 0; i < data->matrix_size; i++) {
+        for (j = 0; j < data->matrix_size; j++) {
+            red = data->ptr[(i * data->matrix_size + j) * 3] / 255.0;
+            green = data->ptr[(i * data->matrix_size + j) * 3 + 1] / 255.0;
+            blue = data->ptr[(i * data->matrix_size + j) * 3 + 2] / 255.0;
+            cairo_set_source_rgb(cr, red, green, blue);
             cairo_rectangle(cr, j, i, 1, 1);
             cairo_fill(cr);
         }
     }
-    return FALSE;
+    return FALSE; /* Event propagation stops here */
 }
 
 int main(int argc, char *argv[]) 
 {
     int shm_fd;
-    GtkWidget *fenetre;
+    GtkWidget *window;
     GtkWidget *darea;
+    SharedData data;
 
-	/* Copie les arguments de la ligne de commande */
-	int my_argc = argc;
-	char **my_argv = g_strdupv(argv);
+    gtk_init(&argc, &argv);
 
-	/* Initialisation de GTK+ */
-	gtk_init(&argc, &argv);
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s <matrix_size>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
 
-	/* Vérifie si la taille de la matrice est passée en argument */
-	if (my_argc < 2) {
-		fprintf(stderr, "Usage: %s <taille_de_la_matrice>\n", my_argv[0]);
-		exit(EXIT_FAILURE);
-	}
-
-	/* Convertit l'argument en un entier */
-	MATRIX_SIZE = atoi(my_argv[1]);
-
-	/* Libère la copie des arguments de la ligne de commande */
-	g_strfreev(my_argv);
-		
+    data.matrix_size = atoi(argv[1]);
     shm_fd = shm_open("/matrix", O_RDONLY, 0666);
     if (shm_fd == -1) {
         perror("shm_open");
         return EXIT_FAILURE;
     }
 
-    /* Mappe le segment de mémoire partagée dans l'espace d'adressage */
-    ptr = mmap(0, MATRIX_SIZE * MATRIX_SIZE * 3 * sizeof(int), PROT_READ, MAP_SHARED, shm_fd, 0);
-    if (ptr == MAP_FAILED) {
+    data.ptr = mmap(0, data.matrix_size * data.matrix_size * 3 * sizeof(int), 
+                    PROT_READ, MAP_SHARED, shm_fd, 0);
+    if (data.ptr == MAP_FAILED) {
         perror("mmap");
+        close(shm_fd);
         return EXIT_FAILURE;
     }
 
-    /* Crée une nouvelle fenêtre */
-    fenetre = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_position(GTK_WINDOW(fenetre), GTK_WIN_POS_CENTER);
-    gtk_window_set_default_size(GTK_WINDOW(fenetre), MATRIX_SIZE, MATRIX_SIZE);
-    gtk_window_set_title(GTK_WINDOW(fenetre), "Démonstration de mémoire partagée POSIX");
+    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+    gtk_window_set_default_size(GTK_WINDOW(window), data.matrix_size, data.matrix_size);
+    gtk_window_set_title(GTK_WINDOW(window), "POSIX Shared Memory Color Display");
 
-    /* Crée une nouvelle zone de dessin */
     darea = gtk_drawing_area_new();
-    gtk_container_add(GTK_CONTAINER(fenetre), darea);
+    gtk_container_add(GTK_CONTAINER(window), darea);
 
-    /* Ajoute un timer qui appelle timeout_callback toutes les 500 ms */
     g_timeout_add(500, timeout_callback, darea);
-	
-    /* Connecte le signal "draw" à la fonction de rappel */
-    g_signal_connect(G_OBJECT(darea), "draw", G_CALLBACK(on_draw_event), NULL);
-    g_signal_connect(G_OBJECT(fenetre), "destroy", G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect(G_OBJECT(darea), "draw", G_CALLBACK(on_draw_event), &data);
+    g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
-    /* Affiche la fenêtre */
-    gtk_widget_show_all(fenetre);
+    gtk_widget_show_all(window);
     gtk_main();
 
-    /* Détache le segment de mémoire partagée */
-    if (munmap(ptr, MATRIX_SIZE * MATRIX_SIZE * 3 * sizeof(int)) == -1) {
+    if (munmap(data.ptr, data.matrix_size * data.matrix_size * 3 * sizeof(int)) == -1) {
         perror("munmap");
-        return EXIT_FAILURE;
     }
-
-    /* Ferme le descripteur de fichier de mémoire partagée */
     close(shm_fd);
 
     return EXIT_SUCCESS;

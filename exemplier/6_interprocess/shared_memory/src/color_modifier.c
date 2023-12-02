@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2022 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,87 +15,112 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <time.h>
-
-#define MAX_MATRIX_SIZE 800
+#include <signal.h>
+#include <string.h>
 
 /**
  * @file color_modifier.c
+ * @brief A program that modifies color data in shared memory.
+ *
+ * This program fills a matrix in shared memory with random color values.
+ * The matrix size is passed as a command-line argument. The program
+ * uses POSIX shared memory and updates the colors at regular intervals.
  *
  * @author Alain Lebret
- * @version	1.0
- * @date 2023-09-30
+ * @version 1.2
+ * @date 2023-12-01
  */
+
+#define MAX_MATRIX_SIZE 800
+
+volatile sig_atomic_t keep_running = 1;
+
+/**
+ * Signal handler for SIGINT (Ctrl-C).
+ *
+ * @param sig Signal number.
+ */
+void handle_sigint(int sig) {
+    keep_running = 0;
+}
 
 int main(int argc, char *argv[]) {
     int shm_fd;
     int *ptr;
     int i, j;
-	int MATRIX_SIZE;
+    int MATRIX_SIZE;
+    struct sigaction action;
 
-	/* Vérifie si la taille de la matrice est passée en argument */
+    /* Check if matrix size is passed as an argument */
     if (argc < 2) {
-        fprintf(stderr, "Usage : %s <size_of_the_shared_memory>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <size_of_the_shared_memory>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    /* Convertit l'argument en un entier */
+    /* Convert the argument to an integer */
     MATRIX_SIZE = atoi(argv[1]);
-	
-	shm_unlink("/matrix");
+    if (MATRIX_SIZE > MAX_MATRIX_SIZE) {
+        fprintf(stderr, "Matrix size should not exceed %d\n", MAX_MATRIX_SIZE);
+        exit(EXIT_FAILURE);
+    }
 
-    /* Ouvre un segment de mémoire partagée */
+    shm_unlink("/matrix");
+
+    /* Set up the structure for signal handling */
+    memset(&action, '\0', sizeof(action));
+    action.sa_handler = &handle_sigint;
+    sigaction(SIGINT, &action, NULL);
+
+    /* Open a shared memory segment */
     shm_fd = shm_open("/matrix", O_CREAT | O_RDWR, 0666);
     if (shm_fd == -1) {
         perror("shm_open");
         exit(EXIT_FAILURE);
     }
 
-    /* Définit la taille du segment de mémoire partagée */
+    /* Set the size of the shared memory segment */
     if (ftruncate(shm_fd, MATRIX_SIZE * MATRIX_SIZE * 3 * sizeof(int)) == -1) {
         perror("ftruncate");
         exit(EXIT_FAILURE);
     }
 
-    /* Mappe le segment de mémoire partagée dans l'espace d'adressage */
+    /* Map the shared memory segment into the address space */
     ptr = mmap(0, MATRIX_SIZE * MATRIX_SIZE * 3 * sizeof(int), PROT_WRITE, MAP_SHARED, shm_fd, 0);
     if (ptr == MAP_FAILED) {
         perror("mmap");
         exit(EXIT_FAILURE);
     }
 
-    /* Initialise le générateur de nombres aléatoires */
+    /* Initialize the random number generator */
     srand(time(NULL));
 
-    while (1) {
-		/* Remplit la matrice avec des valeurs de couleur aléatoires */
-		for (i = 0; i < MATRIX_SIZE; i++) {
-		    for (j = 0; j < MATRIX_SIZE; j++) {
-		        ptr[(i * MATRIX_SIZE + j) * 3] = rand() % 256; // Red
-		        ptr[(i * MATRIX_SIZE + j) * 3 + 1] = rand() % 256; // Green
-		        ptr[(i * MATRIX_SIZE + j) * 3 + 2] = rand() % 256; // Blue
-		    }
-		}
-        /* Attends pendant un certain temps */
-        usleep(500000); /* 500 ms */
+    /* Main loop to fill the matrix with random color values */
+    while (keep_running) {
+        for (i = 0; i < MATRIX_SIZE; i++) {
+            for (j = 0; j < MATRIX_SIZE; j++) {
+                ptr[(i * MATRIX_SIZE + j) * 3] = rand() % 256; /* Red */
+                ptr[(i * MATRIX_SIZE + j) * 3 + 1] = rand() % 256; /* Green */
+                ptr[(i * MATRIX_SIZE + j) * 3 + 2] = rand() % 256; /* Blue */
+            }
+        }
+        usleep(500000); /* Wait for 500 ms */
     }
 
-    /* Détache le segment de mémoire partagée */
+    /* Detach the shared memory segment */
     if (munmap(ptr, MATRIX_SIZE * MATRIX_SIZE * 3 * sizeof(int)) == -1) {
         perror("munmap");
         exit(EXIT_FAILURE);
     }
 
-    /* Ferme le descripteur de fichier de mémoire partagée */
+    /* Close the shared memory file descriptor */
     close(shm_fd);
-	
-	shm_unlink("/matrix");
+    shm_unlink("/matrix");
 
     return EXIT_SUCCESS;
 }
