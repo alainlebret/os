@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2022 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,68 +28,80 @@
 /**
  * @file color_displayer_without_synchro.c
  *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2023-09-07
+ * This GTK application is designed to display colors that are updated 
+ * periodically. The color data is intended to be read from a shared 
+ * memory segment and displayed in a GTK window.
+ *
+ * @author Alain Lebret
+ * @version	1.1
+ * @date 2023-11-27
  */
 
 #define SHM_NAME "/color_memory"
 #define SHM_SIZE 1024
 
-void update_colors(GtkWidget* widget, char* color_data) 
+void update_colors(GtkWidget* widget, gpointer data) 
 {
     GdkRGBA color;
-    char* token;
-    int red;
-	int green;
-	int blue;
+    char* color_data = (char*)data;  /* Cast shared memory pointer to char* */
+    int red, green, blue;
 
-    /* Split the color_data string into R, G, and B components */
-    token = strtok(color_data, ",");
-    if (token != NULL) {
-        red = atoi(token);
-        token = strtok(NULL, ",");
-        if (token != NULL) {
-            green = atoi(token);
-            token = strtok(NULL, ",");
-            if (token != NULL) {
-                blue = atoi(token);
+    /* Assuming the shared memory contains color data in "R,G,B" format */
+    sscanf(color_data, "%d,%d,%d", &red, &green, &blue);
 
-                /* Set the RGB color values */
-                color.red = (double)red / 255.0;
-                color.green = (double)green / 255.0;
-                color.blue = (double)blue / 255.0;
-                color.alpha = 1.0; /* Alpha channel (opacity) */
+    /* Set the RGB color values */
+    color.red = (double)red / 255.0;
+    color.green = (double)green / 255.0;
+    color.blue = (double)blue / 255.0;
+    color.alpha = 1.0; /* Alpha channel (opacity) */
 
-                /* Set the background color of the widget */
-                gtk_widget_override_background_color(widget, GTK_STATE_NORMAL, &color);
+    /* Set the background color of the widget */
+    gtk_widget_override_background_color(widget, GTK_STATE_NORMAL, &color);
 
-                /* Force a redraw of the widget */
-                gtk_widget_queue_draw(widget);
-            }
-        }
-    }
+    /* Force a redraw of the widget */
+    gtk_widget_queue_draw(widget);
 }
 
 int main(int argc, char* argv[]) 
 {
+	int shm_fd;
+	char *shared_memory;
+	GtkWidget *window;
+	GtkWidget *colorDisplay;
+
     /* Initialize GTK */
     gtk_init(&argc, &argv);
 
     /* Create a GTK window */
-    GtkWidget* window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     g_signal_connect(window, "delete-event", G_CALLBACK(gtk_main_quit), NULL);
 
     /* Create other GTK widgets to display colors */
-    GtkWidget* colorDisplay = gtk_label_new(NULL);
+    colorDisplay = gtk_label_new(NULL);
     gtk_container_add(GTK_CONTAINER(window), colorDisplay);
 
+    /* Open the shared memory */
+    shm_fd = shm_open(SHM_NAME, O_RDONLY, 0644);
+    if (shm_fd == -1) {
+        handle_fatal_error("Error [shm_open()]: ");
+    }
+
+    /* Map the shared memory */
+    shared_memory = (char*)mmap(NULL, SHM_SIZE, PROT_READ, MAP_SHARED, shm_fd, 0);
+    if (shared_memory == MAP_FAILED) {
+        handle_fatal_error("Error [mmap()]: ");
+    }
+
     /* Create a timer to update colors periodically */
-    g_timeout_add(1000, (GSourceFunc)update_colors, colorDisplay);
+    g_timeout_add(1000, (GSourceFunc)update_colors, shared_memory);
 
     /* Show the window and start the GTK main loop */
     gtk_widget_show_all(window);
     gtk_main();
+
+    /* Clean up */
+    munmap(shared_memory, SHM_SIZE);
+    close(shm_fd);
 
     return EXIT_SUCCESS;
 }
