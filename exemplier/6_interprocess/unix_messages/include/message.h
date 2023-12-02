@@ -20,6 +20,7 @@
 
 /**
  * @file message.h
+ * Defines the structure and functions for handling messages in a message queue system.
  *
  * @author Alain Lebret
  * @version	1.0
@@ -41,11 +42,14 @@ typedef struct message {
 
 /**
  * Displays the type and content of the given message.
+ * @param message Pointer to the message to display.
  */
 void msg_display(message_t *message);
 
 /**
- * Fills the given message vith the specified character.
+ * Fills the given message with the specified character.
+ * @param message Pointer to the message to fill.
+ * @param value The character used to fill the message.
  */
 void msg_fill(message_t *message, char val);
 
