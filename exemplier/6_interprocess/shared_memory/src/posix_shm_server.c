@@ -29,10 +29,10 @@
  * @file posix_shm_server.c
  *
  * Example using a server and a client sharing memory.
- * Link with \c -lrt.
+ * Link with \c -lrt under Linux.
  *
  * @author Alain Lebret
- * @version	1.0
+ * @version	1.1
  * @date 2016-11-01
  */
 

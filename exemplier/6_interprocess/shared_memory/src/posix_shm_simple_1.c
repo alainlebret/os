@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2022 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,8 @@
 /**
  * @file posix_shm_simple_1.c
  *
- * Example using parent and child processes sharing memory.
- * Link with \c -lrt.
+ * Example using parent and child processes sharing memory without synchronization.
+ * Link with \c -lrt under Linux.
  *
  * @author Alain Lebret
  * @version	1.0
@@ -51,10 +51,13 @@ int main(void)
     fd = shm_open("/pipeautique1", O_CREAT | O_RDWR, 0644);
     printf("shm_open returned %d (%d: %s)\n", fd, errno, strerror(errno));
 
-    ftruncate(fd, SHM_SIZE);
-
+	if (ftruncate(fd, SHM_SIZE) == -1) {
+	    perror("Error [ftruncate()]: ");
+	    exit(EXIT_FAILURE);
+	}
+	
     ptr = (int *) mmap(NULL, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-    printf("mmap returned %p (%d: %s)\n", ptr, errno, strerror(errno));
+	printf("mmap returned %p (%d: %s)\n", (void *)ptr, errno, strerror(errno));
 
     pid = fork();
 

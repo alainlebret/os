@@ -32,7 +32,7 @@
  * Link with \c -lpthread.
  *
  * @author Alain Lebret
- * @version	1.0
+ * @version	1.0.2
  * @date 2016-11-01
  */
 
@@ -112,7 +112,9 @@ void manage_parent(int shmid)
     shmctl(shmid, IPC_RMID, 0);
 
     /* cleanup semaphores */
-    sem_destroy(sem);
+    if (sem_close(sem) == -1) {
+        handle_fatal_error("Error closing semaphore: ");
+    }
 }
 
 /**
@@ -122,6 +124,7 @@ void manage_parent(int shmid)
 void manage_child(int child_number)
 {
     printf("Child process (PID %d)\n", getpid());
+
     sem_wait(sem);           /* P operation */
     printf("Child (PID %d) is in critical section.\n", child_number);
     sleep(1);
@@ -130,6 +133,11 @@ void manage_child(int child_number)
     printf("Child (PID %d): new value = %d.\n", child_number, *shared_value);
     sem_post(sem);           /* V operation */
     printf("Child (PID %d) gets out of critical section.\n", child_number);
+
+    if (sem_close(sem) == -1) {
+        handle_fatal_error("Error closing semaphore: ");
+    }
+	
 }
 
 int main(void)

@@ -30,8 +30,8 @@
 /**
  * @file posix_shm_simple_2.c
  *
- * Another example using parent and child processes sharing memory.
- * Link with \c -lrt.
+ * Another example using parent and child processes sharing memory without 
+ * synchronization. Link with \c -lrt under Linux.
  *
  * @author Alain Lebret
  * @version	1.0
@@ -131,7 +131,7 @@ int main(void)
 
 void handle_error(const char *message)
 {
-    perror(message);
+    fprintf(stderr, "%s: %s\n", message, strerror(errno));
     exit(EXIT_FAILURE);
 }
 
