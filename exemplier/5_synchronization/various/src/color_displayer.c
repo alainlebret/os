@@ -44,14 +44,28 @@
 
 typedef struct {
     char color_data[SHM_SIZE];
-    semaphore_t *semaphore;
+    sem_t *semaphore;
 } shared_data;
 
-void update_colors(GtkWidget* widget, shared_data* data) 
+/**
+ * Handles a fatal error. It displays a message, then exits.
+ */
+void handle_fatal_error(const char *msg)
+{
+    perror(msg);
+    exit(EXIT_FAILURE);
+}
+
+/**
+ * Updates colors within the given shared memory.
+ */
+void update_colors(GtkWidget *widget, shared_data *data) 
 {
     GdkRGBA color;
-    char* token;
-    int red, green, blue;
+    char *token;
+    int red;
+	int green;
+	int blue;
 
     sem_wait(data->semaphore);  /* Wait for semaphore */
 
@@ -85,11 +99,13 @@ int main(int argc, char* argv[])
 {
 	int shm_fd;
 	char *shared_memory;
+	shared_data data;
 	GtkWidget *window;
 	GtkWidget *colorDisplay;
-
+	sem_t *sem;
+	
     /* Initialize GTK */
-    gtk_init(&argc, &argv);
+	gtk_init(&argc, &argv);
 
     /* Create a GTK window */
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -112,17 +128,12 @@ int main(int argc, char* argv[])
     }
 
     /* Open the semaphore */
-    semaphore_t *sem = sem_open(SEM_NAME, O_RDWR);
+    sem = sem_open(SEM_NAME, O_RDWR);
     if (sem == SEM_FAILED) {
         handle_fatal_error("Error [sem_open()]: ");
     }
 
-    shared_data data;
-    data.color_data = shared_memory;
-    data.semaphore = sem;
-
-    shared_data data;
-    data.color_data = shared_memory;
+    memcpy(data.color_data, shared_memory, SHM_SIZE);
     data.semaphore = sem;
 
     /* Create a timer to update colors periodically */

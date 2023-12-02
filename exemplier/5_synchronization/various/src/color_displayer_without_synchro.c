@@ -40,11 +40,25 @@
 #define SHM_NAME "/color_memory"
 #define SHM_SIZE 1024
 
-void update_colors(GtkWidget* widget, gpointer data) 
+/**
+ * Handles a fatal error. It displays a message, then exits.
+ */
+void handle_fatal_error(const char *msg)
+{
+    perror(msg);
+    exit(EXIT_FAILURE);
+}
+
+/**
+ * Updates colors within the given shared memory.
+ */
+void update_colors(GtkWidget *widget, gpointer data) 
 {
     GdkRGBA color;
-    char* color_data = (char*)data;  /* Cast shared memory pointer to char* */
-    int red, green, blue;
+    char *color_data = (char *)data;  /* Cast shared memory pointer to char* */
+    int red;
+	int green;
+	int blue;
 
     /* Assuming the shared memory contains color data in "R,G,B" format */
     sscanf(color_data, "%d,%d,%d", &red, &green, &blue);
