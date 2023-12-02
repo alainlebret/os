@@ -266,8 +266,15 @@ int main(void)
     printf("All producers and consumers are working...\n");
     printf("Parent process is waiting for them to end...\n");
 
+    /* Waiting for all child processes to complete */
     for (i = 0; i < NBR_PRODUCTERS + NBR_CONSUMERS; i++) {
         wait(NULL);
+    }
+
+    /* Cleanup: Unmap shared memory */
+    if (munmap(shared_memory, MEMORY_SIZE) == -1) {
+        perror("munmap");
+        /* Handle error */
     }
 
     /* Remove the semaphore from the system and destroy the set of

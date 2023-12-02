@@ -241,19 +241,22 @@ int main(void)
 
     semaphores = initialize_semaphores();
 
-    if (-1 == (pid = fork())) {
+    pid = fork();
+    if (pid == -1) {
         handle_fatal_error("Error [fork()]: ");
     }
-    if (0 == pid) {
+    if (pid == 0) {
         manage_child(buffer, in, out, semaphores);
     } else {
         manage_parent(buffer, in, out, semaphores);
-    }
 
-    if (semctl(semaphores, 0, IPC_RMID) < 0) {
-        handle_fatal_error("Error when trying to remove semaphores. ");
+        if (wait(NULL) > 0) {
+            if (semctl(semaphores, 0, IPC_RMID) < 0) {
+                handle_fatal_error("Error when trying to remove semaphores. ");
+            }
+            printf("Semaphores have been removed.\n");
+        }
     }
-    printf("Semaphores have been removed.\n");
 
     return EXIT_SUCCESS;
 }

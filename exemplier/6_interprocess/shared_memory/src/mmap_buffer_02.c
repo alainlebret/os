@@ -51,7 +51,9 @@ void handle_fatal_error(const char *message)
 }
 
 /**
- * Writes the square of a serie of integers onto the shared memory.
+ * Writes the square of a series of integers onto the shared memory.
+ * This function implements a simple busy-waiting mechanism to ensure
+ * synchronization between producer and consumer.
  */
 void write_memory(int *buffer, int *begin, int *end)
 {
@@ -88,7 +90,8 @@ void manage_parent(int *buffer, int *begin, int *end)
 }
 
 /**
- * Reads a serie of integers from the shared memory and displays them.
+ * Reads a series of integers from the shared memory and displays them.
+ * This function implements a simple busy-waiting mechanism for synchronization.
  */
 void read_memory(int *buffer, int *in, int *out)
 {
@@ -161,13 +164,22 @@ int main(void)
 
     *in = *out = 0;          /* starting index */
 
-    if (-1 == (pid = fork())) {
+    pid = fork();
+    if (pid == -1) {
         handle_fatal_error("Error [fork()]: ");
     }
-    if (0 == pid) {
+    if (pid == 0) {
         manage_child(buffer, in, out);
+        /* Child process cleanup */
+        if (munmap(shared_memory, MEMORY_SIZE) == -1) {
+            perror("munmap");
+        }
     } else {
         manage_parent(buffer, in, out);
+        /* Parent process cleanup */
+        if (munmap(shared_memory, MEMORY_SIZE) == -1) {
+            perror("munmap");
+        }
     }
 
     return EXIT_SUCCESS;
