@@ -16,38 +16,32 @@
  * limitations under the License.
  */
 
-#include <stdio.h>      /* printf() */
-#include <stdlib.h>     /* exit() */
-#include <fcntl.h>      /* open() opening flags and file modes */
-#include <unistd.h>     /* close() */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() */
+#include <fcntl.h>     /* open() opening flags and file modes */
+#include <unistd.h>    /* close() */
+#include <errno.h>     /* perror() */
 #include <sys/stat.h>
 #include <sys/types.h>
 
 /**
  * @file file_create.c
  *
- * A simple program that shows using the open() primitive to create a new file.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2011-12-01
+ * Demonstrates the use of the open() system call to safely create a new file
+ * with specified permissions.
  */
-
 
 /**
- * @brief Handles a fatal error and exit. 
- *
- * It displays the given error message, then exits.
+ * @brief Handles a fatal error and exits the program. 
+ * Displays the provided error message using perror and exits with failure.
  * @param msg The error message to display before exiting.
  */
-void handle_fatal_error_and_exit(char *msg)
-{
+void handle_fatal_error_and_exit(char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     int fd;         /* File descriptor */
     char *filename; /* Path at which to create the new file.  */
     mode_t mode;    /* Permissions for the new file.  */
@@ -59,15 +53,18 @@ int main(int argc, char *argv[])
     }
 
     filename = argv[1];
-    mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH;
+    mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH; /* User and group read/write, others read */
 
-    /* Create the file.  */
+    /* Create the file */
     fd = open(filename, O_WRONLY | O_EXCL | O_CREAT, mode);
     if (fd == -1) {
         handle_fatal_error_and_exit("Error [open()]: ");
     }
 
-    close(fd);
+    if (close(fd) == -1) {
+        perror("Error closing file");
+        exit(EXIT_FAILURE);
+    }
 
     return EXIT_SUCCESS;
 }

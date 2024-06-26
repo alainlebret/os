@@ -16,10 +16,11 @@
  * limitations under the License.
  */
 
-#include <stdio.h>      /* printf() */
-#include <stdlib.h>     /* exit() */
-#include <fcntl.h>      /* open() opening flags and file modes */
-#include <unistd.h>     /* read() and close() */
+#include <stdio.h>     /* printf() */
+#include <stdlib.h>    /* exit() */
+#include <fcntl.h>     /* open() opening flags and file modes */
+#include <unistd.h>    /* read() and close() */
+#include <errno.h>     /* perror() */
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -30,10 +31,6 @@
  *
  * An example of using \c the read primitive to display the hexadecimal dump of
  * a file.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2011-12-01
  */
 
 /**
@@ -42,50 +39,50 @@
  * It displays the given error message, then exits.
  * @param msg The error message to display before exiting.
  */
-void handle_fatal_error_and_exit(char *msg)
-{
+void handle_fatal_error_and_exit(char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
 
-int main(int argc, char *argv[])
-{
-    int fd; /* file descriptor */
-    char *filename;
+int main(int argc, char *argv[]) {
+    int fd;
     unsigned char buffer[BUFFER_SIZE];
-    size_t offset;
     ssize_t bytes_read;
+    size_t offset = 0;
     int i;
 
     if (argc != 2) {
-        printf("Usage: %s <filename>\n", argv[0]);
+        printf("Usage: %s <filename> - Display the hexadecimal dump of a file\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    filename = argv[1];
-    fd = open(filename, O_RDONLY);
+    fd = open(argv[1], O_RDONLY);
     if (fd == -1) {
-        handle_fatal_error_and_exit("Error [open()]: ");
+        handle_fatal_error_and_exit("Error opening file: ");
     }
 
-    offset = 0;
-
-    do {
-        bytes_read = read(fd, buffer, sizeof(buffer));
-        if (bytes_read == -1) {
-            close(fd);
-            handle_fatal_error_and_exit("Error [read()]: ");
-        }
-
-        printf("0x%06x : ", (unsigned int) offset);
+    while ((bytes_read = read(fd, buffer, BUFFER_SIZE)) > 0) {
+        printf("0x%06zx : ", offset);
         for (i = 0; i < bytes_read; ++i) {
             printf("%02x ", buffer[i]);
         }
+        printf(" | ");
+        for (i = 0; i < bytes_read; ++i) {
+            printf("%c", (buffer[i] >= 32 && buffer[i] <= 126) ? buffer[i] : '.');
+        }
         printf("\n");
-
         offset += bytes_read;
-    } while (bytes_read == sizeof(buffer));
+    }
 
-    close(fd);
+    if (bytes_read == -1) {
+        close(fd);
+        handle_fatal_error_and_exit("Error reading file: ");
+    }
+
+    if (close(fd) == -1) {
+        perror("Error closing file");
+        exit(EXIT_FAILURE);
+    }
+
     return EXIT_SUCCESS;
 }

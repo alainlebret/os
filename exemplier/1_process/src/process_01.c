@@ -21,6 +21,7 @@
 #include <stdlib.h>    /* exit() */
 #include <sys/types.h> /* for pid_t */
 #include <sys/wait.h>  /* wait() */
+#include <errno.h>     /* perror() */
 
 /**
  * @file process_01.c

@@ -27,19 +27,13 @@
  *
  * Copies the text typed on the keyboard to a file named file.out. It reads input 
  * from the keyboard and writes it to the file until there is no more input.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2011-12-01
  */
 
 #define SIZE            80
 #define STANDARD_ERROR   2
 #define STANDARD_OUTPUT  1
-#define KEYBOARD         0
 
-int main(void)
-{
+int main(void) {
     int fd;
     ssize_t nbcar;
     char buffer[SIZE] = {0};
@@ -51,9 +45,9 @@ int main(void)
         exit(EXIT_FAILURE);
     }
 
-    write(STANDARD_OUTPUT, "File opened with success\n", 26);
+    write(STDOUT_FILENO, "Type your input (Ctrl+D to end):\n", 33);
 
-    while ((nbcar = read(KEYBOARD, buffer, SIZE)) > 0) {
+    while ((nbcar = read(STDIN_FILENO, buffer, SIZE)) > 0) {
         if (write(fd, buffer, (size_t) nbcar) == -1) {
             write(STANDARD_ERROR, strerror(errno), strlen(strerror(errno)));
             write(STANDARD_ERROR, "\n", 1);
@@ -62,6 +56,10 @@ int main(void)
         }
     }
 
-    close(fd);
+    if (close(fd) == -1) {
+        perror("Error closing file");
+        exit(EXIT_FAILURE);
+    }
+
     return EXIT_SUCCESS;
 }

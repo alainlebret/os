@@ -20,19 +20,16 @@
 #include <stdlib.h>     /* exit() */
 #include <fcntl.h>      /* open() opening flags and file modes */
 #include <unistd.h>     /* close() */
+#include <errno.h>     /* perror() */
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#define GIGABYTE 1024*1024*1024
+#define GIGABYTE (1024LL * 1024 * 1024)
 
 /**
  * @file file_createhuge.c
  *
  * A simple example that uses the lseek() primitive to create a huge file.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2011-12-01
  */
 
 /**
@@ -41,14 +38,12 @@
  * It displays the given error message, then exits.
  * @param msg The error message to display before exiting.
  */
-void handle_fatal_error_and_exit(char *msg)
-{
+void handle_fatal_error_and_exit(char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     int fd;
     int zero;
     char *filename;
@@ -62,10 +57,16 @@ int main(int argc, char *argv[])
 
     zero = 0;
     filename = argv[1];
-    length = (size_t) atoi(argv[2]) * GIGABYTE;
+    int gigabytes = atoi(argv[2]);
+    if (gigabytes <= 0) {
+        fprintf(stderr, "Number of gigabytes must be positive.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    length = (off_t)gigabytes * GIGABYTE;
 
     /* Open a new file. */
-    fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, 0666);
+    fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (fd == -1) {
         handle_fatal_error_and_exit("Error [open()]: ");
     }
@@ -80,7 +81,12 @@ int main(int argc, char *argv[])
         handle_fatal_error_and_exit("Error [write()]: ");
     }
 
-    close(fd);
+    if (close(fd) == -1) {
+        perror("Error closing file");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Successfully created a %d gigabyte file '%s'.\n", gigabytes, filename);
 
     return EXIT_SUCCESS;
 }

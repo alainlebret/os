@@ -17,10 +17,11 @@
  */
 
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>     /* exit() */
+#include <stdlib.h>    /* exit() */
 #include <unistd.h>    /* fork() and sleep() */
 #include <sys/types.h> /* pid_t */
 #include <sys/wait.h>  /* wait() */
+#include <errno.h>     /* perror() */
 
 /**
  * @file process_03.c
