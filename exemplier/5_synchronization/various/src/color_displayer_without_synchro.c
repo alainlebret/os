@@ -31,10 +31,6 @@
  * This GTK application is designed to display colors that are updated 
  * periodically. The color data is intended to be read from a shared 
  * memory segment and displayed in a GTK window.
- *
- * @author Alain Lebret
- * @version	1.1
- * @date 2023-11-27
  */
 
 #define SHM_NAME "/color_memory"
@@ -43,8 +39,7 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(const char *msg)
-{
+void handle_fatal_error(const char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
@@ -52,21 +47,20 @@ void handle_fatal_error(const char *msg)
 /**
  * Updates colors within the given shared memory.
  */
-void update_colors(GtkWidget *widget, gpointer data) 
-{
+void update_colors(GtkWidget *widget, gpointer data) {
     GdkRGBA color;
-    char *color_data = (char *)data;  /* Cast shared memory pointer to char* */
+    char *color_data = (char *) data;  /* Cast shared memory pointer to char* */
     int red;
-	int green;
-	int blue;
+    int green;
+    int blue;
 
     /* Assuming the shared memory contains color data in "R,G,B" format */
     sscanf(color_data, "%d,%d,%d", &red, &green, &blue);
 
     /* Set the RGB color values */
-    color.red = (double)red / 255.0;
-    color.green = (double)green / 255.0;
-    color.blue = (double)blue / 255.0;
+    color.red = (double) red / 255.0;
+    color.green = (double) green / 255.0;
+    color.blue = (double) blue / 255.0;
     color.alpha = 1.0; /* Alpha channel (opacity) */
 
     /* Set the background color of the widget */
@@ -76,12 +70,11 @@ void update_colors(GtkWidget *widget, gpointer data)
     gtk_widget_queue_draw(widget);
 }
 
-int main(int argc, char* argv[]) 
-{
-	int shm_fd;
-	char *shared_memory;
-	GtkWidget *window;
-	GtkWidget *colorDisplay;
+int main(int argc, char *argv[]) {
+    int shm_fd;
+    char *shared_memory;
+    GtkWidget *window;
+    GtkWidget *colorDisplay;
 
     /* Initialize GTK */
     gtk_init(&argc, &argv);
@@ -95,19 +88,19 @@ int main(int argc, char* argv[])
     gtk_container_add(GTK_CONTAINER(window), colorDisplay);
 
     /* Open the shared memory */
-    shm_fd = shm_open(SHM_NAME, O_RDONLY, 0644);
+    shm_fd = shm_open(SHM_NAME, O_RDONLY, S_IRUSR | S_IWUSR);
     if (shm_fd == -1) {
         handle_fatal_error("Error [shm_open()]: ");
     }
 
     /* Map the shared memory */
-    shared_memory = (char*)mmap(NULL, SHM_SIZE, PROT_READ, MAP_SHARED, shm_fd, 0);
+    shared_memory = (char *) mmap(NULL, SHM_SIZE, PROT_READ, MAP_SHARED, shm_fd, 0);
     if (shared_memory == MAP_FAILED) {
         handle_fatal_error("Error [mmap()]: ");
     }
 
     /* Create a timer to update colors periodically */
-    g_timeout_add(1000, (GSourceFunc)update_colors, shared_memory);
+    g_timeout_add(1000, (GSourceFunc) update_colors, shared_memory);
 
     /* Show the window and start the GTK main loop */
     gtk_widget_show_all(window);

@@ -33,10 +33,6 @@
  * as a formatted string to a shared memory segment, using a semaphore for 
  * synchronization. It's designed to run indefinitely, updating the shared 
  * memory with new color data every second.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2023-09-07
  */
 
 #define SHM_NAME "/my_shared_memory"
@@ -44,23 +40,21 @@
 #define SEM_NAME "/my_semaphore"
 
 /* Generate a random integer between min and max */
-int random_int(int min, int max) 
-{
+int random_int(int min, int max) {
     return min + rand() % (max - min + 1);
 }
 
-int main() 
-{
+int main() {
     int shm_fd;
     int red;
     int green;
     int blue;
-    void* shm_ptr;
-    char* color_data;
-    sem_t* semaphore;
+    void *shm_ptr;
+    char *color_data;
+    sem_t *semaphore;
 
     /* Create or open the shared memory segment */
-    shm_fd = shm_open(SHM_NAME, O_CREAT | O_RDWR, 0666);
+    shm_fd = shm_open(SHM_NAME, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     if (shm_fd == -1) {
         perror("shm_open");
         exit(1);
@@ -77,7 +71,7 @@ int main()
     }
 
     /* Pointer to the color data in shared memory */
-    color_data = (char*)shm_ptr;
+    color_data = (char *) shm_ptr;
 
     /* Create or open the semaphore */
     semaphore = sem_open(SEM_NAME, O_CREAT, 0666, 1); /* Initial value is 1 */

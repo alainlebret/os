@@ -30,228 +30,104 @@
  * @file posix_prod_cons.c
  *
  * Producer-consumer program using a POSIX semaphore.
- *
- * @author Alain Lebret (2011)
- * @version	1.2
- * @date 2011-12-01
  */
 
-#define FOREVER for (;;)
 #define BUFFER_SIZE  5
-#define BUFFER_SPACE 0
-#define BUFFER_USED  1
 #define MEM_PATH     "/theshm"
 #define SEM_PATH     "/thesemaphore"
 
 typedef sem_t semaphore_t;
 
-/**
- * Handles a fatal error. It displays a message, then exits.
- */
-void handle_fatal_error(const char *msg)
-{
+void handle_fatal_error(const char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
 
-/**
- * Creates a POSIX semaphore and returns it.
- * @param name The name of the semaphore on the Unix system.
- * @return A pointer on the created POSIX semaphore.
- */
-semaphore_t *create_and_open_semaphore(char *name)
-{
-    semaphore_t *sem = NULL;
+void display_buffer(int *buffer) {
+    printf("Buffer State: [ ");
+    for (int i = 0; i < BUFFER_SIZE; i++) {
+        printf("%d ", buffer[i]);
+    }
+    printf("]\n");
+}
 
-    sem = sem_open(name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, 1);
+semaphore_t *setup_semaphore(const char *name, int value) {
+    semaphore_t *sem = sem_open(name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, value);
     if (sem == SEM_FAILED) {
-        handle_fatal_error("Error [sem_open()]: ");
+        handle_fatal_error("sem_open failed");
     }
     return sem;
 }
 
-/**
- * Opens an already created POSIX semaphore and returns it.
- * @param name The name of the semaphore on the Unix system.
- * @return A pointer on the POSIX semaphore.
- */
-semaphore_t *open_semaphore(char *name)
-{
-    semaphore_t *sem = NULL;
-
-    sem = sem_open(name, O_RDWR, S_IRUSR | S_IWUSR, 0);
-    if (sem == SEM_FAILED) {
-        sem_unlink(name); /* Try to remove the semaphore on file system */
-        handle_fatal_error("Error [sem_unlink()]: ");
+int *setup_shared_memory(const char *name, size_t size) {
+    int fd = shm_open(name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+    if (fd == -1) {
+        handle_fatal_error("shm_open failed");
     }
-    return sem;
+    if (ftruncate(fd, size) == -1) {
+        handle_fatal_error("ftruncate failed");
+    }
+    int *addr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if (addr == MAP_FAILED) {
+        handle_fatal_error("mmap failed");
+    }
+    close(fd);  /* Close file descriptor as it's no longer needed */
+    return addr;
 }
 
-/**
- * Destroys the specifier POSIX semaphore.
- * @param sem The identifier of the semaphore to destroy
- */
-void destroy_semaphore(semaphore_t *sem, char *name)
-{
-    int r = 0;
-
-    r = sem_close(sem);
-    if (r < 0) {
-        handle_fatal_error("Error [sem_close()]: ");
-    }
-
-    r = sem_unlink(name);
-    if (r < 0) {
-        perror("Error [sem_unlink()]: ");
-    }
+void clean_up(int signum) {
+    sem_unlink(SEM_PATH);
+    shm_unlink(MEM_PATH);
+    exit(EXIT_SUCCESS);
 }
 
-/**
- * Performs a P() operation ("wait", "lock", etC.) on a semaphore.
- * @param sem Pointer on the semaphore.
- */
-void P(semaphore_t *sem)
-{
-    int r = 0;
-
-    r = sem_wait(sem);
-    if (r < 0) {
-        handle_fatal_error("Error [P()]: ");
-    }
-}
-
-/**
- * Performs a V() operation ("signal", "release", etc.) on a semaphore.
- * @param sem Pointer on the semaphore.
- */
-void V(semaphore_t *sem)
-{
-    int r = 0;
-
-    sem_post(sem);
-    if (r < 0) {
-        handle_fatal_error("Error [V()]: ");
-    }
-}
-
-/**
- * Handles the SIGINT signal.
- * @param signal
- */
-void handler(int signal)
-{
-    if (signal == SIGINT) {
-        sem_unlink(SEM_PATH);
-        shm_unlink(MEM_PATH);
-        exit(EXIT_SUCCESS);
-    }
-}
-
-/**
- * Writes values to a shared buffer protected by a semaphore.
- * @param buffer Buffer to read on.
- */
-void produce(void)
-{
-    int in_index;
-    int next_value;
-    int shmd;
-    semaphore_t *sem;
-    int *buffer;
-    struct sigaction action;
-
-    action.sa_handler = &handler;
-    sigaction(SIGINT, &action, 0);
-
-    srand((unsigned int) getpid());
-    in_index = 0;
-
-    shmd = shm_open(MEM_PATH, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-    if (shmd < 0) {
-        handle_fatal_error("Error [shm_open()]: ");
-    }
-    
-    if (ftruncate(shmd, BUFFER_SIZE) == -1) {
-        handle_fatal_error("Error [ftruncate()]: ");        
-    }
-    
-    buffer = (int *) mmap(NULL, BUFFER_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED,
-                          shmd, 0);
-    if (buffer == MAP_FAILED) {
-        handle_fatal_error("Error [mmap()]: ");
-    }
-
-    sem = create_and_open_semaphore(SEM_PATH);
-
-    FOREVER { /* produce next_value */
-        sleep((unsigned int) (3 + rand() % 3));
-        next_value = rand() % 100;
-        printf("producer[%d]: %d\n", in_index, next_value);
-
-        P(sem);
-
-        buffer[in_index] = next_value;
+void produce(int *buffer, semaphore_t *sem) {
+    int in_index = 0;
+    srand((unsigned int)getpid());
+    while (1) {
+        sleep(1 + rand() % 5);
+        int value = rand() % 100;
+        sem_wait(sem);
+        buffer[in_index] = value;
+        printf("Produced: %d at %d\n", value, in_index);
+        display_buffer(buffer);
         in_index = (in_index + 1) % BUFFER_SIZE;
-
-        V(sem);
+        sem_post(sem);
     }
 }
 
-/**
- * Reads values from a shared buffer a shared buffer protected by a semaphore.
- * @param buffer Buffer to read on.
- * @param id_semaphore Semaphore identifier used to protect critical section.
- */
-void consume(void)
-{
-    int out_index;
-    int next_value;
-    int shmd;
-    semaphore_t *sem;
-    int *buffer;
-    struct sigaction action;
-
-    action.sa_handler = &handler;
-    sigaction(SIGINT, &action, 0);
-
-    srand((unsigned int) getpid());
-    out_index = 0;
-
-    shmd = shm_open(MEM_PATH, O_RDWR, S_IRUSR | S_IWUSR);
-    if (shmd < 0) {
-        handle_fatal_error("Error [shm_open()]: ");
-    }
-    
-    buffer = (int *) mmap(NULL, BUFFER_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED,
-                          shmd, 0);
-    if (buffer == MAP_FAILED) {
-        handle_fatal_error("Error [mmap()]: ");
-    }
-
-    sem = open_semaphore(SEM_PATH);
-
-    FOREVER { /* consume next_value */
-        P(sem);
-
-        next_value = buffer[out_index];
+void consume(int *buffer, semaphore_t *sem) {
+    int out_index = 0;
+    srand((unsigned int)getpid());
+    while (1) {
+        sem_wait(sem);
+        int value = buffer[out_index];
+        printf("Consumed: %d from %d\n", value, out_index);
+        display_buffer(buffer);
         out_index = (out_index + 1) % BUFFER_SIZE;
-
-        V(sem);
-
-        /* consume next */
-        printf("consumer[%d]: %d\n", out_index == 0 ? 4 : out_index - 1, next_value);
-        sleep((unsigned int) (5 + rand() % 5));
+        sem_post(sem);
+        sleep(2 + rand() % 5);
     }
 }
 
-int main(void)
-{
-    if (fork() == 0) {
-        produce();
-    }
-    sleep(5);
-    if (fork() == 0) {
-        consume();
+int main(void) {
+    struct sigaction sa;
+    sa.sa_handler = clean_up;
+    sigaction(SIGINT, &sa, NULL);
+
+    semaphore_t *sem = setup_semaphore(SEM_PATH, 1);
+    int *buffer = setup_shared_memory(MEM_PATH, BUFFER_SIZE * sizeof(int));
+
+    pid_t pid = fork();
+    if (pid == 0) {
+        produce(buffer, sem);
+        exit(EXIT_SUCCESS);
+    } else {
+        pid = fork();
+        if (pid == 0) {
+            consume(buffer, sem);
+            exit(EXIT_SUCCESS);
+        }
     }
 
     wait(NULL);
@@ -259,4 +135,3 @@ int main(void)
 
     return EXIT_SUCCESS;
 }
-

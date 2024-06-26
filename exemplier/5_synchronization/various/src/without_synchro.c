@@ -34,18 +34,13 @@
  * in a Unix-like environment. It creates a shared integer variable and 
  * decrements this value in a critical section until it reaches zero, with
  * both parent and child processes participating in the decrement operation.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2023-11-27
  */
- 
+
 #define SHM_SIZE sizeof(int)
 
 int ended = 0;
 
-void critical_section(int *value)
-{
+void critical_section(int *value) {
     if (*value == 0) {
         ended = 1;
     } else {
@@ -54,48 +49,46 @@ void critical_section(int *value)
     }
 }
 
-void random_delay(int at_least_microsecs, int at_most_microsecs)
-{
+void random_delay(int at_least_microsecs, int at_most_microsecs) {
     long choice;
     int range;
 
     range = at_most_microsecs - at_least_microsecs;
-    choice = random(); 
+    choice = random();
     sleep(at_least_microsecs + choice % range);
 }
 
-int main(void) 
-{
-	int fd;
-	int *ptr;
-	pid_t pid;
+int main(void) {
+    int fd;
+    int *ptr;
+    pid_t pid;
 
-	srand(time(NULL));
+    srand(time(NULL));
 
-	fd = shm_open("/blabla", O_RDWR | O_CREAT, 0666);
-	printf("shm_open() returned %d (errno: %d / %s)\n", fd, errno, strerror(errno));
+    fd = shm_open("/blabla", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+    printf("shm_open() returned %d (errno: %d / %s)\n", fd, errno, strerror(errno));
 
-	if (ftruncate(fd, SHM_SIZE) == -1) {
-		perror("ftruncate error");
-		exit(EXIT_FAILURE);
-	}
+    if (ftruncate(fd, SHM_SIZE) == -1) {
+        perror("ftruncate error");
+        exit(EXIT_FAILURE);
+    }
 
-	ptr = (int *)mmap(NULL, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-	printf("mmap') returned %p (errno: %d / %s)\n", (void *)ptr, errno, strerror(errno));
+    ptr = (int *) mmap(NULL, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    printf("mmap') returned %p (errno: %d / %s)\n", (void *) ptr, errno, strerror(errno));
 
     *ptr = 20;
 
-    pid = fork(); 
+    pid = fork();
 
     while (!ended) {
         critical_section(ptr);
         random_delay(1, 50);
     }
-	
-	munmap(ptr, SHM_SIZE);
-	if (pid > 0) {
-		shm_unlink("/blabla");		
-	}
 
-	return EXIT_SUCCESS;
+    munmap(ptr, SHM_SIZE);
+    if (pid > 0) {
+        shm_unlink("/blabla");
+    }
+
+    return EXIT_SUCCESS;
 }

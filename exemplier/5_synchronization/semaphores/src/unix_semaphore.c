@@ -47,8 +47,7 @@ typedef int semaphore_t;
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(const char *message)
-{
+void handle_fatal_error(const char *message) {
     perror(message);
     exit(EXIT_FAILURE);
 }
@@ -57,8 +56,7 @@ void handle_fatal_error(const char *message)
  * Creates a System V semaphore and returns its identifier.
  * @return The created POSIX semaphore.
  */
-semaphore_t create_semaphore(key_t key)
-{
+semaphore_t create_semaphore(key_t key) {
     semaphore_t sem;
     int r;
 
@@ -78,8 +76,7 @@ semaphore_t create_semaphore(key_t key)
  * Destroy the specifier System V semaphore.
  * @param sem The identifier of the semaphore to destroy
  */
-void destroy_semaphore(semaphore_t sem)
-{
+void destroy_semaphore(semaphore_t sem) {
     if (semctl(sem, 0, IPC_RMID, 0) != 0)
         handle_fatal_error("Error [semctl()]: ");
 }
@@ -89,8 +86,7 @@ void destroy_semaphore(semaphore_t sem)
  * @param sem The identifier of the semaphore
  * @param new_value The new value to associate to the semaphore
  */
-void modify_semaphore_value(semaphore_t sem, int new_value)
-{
+void modify_semaphore_value(semaphore_t sem, int new_value) {
     struct sembuf sb[1];
 
     sb[0].sem_num = 0;
@@ -105,8 +101,7 @@ void modify_semaphore_value(semaphore_t sem, int new_value)
  * Performs a P() operation ("wait") on a semaphore.
  * @param sem Identifier of the semaphore.
  */
-void P(semaphore_t sem)
-{
+void P(semaphore_t sem) {
     modify_semaphore_value(sem, -1);
 }
 
@@ -114,16 +109,14 @@ void P(semaphore_t sem)
  * Performs a V() operation ("signal") on a semaphore.
  * @param sem Indentifier of the semaphore.
  */
-void V(semaphore_t sem)
-{
+void V(semaphore_t sem) {
     modify_semaphore_value(sem, 1);
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     semaphore_t sem;
     key_t key;
-    int loop;
+    char choice;
 
     if (argc != 2) {
         fprintf(stderr, "Usage: %s cle\n", argv[0]);
@@ -132,35 +125,33 @@ int main(int argc, char *argv[])
     key = atoi(argv[1]);
     sem = create_semaphore(key);
 
-    loop = TRUE;
-
-    while (loop) {
-        char choice;
+    while (1) {
         printf("p, v, x, q ? ");
+        choice = getchar(); /* Read a single character */
+        getchar();          /* Read and ignore the newline */
         if (scanf("%c", &choice) != 1)
             break;
 
         switch (toupper(choice)) {
             case 'P':
                 P(sem);
-                printf("P() -- Now access the critical section\n");
+                printf("P() -- Access granted to critical section\n");
                 break;
             case 'V':
                 V(sem);
-                printf("V() -- Leave the critical section\n");
+                printf("V() -- Released critical section\n");
                 break;
             case 'X':
                 destroy_semaphore(sem);
-                printf("Semaphore has been destroy\n");
-                loop = FALSE;
-                break;
+                printf("Semaphore destroyed.\n");
+                return EXIT_SUCCESS; /* Exit after destruction */
             case 'Q':
-                loop = FALSE;
-                break;
+                return EXIT_SUCCESS; /* Clean exit */
             default:
-                printf("?\n");
+                printf("Invalid choice. Use 'p', 'v', 'x', or 'q'.\n");
         }
     }
+
 
     return EXIT_SUCCESS;
 }

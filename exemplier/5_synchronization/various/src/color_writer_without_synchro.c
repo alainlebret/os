@@ -33,29 +33,23 @@
  * them as a formatted string to a shared memory segment. It's designed
  * to run indefinitely, updating the shared memory with new color data 
  * every second.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2023-11-27
  */
 
 #define SHM_NAME "/color_memory"
 #define SHM_SIZE 1024
 
 /* Function to generate a random integer between min and max */
-int random_int(int min, int max) 
-{
+int random_int(int min, int max) {
     return min + rand() % (max - min + 1);
 }
 
-int main() 
-{
+int main() {
     int shm_fd;
-    void* shm_ptr;
-    char* color_data;
+    void *shm_ptr;
+    char *color_data;
 
     /* Create or open the shared memory segment */
-    shm_fd = shm_open(SHM_NAME, O_CREAT | O_RDWR, 0666);
+    shm_fd = shm_open(SHM_NAME, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     if (shm_fd == -1) {
         perror("shm_open");
         exit(1);
@@ -72,7 +66,7 @@ int main()
     }
 
     /* Pointer to the color data in shared memory */
-    color_data = (char*)shm_ptr;
+    color_data = (char *) shm_ptr;
 
 
     /* Seed the random number generator with the current time */

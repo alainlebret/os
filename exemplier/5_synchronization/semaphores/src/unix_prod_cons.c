@@ -43,7 +43,6 @@
  * @date 2011-12-01
  */
 
-#define FOREVER for (;;)
 #define BUFFER_SIZE 10
 #define BUFFER_SPACE 0
 #define BUFFER_USED 1
@@ -53,8 +52,7 @@ typedef int semaphore_t;
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(const char *msg)
-{
+void handle_fatal_error(const char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
@@ -65,8 +63,7 @@ void handle_fatal_error(const char *msg)
  * @param sem_num The index of the semaphore in the set
  * @param new_value The new value to associate to the semaphore
  */
-void modify_semaphore_value(semaphore_t sem, int sem_num, int new_value)
-{
+void modify_semaphore_value(semaphore_t sem, int sem_num, int new_value) {
     struct sembuf sb[1];
 
     sb[0].sem_num = sem_num;
@@ -82,8 +79,7 @@ void modify_semaphore_value(semaphore_t sem, int sem_num, int new_value)
  * Performs a P() operation ("wait") on a semaphore.
  * @param sem Identifier of the semaphore.
  */
-void P(semaphore_t sem, int sem_num)
-{
+void P(semaphore_t sem, int sem_num) {
     modify_semaphore_value(sem, sem_num, -1);
 }
 
@@ -91,8 +87,7 @@ void P(semaphore_t sem, int sem_num)
  * Performs a V() operation ("signal") on a semaphore.
  * @param sem Indentifier of the semaphore.
  */
-void V(semaphore_t sem, int sem_num)
-{
+void V(semaphore_t sem, int sem_num) {
     modify_semaphore_value(sem, sem_num, 1);
 }
 
@@ -101,15 +96,14 @@ void V(semaphore_t sem, int sem_num)
  * @param buffer Buffer to read on.
  * @param id_semaphores Identifier of the set of two semaphores.
  */
-void produce(int *buffer, int id_semaphores)
-{
+void produce(int *buffer, int id_semaphores) {
     int in_index;
     int next_value;
 
     srand((unsigned int) getpid());
     in_index = 0;
 
-    FOREVER {  /* produce next_value */
+    while (1) {  /* produce next_value */
         sleep((unsigned int) (5 + rand() % 5));
         next_value = rand() % 100;
         printf("producer: %d\n", next_value);
@@ -130,15 +124,14 @@ void produce(int *buffer, int id_semaphores)
  * @param buffer Buffer to read on.
  * @param id_semaphore Identifier of the set of two semaphores.
  */
-void consume(int *buffer, int id_semaphores)
-{
+void consume(int *buffer, int id_semaphores) {
     int out_index;
     int next_value;
 
     srand((unsigned int) getpid());
     out_index = 0;
 
-    FOREVER { /* consume next_value */
+    while (1) { /* consume next_value */
 
         P(id_semaphores, BUFFER_USED);
 
@@ -155,15 +148,13 @@ void consume(int *buffer, int id_semaphores)
     /* Unreachable */
 }
 
-void handler(int signal)
-{
+void handler(int signal) {
     if (signal == SIGINT) {
         exit(EXIT_SUCCESS);
     }
 }
 
-int main(void)
-{
+int main(void) {
     int *buffer;
     int id_semaphore;
     int id_memory;

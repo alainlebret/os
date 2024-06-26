@@ -1,5 +1,4 @@
 CC = gcc
-CPPFLAGS = -I include
 CFLAGS = -Wall -std=c99
 LDFLAGS =
 BIN_DIR = bin
@@ -53,7 +52,7 @@ $(BIN_DIR)/without_synchro: $(OBJ_DIR)/without_synchro.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
 	rm -f $(OBJ_DIR)/*.o
