@@ -17,41 +17,63 @@
  */
 
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* random(), exit() and execl()*/
-#include <unistd.h>    /* fork() */
-#include <sys/types.h> /* pid_t and mkfifo() */
-
-#define FOREVER for (;;)
+#include <stdlib.h>    /* random(), exit(), malloc(), free() */
+#include <unistd.h>    /* fork(), sleep() */
+#include <signal.h>    /* sigaction */
+#include <sys/types.h> /* pid_t, mkfifo() */
 
 /**
  * @file memory_04.c
  *
- * Memory mapping of a process using a heap.
- * Just run the program and verify its memory mapping using the command:
+ * Demonstrates memory mapping of a process using a heap and highlights potential
+ * memory leak problems. Run the program and verify its memory mapping using:
  * \code{bash}
  * cat /proc/<PID>/maps
  * \endcode
- *
- * This example also highlights the memory leak problem. Compile the program
- * using -g and run valgrind.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2011-12-01
+ * Also, compile with -g and check for memory leaks using valgrind.
  */
 
-int main(void)
-{
+void handle_signal(int sig) {
+    printf("\nSignal %d received, cleaning up and exiting now...\n", sig);
+    exit(EXIT_SUCCESS);
+}
+
+int main(void) {
+    struct sigaction sa;
     int *pointer;
     int value;
 
-    pointer = (int *) malloc(sizeof(int));
+    /* Setup the sigaction struct to handle SIGINT (Ctrl-C) */
+    sa.sa_handler = handle_signal;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
 
-    FOREVER {
-        value = random();
-        *pointer = value;
+    /* Apply the sigaction configuration */
+    if (sigaction(SIGINT, &sa, NULL) == -1) {
+        perror("Error setting up sigaction");
+        exit(EXIT_FAILURE);
     }
 
-    /* Unreachable: use <Ctrl-C> to exit */
-}
+    /* Allocate memory on the heap */
+    pointer = (int *) malloc(sizeof(int));
+    if (pointer == NULL) {
+        perror("Failed to allocate memory");
+        exit(EXIT_FAILURE);
+    }
 
+    printf("Process with PID %d is running. Check memory mapping with `cat /proc/%d/maps`\n", getpid(), getpid());
+
+    /* Continuously write random values to allocated memory */
+    while (1) {
+        value = random();
+        *pointer = value;
+        printf("Stored value: %d at address %p\n", *pointer, pointer);
+        sleep(5);
+    }
+
+    /* Code to free memory if reached, which it never is in this scenario */
+    free(pointer);
+
+    /* Unreachable code due to infinite loop and external termination via signals */
+    return EXIT_SUCCESS;
+}

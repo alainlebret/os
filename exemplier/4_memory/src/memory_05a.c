@@ -17,31 +17,54 @@
  */
 
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
-#include <unistd.h>    /* fork() */
-#include <sys/types.h> /* pid_t and mkfifo() */
+#include <stdlib.h>    /* exit(), malloc(), free() */
+#include <unistd.h>    /* pause() */
+#include <signal.h>    /* for sigaction */
+#include <sys/types.h> /* pid_t */
 
 /**
  * @file memory_05b.c
  *
  * This program allocates memory for an array of 10 integers and then pauses, 
  * creating an intentional memory leak for analysis with memory profiling tools
- * like Valgrind.
- * Compile it with -g option and run the Valgrind program.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2011-12-01
+ * like Valgrind. Compile it with -g option and run the Valgrind program.
  */
 
-int main(void)
-{
+void handle_signal(int sig) {
+    printf("Signal %d received. Exiting and cleaning up...\n", sig);
+    exit(EXIT_SUCCESS);
+}
+
+int main(void) {
     int *p;
+    struct sigaction sa;
 
+    /* Clear the sigaction structure */
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sa.sa_handler = handle_signal;
+
+    /* Set up sigaction for SIGINT */
+    if (sigaction(SIGINT, &sa, NULL) == -1) {
+        perror("Error setting up sigaction for SIGINT");
+        exit(EXIT_FAILURE);
+    }
+
+    /* Allocate memory for 10 integers */
     p = (int *) malloc(10 * sizeof(int));
+    if (!p) {
+        perror("Failed to allocate memory");
+        exit(EXIT_FAILURE);
+    }
 
+    /* Inform user about how to proceed */
+    printf("Program paused. PID: %d. Use Ctrl-C to exit.\n", getpid());
+
+    /* Pause the program, waiting for signal */
     pause();
+
+    /* Free allocated memory if reached (not in this code as pause() is indefinite) */
+    free(p);
 
     return EXIT_SUCCESS;
 }
-

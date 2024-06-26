@@ -33,14 +33,12 @@
  * mapping. It maps the contents of a source file into memory, then maps a 
  * destination file into memory, and performs a memory copy from the source to
  * the destination.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2011-12-01
  */
 
-long get_file_size(const char *filename)
-{
+/**
+ * Get the size of the file by its filename using stat().
+ */
+long get_file_size(const char *filename) {
     struct stat st;
 
     stat(filename, &st);
@@ -49,8 +47,7 @@ long get_file_size(const char *filename)
     return (long) st.st_size;
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     int fdin;
     int fdout;
     char *src;

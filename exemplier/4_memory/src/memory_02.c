@@ -17,40 +17,52 @@
  */
 
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
-#include <unistd.h>    /* fork() */
-#include <sys/types.h> /* pid_t and mkfifo() */
-#include <time.h>
-
-#define FOREVER for (;;)
+#include <stdlib.h>    /* exit() */
+#include <unistd.h>    /* fork(), sleep() */
+#include <sys/types.h> /* pid_t */
+#include <time.h>      /* time() */
+#include <signal.h>    /* signal handling */
 
 /**
  * @file memory_02.c
  *
- * This program runs for approximately 4 minutes, during which its memory mapping 
- * can be inspected using system tools (cat /proc/<PID>/maps). It is designed to 
- * aid in understanding the memory layout of a process.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2011-12-01
+ * This program runs for approximately 4 minutes, during which its memory 
+ * mapping can be inspected using system tools (e.g., `cat /proc/<PID>/maps`). 
+ * It is designed to aid in understanding the memory layout of a process. 
+ * Useful for educational purposes to see how memory is allocated and modified
+ * over time.
  */
 
-int main(void)
-{
-    time_t end = time(NULL) + 240; /* about 4 min */
+void handle_signal(int sig) {
+    printf("Signal %d received, exiting now...\n", sig);
+    exit(EXIT_SUCCESS);
+}
 
-    printf("Process with PID %d\n", getpid());
+int main(void) {
+    struct sigaction sa;
+    time_t end = time(NULL) + 240;  /* Set the program to run for about 4 minutes */
 
-    FOREVER {
-        /*
-         * One method to exit from an endless loop. Another one would be to
-         * use a signal handler.
-         */
+    /* Setup the sigaction struct */
+    sa.sa_handler = handle_signal;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+
+    /* Set up SIGINT / Ctrl-C for graceful termination */
+    if (sigaction(SIGINT, &sa, NULL) == -1) {
+        perror("Error setting up sigaction");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Process with PID %d is running. Use `cat /proc/%d/maps` to inspect memory layout.\n", getpid(), getpid());
+
+    while (1) {
         if (time(NULL) >= end) {
             break;
         }
+        sleep(1); /* Sleep to reduce CPU usage and allow time for manual inspection */
     }
+
+    printf("Completed 4 minutes of runtime. Exiting.\n");
 
     return EXIT_SUCCESS;
 }

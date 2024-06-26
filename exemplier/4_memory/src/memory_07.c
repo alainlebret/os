@@ -17,6 +17,9 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 /**
  * @file memory_07.c
@@ -24,29 +27,29 @@
  * This program demonstrates the memory layout of a process by printing the
  * addresses of the main function, another function, a local variable (stack),
  * and a dynamically allocated memory block (heap).
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2019-01-21
  */
 
-int f(void)
-{
-    int val;
-
-    val = 1;
-    printf("Location of stack: %p\n", (void *)&val);
-
-    return val;
+void print_stack_location() {
+    int stack_variable;
+    printf("Location of stack variable inside function: %p\n", (void *)&stack_variable);
 }
 
-int main(void)
-{
-    printf("Location of main code: %p\n", main);
-    printf("Location of f() code: %p\n", f);
-    int val = f();
-    printf("Location of stack: %p\n", (void *)&val);
-    printf("Location of heap: %p\n", malloc(100e8));
+int main(void) {
+    void *heap_memory;
 
+    printf("Location of main() function code: %p\n", (void *)main);
+    printf("Location of print_stack_location() function code: %p\n", (void *)print_stack_location);
+    
+    print_stack_location(); /* Function call to demonstrate stack location */
+
+    heap_memory = malloc(100e6); /* Reduced the size to a more reasonable amount for demonstration */
+    if (heap_memory == NULL) {
+        fprintf(stderr, "Failed to allocate memory.\n");
+        return EXIT_FAILURE;
+    }
+
+    printf("Location of heap allocated memory: %p\n", heap_memory);
+
+    free(heap_memory); /* Free the allocated memory */
     return EXIT_SUCCESS;
 }

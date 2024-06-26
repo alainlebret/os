@@ -17,23 +17,20 @@
  */
 
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
-#include <unistd.h>    /* fork() */
-#include <sys/types.h> /* pid_t and mkfifo() */
+#include <stdlib.h>    /* exit() and EXIT_SUCCESS */
+#include <unistd.h>    /* getpagesize() */
 
 /**
  * @file memory_01.c
  *
- * Gets the page size from the virtual memory.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2011-12-01
+ * Demonstrates how to retrieve and display the system's memory page size.
+ * Knowing the page size can be critical for performance tuning and memory
+ * management tasks, as it influences how memory is allocated and managed
+ * at the system level.
  */
 
-int main(void)
-{
-    printf("Size of page on this system: %d bytes\n", getpagesize());
-
+int main(void) {
+    int pageSize = getpagesize();  /* Retrieve the system's page size */
+    printf("Size of page on this system: %d bytes\n", pageSize);
     return EXIT_SUCCESS;
 }

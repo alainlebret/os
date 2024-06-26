@@ -17,9 +17,10 @@
  */
 
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
-#include <unistd.h>    /* fork() */
-#include <sys/types.h> /* pid_t and mkfifo() */
+#include <stdlib.h>    /* exit(), malloc(), free() */
+#include <unistd.h>    /* pause() */
+#include <signal.h>    /* sigaction */
+#include <sys/types.h> /* pid_t */
 
 /**
  * @file memory_05b.c
@@ -27,23 +28,42 @@
  * This program allocates memory for an array of 10 integers, pauses (waiting 
  * for a signal), and then properly frees the allocated memory before exiting, 
  * demonstrating proper memory management.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2011-12-01
  */
 
-int main(void)
-{
-    int *p;
-
-    p = (int *) malloc(10 * sizeof(int));
-
-    pause();
-
-    free(p);
-    p = NULL;
-
+void handle_signal(int sig) {
+    printf("Signal %d received. Cleaning up and exiting...\n", sig);
     exit(EXIT_SUCCESS);
 }
 
+int main(void) {
+    int *p;
+    struct sigaction sa;
+
+    /* Setup memory */
+    p = (int *) malloc(10 * sizeof(int));
+    if (!p) {
+        perror("Failed to allocate memory");
+        exit(EXIT_FAILURE);
+    }
+
+    /* Setup the sigaction structure */
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sa.sa_handler = handle_signal;
+
+    /* Register sigaction for SIGINT */
+    if (sigaction(SIGINT, &sa, NULL) == -1) {
+        perror("Error setting up sigaction");
+        free(p);  /* Clean up before exit if sigaction setup fails */
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Process with PID %d is paused. Press Ctrl-C to exit.\n", getpid());
+    pause();  /* Wait here until signal is received */
+
+    /* Cleanup and exit */
+    free(p);
+    p = NULL;
+
+    return EXIT_SUCCESS;
+}

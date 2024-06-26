@@ -17,41 +17,56 @@
  */
 
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* random(), exit() and execl()*/
-#include <unistd.h>    /* fork() */
-#include <sys/types.h> /* pid_t and mkfifo() */
-#include <math.h>      /* sqrt() -- don't forget to link with -lm */
-
-#define FOREVER for(;;)
+#include <stdlib.h>    /* random(), exit() */
+#include <unistd.h>    /* fork(), sleep() */
+#include <sys/types.h> /* pid_t */
+#include <signal.h>    /* signal handling */
+#include <math.h>      /* sqrt() - link with -lm */
 
 /**
  * @file memory_03.c
  *
- * This program continuously calculates the square root of random numbers, 
- * allowing for inspection of its memory mapping, particularly to observe 
- * the use of the math library (libm).
- * Verify its memory mapping using the command:
+ * This program continuously calculates the square root of random numbers,
+ * demonstrating the use of the math library (libm) and allowing for the
+ * inspection of its memory mapping. Use the following command to check 
+ * memory usage:
  * \code{bash}
  * cat /proc/<PID>/maps
  * \endcode
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2011-12-01
+ * 
+ * Use Ctrl-C to gracefully exit the program.
  */
 
-int main(void)
-{
+void handle_signal(int sig) {
+    printf("\nSignal %d received. Exiting now...\n", sig);
+    exit(EXIT_SUCCESS);
+}
+
+int main(void) {
+    struct sigaction sa;
     long number;
     double square_root;
 
-    printf("Process with PID %d\n", getpid());
+    /* Setup the sigaction struct */
+    sa.sa_handler = handle_signal;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
 
-    FOREVER {
-        number = random();
-        square_root = sqrt(number);
+    /* Set up SIGINT / Ctrl-C for graceful termination */
+    if (sigaction(SIGINT, &sa, NULL) == -1) {
+        perror("Error setting up sigaction");
+        exit(EXIT_FAILURE);
     }
 
-    /* Unreachable: use <Ctrl-C> to exit */
+    printf("Process with PID %d is calculating square roots. Check memory mapping with `cat /proc/%d/maps`\n", getpid(), getpid());
 
+    while (1) {
+        number = random();
+        square_root = sqrt(number);
+        printf("Square root of %ld is %f\n", number, square_root);
+        sleep(10); 
+    }
+
+    /* Unreachable: the process exits via signal */
 }
+

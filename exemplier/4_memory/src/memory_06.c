@@ -89,8 +89,7 @@ int end;
 char *g_pointer = "A string in C"; /* initialized global */
 char g_buff[100];                  /* uninitialized global */
 
-void pointer_function(int local_non_init)
-{
+void pointer_function(int local_non_init) {
     int local_init;
 
     local_init = 3;
@@ -101,21 +100,29 @@ void pointer_function(int local_non_init)
     }
 }
 
-int main(int argc, char *argv[], char *envp[])
-{
+int main(int argc, char *argv[], char *envp[]) {
     int i = 3;                  /* local intialized --> stack segment */
     static int diff;            /* static local uninitialized --> data segment */
     static int stack_calls = 5; /* static local intialized --> data segment */
 
-    int *int_ptr1 = (int *) malloc(10 * sizeof(int)); /* heap */
-    int *int_ptr2 = (int *) malloc(10 * sizeof(int)); /* heap */
+    int *int_ptr1 = (int *) malloc(10 * sizeof(int));  /* heap */
+    if (!int_ptr1) {
+        perror("Failed to allocate memory for int_ptr1");
+        exit(EXIT_FAILURE);
+    }
+    int *int_ptr2 = (int *) malloc(10 * sizeof(int));  /* heap */
+    if (!int_ptr2) {
+        perror("Failed to allocate memory for int_ptr2");
+        free(int_ptr1);  /* Clean up previous allocation */
+        exit(EXIT_FAILURE);
+    }
 
     strcpy(g_buff, " Layout of virtual memory \n ");
 
     if (write(1, g_buff, strlen(g_buff) + 1) == -1) {
         perror("Error [write()]: ");
     }
-     
+
     printf("Adr etext : %8lX \t\t Adr edata : %8lX \t\t Adr end : %8lX \n",
            (unsigned long int) &etext, (unsigned long int) &edata, (
                    unsigned long int) &end);
@@ -130,8 +137,7 @@ int main(int argc, char *argv[], char *envp[])
 
 
     SHOW_ADDRESS(" Global pointer ", g_pointer);
-    diff =
-            (unsigned long int) &g_pointer - (unsigned long int) &pointer_function;
+    diff = (unsigned long int) &g_pointer - (unsigned long int) &pointer_function;
     printf(" g_pointer is %d bytes above pointer_function()\n", diff);
 
     SHOW_ADDRESS(" Global Buff", g_buff);
