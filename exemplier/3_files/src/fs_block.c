@@ -18,7 +18,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>       /* perror() */
 #include <sys/statvfs.h> /* statvfs() */
 
 /**

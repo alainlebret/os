@@ -17,6 +17,7 @@
  */
 
 #include <unistd.h>  /* write and read */
+#include <stdio.h>   /* perror() */
 #include <fcntl.h>   /* open, O_CREAT, O_WRONLY */
 #include <stdlib.h>  /* exit */
 #include <string.h>  /* strerror */

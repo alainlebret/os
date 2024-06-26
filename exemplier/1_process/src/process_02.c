@@ -21,7 +21,6 @@
 #include <unistd.h>    /* fork() */
 #include <sys/types.h> /* pid_t */
 #include <sys/wait.h>  /* wait() */
-#include <errno.h>     /* perror() */
 
 /**
  * @file process_02.c

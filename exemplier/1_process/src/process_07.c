@@ -21,7 +21,6 @@
 #include <unistd.h>    /* getpid() and getpgrp() */
 #include <sys/types.h> /* pid_t */
 #include <sys/wait.h>  /* wait(), WIFEXITED and WEXITSTATUS */
-#include <errno.h>     /* perror() */
 
 /**
  * @file process_07.c

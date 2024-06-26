@@ -20,7 +20,6 @@
 #include <stdlib.h>    /* exit() */
 #include <fcntl.h>     /* open() opening flags and file modes */
 #include <unistd.h>    /* read() and close() */
-#include <errno.h>     /* perror() */
 #include <sys/stat.h>
 #include <sys/types.h>
 
