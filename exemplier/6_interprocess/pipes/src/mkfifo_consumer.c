@@ -27,12 +27,8 @@
 /**
  * @file mkfifo_consumer.c
  *
- * A consumer program that uses a named pipe (mkfifo) to receive messages from
- * a producer.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2011-12-01
+ * A consumer program that uses a named pipe (mkfifo) to receive messages 
+ * from a producer.
  */
 
 #define BUFFER_SIZE 100
@@ -40,8 +36,7 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(const char *msg)
-{
+void handle_fatal_error(const char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
@@ -51,8 +46,7 @@ void handle_fatal_error(const char *msg)
  * @param name Name of the pipe.
  * @return The pipe descriptor.
  */
-int open_pipe(const char *name)
-{
+int open_pipe(const char *name) {
     int pd;
 
     pd = open(name, O_RDONLY);
@@ -62,8 +56,7 @@ int open_pipe(const char *name)
     return pd;
 }
 
-int main(void)
-{
+int main(void) {
     char buffer[BUFFER_SIZE] = {0};
     int pd;
     ssize_t message_length;

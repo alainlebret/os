@@ -44,8 +44,7 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(const char *message)
-{
+void handle_fatal_error(const char *message) {
     fprintf(stderr, "%s", message);
     exit(EXIT_FAILURE);
 }
@@ -55,16 +54,15 @@ void handle_fatal_error(const char *message)
  * This function implements a simple busy-waiting mechanism to ensure
  * synchronization between producer and consumer.
  */
-void write_memory(int *buffer, int *begin, int *end)
-{
+void write_memory(int *buffer, int *begin, int *end) {
     int i;
 
     for (i = 0; i < ITERATIONS; i++) {
         while ((*begin + 1) % BUFFER_SIZE == *end) {}
-        
+
         buffer[*begin] = i * i;
         *begin = (*begin + 1) % BUFFER_SIZE;
-        
+
         printf("Parent: initial value %2d before writing in the buffer\n", i);
     }
 }
@@ -73,8 +71,7 @@ void write_memory(int *buffer, int *begin, int *end)
  * Manages the parent process. It writes data to the shared memory and waits
  * for his child to finish.
  */
-void manage_parent(int *buffer, int *begin, int *end)
-{
+void manage_parent(int *buffer, int *begin, int *end) {
     pid_t child;
     int status;
 
@@ -93,16 +90,15 @@ void manage_parent(int *buffer, int *begin, int *end)
  * Reads a series of integers from the shared memory and displays them.
  * This function implements a simple busy-waiting mechanism for synchronization.
  */
-void read_memory(int *buffer, int *in, int *out)
-{
+void read_memory(int *buffer, int *in, int *out) {
     int i;
     int value;
 
     for (i = 0; i < ITERATIONS; i++) {
         sleep(1);  /* waiting for the memory update (not as good as semaphore) */
-        
+
         while (*in == *out) {}
-        
+
         value = buffer[*out];
         *out = (*out + 1) % BUFFER_SIZE;
         printf("Child: element %2d == %2d read from the buffer.\n", i, value);
@@ -112,8 +108,7 @@ void read_memory(int *buffer, int *in, int *out)
 /**
  * Manages the child process that reads all data from shared memory.
  */
-void manage_child(int *buffer, int *in, int *out)
-{
+void manage_child(int *buffer, int *in, int *out) {
     printf("Child process (PID %d)\n", getpid());
     read_memory(buffer, in, out);
     printf("Child: memory has been consumed.\n");
@@ -123,8 +118,7 @@ void manage_child(int *buffer, int *in, int *out)
  * Creates and initializes a new shared memory using mmap.
  * @return Pointer on the shared memory
  */
-void *create_shared_memory()
-{
+void *create_shared_memory() {
     /* initialize shared memory using mmap */
     void *shared_memory = mmap(0, /* beginning (starting address is ignored) */
                                MEMORY_SIZE, /* size of the shared memory */
@@ -139,8 +133,7 @@ void *create_shared_memory()
     return shared_memory;
 }
 
-int main(void)
-{
+int main(void) {
     pid_t pid;
     int *buffer;         /* logical base address for buffer */
     int *in;             /* pointer to logical 'in' address for producer */

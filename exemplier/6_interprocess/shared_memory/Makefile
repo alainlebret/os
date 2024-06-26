@@ -1,7 +1,6 @@
 # Source and Object file directories
 SRC_DIR = src
 OBJ_DIR = src
-INC_DIR = include
 BIN_DIR = bin
 
 # Automatic source file discovery
@@ -10,7 +9,6 @@ src = $(wildcard $(SRC_DIR)/*.c)
 bins = $(patsubst $(SRC_DIR)/%.c, $(BIN_DIR)/%, $(src))
 
 CC = gcc
-CPPFLAGS = -I $(INC_DIR)
 CFLAGS = -Wall -Wextra -pedantic -O2
 LDFLAGS =
 COLOR_PROGS_CFLAGS = `pkg-config --cflags gtk+-3.0`
@@ -34,12 +32,12 @@ directories:
 
 # Rule for color_displayer file
 $(BIN_DIR)/color_displayer: $(SRC_DIR)/color_displayer.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(COLOR_PROGS_CFLAGS) -c $< -o $(OBJ_DIR)/color_displayer.o
+	$(CC) $(CFLAGS) $(COLOR_PROGS_CFLAGS) -c $< -o $(OBJ_DIR)/color_displayer.o
 	$(CC) $(OBJ_DIR)/color_displayer.o -o $@ $(LDFLAGS) $(COLOR_PROGS_LDFLAGS)
 
 # Rule for color_modifier file
 $(BIN_DIR)/color_modifier: $(SRC_DIR)/color_modifier.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(COLOR_PROGS_CFLAGS) -c $< -o $(OBJ_DIR)/color_modifier.o
+	$(CC) $(CFLAGS) $(COLOR_PROGS_CFLAGS) -c $< -o $(OBJ_DIR)/color_modifier.o
 	$(CC) $(OBJ_DIR)/color_modifier.o -o $@ $(LDFLAGS) $(COLOR_PROGS_LDFLAGS)
 
 # General rule to create object files (excluding color_displayer.c and color_modifier.c)

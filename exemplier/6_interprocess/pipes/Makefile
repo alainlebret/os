@@ -1,7 +1,6 @@
 # Source and Object file directories
 SRC_DIR = src
 OBJ_DIR = src
-INC_DIR = include
 BIN_DIR = bin
 
 # Automatic source file discovery
@@ -10,7 +9,6 @@ src = $(wildcard $(SRC_DIR)/*.c)
 bins = $(patsubst $(SRC_DIR)/%.c, $(BIN_DIR)/%, $(src))
 
 CC = gcc
-CPPFLAGS = -I $(INC_DIR)
 CFLAGS = -Wall -Wextra -pedantic -O2
 LDFLAGS =
 COLOR_CHANGER_CFLAGS = `pkg-config --cflags gtk+-3.0`
@@ -24,7 +22,7 @@ directories:
 
 # Rule for color_changer file
 $(BIN_DIR)/color_changer: $(SRC_DIR)/color_changer.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(COLOR_CHANGER_CFLAGS) -c $< -o $(OBJ_DIR)/color_changer.o
+	$(CC) $(CFLAGS) $(COLOR_CHANGER_CFLAGS) -c $< -o $(OBJ_DIR)/color_changer.o
 	$(CC) $(OBJ_DIR)/color_changer.o -o $@ $(LDFLAGS) $(COLOR_CHANGER_LDFLAGS)
 
 # General rule to create object files (excluding color_changer.c)

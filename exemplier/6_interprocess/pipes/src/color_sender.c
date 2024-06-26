@@ -44,16 +44,10 @@
  * Entrez une couleur en anglais (ex. : red, green, blue) : red
  * Entrez une couleur en anglais (ex. : red, green, blue) : green
  * Entrez une couleur en anglais (ex. : red, green, blue) : FIN
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2023-09-23
  */
 
 #define COLORPIPE "colorpipe"
 #define COLOR_NAME_SIZE 50
-#define FOREVER for (;;)
-
 
 void trim_newline(char *str) {
     int len = strlen(str);
@@ -62,8 +56,7 @@ void trim_newline(char *str) {
     }
 }
 
-int main(void) 
-{
+int main(void) {
     int pipe_fd = open(COLORPIPE, O_WRONLY);
     if (pipe_fd == -1) {
         perror("Error opening pipe for writing");
@@ -73,7 +66,7 @@ int main(void)
     char color_name[COLOR_NAME_SIZE];
     ssize_t bytes_written;
 
-    FOREVER {
+    while(1) {
         printf("Enter a color name (e.g., red, green, blue): ");
         fgets(color_name, sizeof(color_name), stdin);
         trim_newline(color_name); /* Suppression du caractère de fin de ligne */
@@ -86,7 +79,7 @@ int main(void)
             exit(EXIT_FAILURE);
         }
 
-		/* Teste si l'entrée est le mot-clé "FIN" de manière à quitter */
+        /* Teste si l'entrée est le mot-clé "FIN" de manière à quitter */
         if (strcmp(color_name, "FIN") == 0) {
             break;
         }

@@ -25,10 +25,6 @@
  * @file signal_03.c
  *
  * A simple program that uses POSIX signals and handles SIGALRM to create a clock.
- *
- * @author Alain Lebret
- * @version	1.0.1
- * @date 2023-12-01
  */
 
 #define FOREVER for (;;)
@@ -41,8 +37,7 @@ unsigned int s = 0; /* Seconds */
  * @brief Defines the new handler of the SIGINT signal.
  * @param signal Number of the signal
  */
-void handle_sigint(int signal)
-{
+void handle_sigint(int signal) {
     if (signal == SIGINT) {
         printf("Terminating...\n");
         exit(EXIT_SUCCESS);
@@ -53,8 +48,7 @@ void handle_sigint(int signal)
  * @brief Defines the new handler of the SIGALRM signal.
  * @param signal Number of the signal
  */
-void tick(int signal)
-{
+void tick(int signal) {
     if (signal == SIGALRM) {
         s++;
         if (s == 60) {
@@ -74,8 +68,7 @@ void tick(int signal)
     }
 }
 
-int main(void)
-{
+int main(void) {
     struct sigaction action;
     struct sigaction sigint_action;
 
@@ -86,7 +79,7 @@ int main(void)
     /* Install the new handler of the SIGALRM signal */
     sigaction(SIGALRM, &action, NULL);
 
-	/* Same for SIGINT */
+    /* Same for SIGINT */
     memset(&sigint_action, '\0', sizeof(sigint_action));
     sigint_action.sa_handler = &handle_sigint;
     sigaction(SIGINT, &sigint_action, NULL);

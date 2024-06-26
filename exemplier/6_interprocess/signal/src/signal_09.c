@@ -27,33 +27,24 @@
  *
  * A simple program that setups a signal handler with 3 arguments, including
  * siginfo_t.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2022-04-12
  */
 
-#define FOREVER for (;;)
-
-void hdl(int signal, siginfo_t *siginfo, void *context)
-{
+void hdl(int signal, siginfo_t *siginfo, void *context) {
     if (signal == SIGTERM) {
         printf("Sending PID: %ld, UID: %ld\n", (long) siginfo->si_pid, (long) siginfo->si_uid);
     }
 }
 
-void sigint_handler(int signal)
-{
+void sigint_handler(int signal) {
     if (signal == SIGINT) {
         printf("SIGINT received, exiting.\n");
         exit(EXIT_SUCCESS);
     }
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     struct sigaction action;
-	struct sigaction sigint_action;
+    struct sigaction sigint_action;
 
     /* Clean up the structure before using it */
     memset(&action, '\0', sizeof(action));
@@ -67,7 +58,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-	/* Normal signal handler installation for SIGINT */
+    /* Normal signal handler installation for SIGINT */
     memset(&sigint_action, '\0', sizeof(sigint_action));
     sigint_action.sa_handler = sigint_handler;
     if (sigaction(SIGINT, &sigint_action, NULL) < 0) {
@@ -75,7 +66,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    FOREVER {
+    while (1) {
         sleep(10);
     }
 

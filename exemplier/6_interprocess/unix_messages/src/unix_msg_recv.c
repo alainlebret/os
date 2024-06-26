@@ -27,10 +27,6 @@
  * @file unix_msg_recv.c
  *
  * Consumer program using a System V IPC message mechanism.
- *
- * @author Alain Lebret
- * @version	1.0.1
- * @date 2012-04-12
  */
 
 #define MSGQ_KEY 1234
@@ -39,8 +35,7 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(const char *msg)
-{
+void handle_fatal_error(const char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
@@ -48,12 +43,11 @@ void handle_fatal_error(const char *msg)
 /**
  * Returns the message queue ID for the given key.
  */
-int get_msgq_id(key_t key)
-{
+int get_msgq_id(key_t key) {
     int msgq_id;
     int msg_flag;
-	
-	msg_flag = MSGQ_PERM;
+
+    msg_flag = MSGQ_PERM;
     msgq_id = msgget(key, msg_flag);
 
     if (msgq_id < 0) {
@@ -63,12 +57,11 @@ int get_msgq_id(key_t key)
     return msgq_id;
 }
 
-int main(void)
-{
+int main(void) {
     int msgq_id;
     message_t message;
 
-	msgq_id = get_msgq_id(MSGQ_KEY);
+    msgq_id = get_msgq_id(MSGQ_KEY);
 
     /* Receive an answer of message type MSG_TYPE_HANDOUT */
     if (msgrcv(msgq_id, &message, MESSAGE_SIZE, MSG_TYPE_HANDOUT, 0) < 0) {

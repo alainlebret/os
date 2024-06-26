@@ -43,8 +43,7 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(const char *message)
-{
+void handle_fatal_error(const char *message) {
     fprintf(stderr, "%s", message);
     exit(EXIT_FAILURE);
 }
@@ -52,8 +51,7 @@ void handle_fatal_error(const char *message)
 /**
  * Writes the square of a number onto the shared memory.
  */
-void write_memory(void *shared_memory)
-{
+void write_memory(void *shared_memory) {
     int i;
 
     for (i = 0; i < ITERATIONS; i++) {
@@ -68,8 +66,7 @@ void write_memory(void *shared_memory)
  * Manages the parent process. It writes data to the shared memory and waits
  * for his child to finish.
  */
-void manage_parent(void *shared_memory)
-{
+void manage_parent(void *shared_memory) {
     pid_t child;
     int status;
 
@@ -86,8 +83,7 @@ void manage_parent(void *shared_memory)
 /**
  * Reads integers from the shared memory and displays them.
  */
-void read_memory(void *shared_memory)
-{
+void read_memory(void *shared_memory) {
     int i;
     int value;
 
@@ -101,8 +97,7 @@ void read_memory(void *shared_memory)
 /**
  * Manages the child process that reads all data from shared memory.
  */
-void manage_child(void *shared_memory)
-{
+void manage_child(void *shared_memory) {
     printf("Child process (PID %d)\n", getpid());
     read_memory(shared_memory);
     printf("Child: memory has been consumed.\n");
@@ -112,8 +107,7 @@ void manage_child(void *shared_memory)
  * Creates and initializes a new shared memory using the mmap primitive.
  * @return Pointer on the shared memory
  */
-void *create_shared_memory()
-{
+void *create_shared_memory() {
     /* initialize shared memory using mmap */
     void *shared_memory = mmap(0, /* beginning (starting address is ignored) */
                                INTEGER_SIZE, /* size of the shared memory */
@@ -128,8 +122,7 @@ void *create_shared_memory()
     return shared_memory;
 }
 
-int main(void)
-{
+int main(void) {
     pid_t pid;
     void *shared_memory;
 

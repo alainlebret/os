@@ -29,10 +29,6 @@
 /**
  * @file message_viewer.c
  * @brief Receive messages throught a message queue.
- * 
- * @author Alain Lebret
- * @version	1.1
- * @date 2023-09-23
  */
 
 #define QUEUE_NAME "/myqueue"
@@ -82,13 +78,13 @@ void read_queue() {
     attr.mq_curmsgs = 0;
 
     mq = mq_open(QUEUE_NAME, O_RDONLY, 0600, &attr);
-    if (mq == (mqd_t)-1) {
+    if (mq == (mqd_t) - 1) {
         perror("mq_open");
         exit(EXIT_FAILURE);
     }
 
     while (1) {
-        if (mq_receive(mq, (char *)&msg, sizeof(Message), NULL) == -1) {
+        if (mq_receive(mq, (char *) &msg, sizeof(Message), NULL) == -1) {
             perror("mq_receive");
             continue;
         }
@@ -110,7 +106,7 @@ int main(int argc, char *argv[]) {
     gtk_container_add(GTK_CONTAINER(window), grid);
 
     /* Start reading messages from the memory queue */
-    g_thread_new(NULL, (GThreadFunc)read_queue, NULL);
+    g_thread_new(NULL, (GThreadFunc) read_queue, NULL);
 
     gtk_widget_show_all(window);
     gtk_main();

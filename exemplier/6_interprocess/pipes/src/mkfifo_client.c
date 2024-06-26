@@ -28,15 +28,10 @@
  *
  * A client program that sends a request to a server to calculate a <op> b.
  * They both communicate using two fifos.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2011-12-01
  */
 
 #define QUESTION "cli2serv"
 #define RESPONSE "serv2cli"
-#define FOREVER  for (;;)
 
 /**
  * Reads the expression "a <op> b" from stdin and sends it to the server
@@ -48,8 +43,7 @@
  */
 void manage_client(int fdr, int fdq);
 
-int main(void)
-{
+int main(void) {
     int fdq;
     int fdr;
 
@@ -75,13 +69,12 @@ int main(void)
     return EXIT_SUCCESS;
 }
 
-void manage_client(int fdr, int fdq)
-{
+void manage_client(int fdr, int fdq) {
     char response[11];
     char query[11];
     ssize_t bytes_written, bytes_read;
 
-    FOREVER {
+    while (1) {
         printf("Enter expression (a <op> b): ");
         if (fgets(query, 11, stdin) == NULL) {
             perror("Error reading from stdin");

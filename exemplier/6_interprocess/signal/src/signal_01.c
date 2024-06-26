@@ -19,36 +19,32 @@
 #include <stdlib.h>    /* exit() and execl()*/
 #include <unistd.h>    /* fork() */
 #include <signal.h>    /* sigaction() */
+
 #ifdef __APPLE__
 #include <sys/types.h> /* pid_t */
 #include <sys/wait.h>  /* wait() */
 #endif
+
 #include <string.h>    /* memset() */
 
 /**
  * @file signal_01.c
  *
  * A simple program that uses POSIX signals and handles SIGINT.
- *
- * @author Alain Lebret
- * @version	1.0.1
- * @date 2011-12-01
  */
 
 /**
  * @brief Defines the new handler of the SIGINT signal.
  * @param signal Number of the signal
  */
-void handle_sigint(int signal)
-{
+void handle_sigint(int signal) {
     if (signal == SIGINT) {
         printf("SIGINT signal received!\n");
         exit(EXIT_SUCCESS);
     }
 }
 
-int main(void)
-{
+int main(void) {
     struct sigaction action;
 
     /* Clean up the structure before using it */

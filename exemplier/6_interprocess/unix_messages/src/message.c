@@ -33,8 +33,7 @@
  * Displays the type and content of the given message.
  * @param message Pointer to the message to be displayed.
  */
-void msg_display(message_t *message)
-{
+void msg_display(message_t *message) {
     if (message == NULL) {
         fprintf(stderr, "Error: NULL pointer provided to msg_display().\n");
         return;
@@ -49,8 +48,7 @@ void msg_display(message_t *message)
  * @param message Pointer to the message to be filled.
  * @param value Character used to fill the message buffer.
  */
-void msg_fill(message_t *message, char value)
-{
+void msg_fill(message_t *message, char value) {
     int i;
 
     if (message == NULL) {

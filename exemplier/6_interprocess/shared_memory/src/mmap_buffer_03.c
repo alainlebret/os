@@ -50,8 +50,7 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(const char *message)
-{
+void handle_fatal_error(const char *message) {
     fprintf(stderr, "%s", message);
     exit(EXIT_FAILURE);
 }
@@ -60,8 +59,7 @@ void handle_fatal_error(const char *message)
  * Creates and initializes a group of two semaphores.
  * @return Identifier of the group of semaphores
  */
-int initialize_semaphores(void)
-{
+int initialize_semaphores(void) {
     int semid;
 
     /* permission 0600 = lecture/modification by user */
@@ -86,8 +84,7 @@ int initialize_semaphores(void)
  * @param semid Identifier of the group of two semaphores.
  * @param index Index of the semaphore in the group.
  */
-void sem_wait(int semid, int index)
-{
+void sem_wait(int semid, int index) {
     struct sembuf sops[1];
 
     sops[0].sem_num = index;
@@ -104,8 +101,7 @@ void sem_wait(int semid, int index)
  * @param semid Identifier of the group of two semaphores.
  * @param index Index of the semaphore in the group.
  */
-void sem_signal(int semid, int index)
-{
+void sem_signal(int semid, int index) {
     struct sembuf sops[1];
 
     sops[0].sem_num = index;
@@ -120,8 +116,7 @@ void sem_signal(int semid, int index)
 /**
  * Writes the square of a serie of integers onto the shared memory.
  */
-void write_memory(int *buffer, int *in, int *out, int semid)
-{
+void write_memory(int *buffer, int *in, int *out, int semid) {
     int i;
 
     for (i = 0; i < ITERATIONS; i++) {
@@ -143,8 +138,7 @@ void write_memory(int *buffer, int *in, int *out, int semid)
  * Manages the parent process. It writes data to the shared memory and waits
  * for his child to finish.
  */
-void manage_parent(int *buffer, int *in, int *out, int semid)
-{
+void manage_parent(int *buffer, int *in, int *out, int semid) {
     pid_t child;
     int status;
 
@@ -162,8 +156,7 @@ void manage_parent(int *buffer, int *in, int *out, int semid)
 /**
  * Reads a serie of integers from the shared memory and displays them.
  */
-void read_memory(int *buffer, int *in, int *out, int semid)
-{
+void read_memory(int *buffer, int *in, int *out, int semid) {
     int i;
     int value;
 
@@ -185,8 +178,7 @@ void read_memory(int *buffer, int *in, int *out, int semid)
 /**
  * Manages the child process that reads all data from shared memory.
  */
-void manage_child(int *buffer, int *in, int *out, int semid)
-{
+void manage_child(int *buffer, int *in, int *out, int semid) {
     printf("Child process (PID %d)\n", getpid());
     read_memory(buffer, in, out, semid);
     printf("Child: memory has been totally consumed.\n");
@@ -196,8 +188,7 @@ void manage_child(int *buffer, int *in, int *out, int semid)
  * Creates and initializes a new shared memory using mmap.
  * @return Pointer on the shared memory
  */
-void *create_shared_memory()
-{
+void *create_shared_memory() {
     /* initialize shared memory using mmap */
     void *shared_memory = mmap(0, /* beginning (starting address is ignored) */
                                MEMORY_SIZE, /* size of the shared memory */
@@ -212,8 +203,7 @@ void *create_shared_memory()
     return shared_memory;
 }
 
-int main(void)
-{
+int main(void) {
     pid_t pid;
 
     void *shared_memory; /* shared memory base address */

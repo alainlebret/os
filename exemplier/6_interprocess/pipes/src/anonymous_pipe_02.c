@@ -28,24 +28,19 @@
  *
  * Another simple program that uses an anonymous pipe between a parent and its
  * child.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2011-12-01
  */
 
-#define INPUT     1
-#define OUTPUT    0
-#define KEYBOARD  0
-#define STOP     -1
-#define INTEGER_SIZE sizeof(int)
+#define PIPE_INPUT    1
+#define PIPE_OUTPUT   0
+#define KEYBOARD      0
+#define STOP         -1
+#define INTEGER_SIZE  sizeof(int)
 #define BUFFER_SIZE   100
 
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(const char *msg)
-{
+void handle_fatal_error(const char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
@@ -60,7 +55,7 @@ void manage_parent(int pipe[]) {
     char buffer[BUFFER_SIZE];
 
     printf("Parent process (PID %d)\n", getpid());
-    close(pipe[OUTPUT]);
+    close(pipe[PIPE_OUTPUT]);
 
     while (1) {
         if (fgets(buffer, BUFFER_SIZE, stdin) == NULL) {
@@ -70,7 +65,7 @@ void manage_parent(int pipe[]) {
             fprintf(stderr, "Invalid input\n");
             continue;
         }
-        if (write(pipe[INPUT], &integer, INTEGER_SIZE) == -1) {
+        if (write(pipe[PIPE_INPUT], &integer, INTEGER_SIZE) == -1) {
             perror("Error writing to pipe");
             break;
         }
@@ -78,7 +73,7 @@ void manage_parent(int pipe[]) {
             break;
         }
     }
-    close(pipe[INPUT]);
+    close(pipe[PIPE_INPUT]);
 
     wait(NULL);
     printf("Parent: has received child termination.\n");
@@ -93,10 +88,10 @@ void manage_child(int pipe[]) {
     int integer, bytesRead;
 
     printf("Child process (PID %d)\n", getpid());
-    close(pipe[INPUT]);
+    close(pipe[PIPE_INPUT]);
 
     while (1) {
-        bytesRead = read(pipe[OUTPUT], &integer, INTEGER_SIZE);
+        bytesRead = read(pipe[PIPE_OUTPUT], &integer, INTEGER_SIZE);
         if (bytesRead == -1) {
             perror("Error reading from pipe");
             break;
@@ -109,12 +104,11 @@ void manage_child(int pipe[]) {
             break;
         }
     }
-    close(pipe[OUTPUT]);
+    close(pipe[PIPE_OUTPUT]);
     printf("Child has finished.\n");
 }
 
-int main(void)
-{
+int main(void) {
     pid_t pid;
     int anonymous_pipe[2]; /* pipe descriptors */
 

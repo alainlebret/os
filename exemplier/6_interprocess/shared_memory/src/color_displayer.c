@@ -30,10 +30,6 @@
  *
  * This program displays color data from a shared memory segment using GTK+ 3.
  * It continuously updates the displayed colors based on the shared memory content.
- *
- * @author Alain Lebret
- * @version 1.0
- * @date 2023-09-30
  */
 
 typedef struct {
@@ -44,9 +40,8 @@ typedef struct {
 /** 
  * Redraws window every 500 ms.
  */
-gboolean timeout_callback(gpointer data) 
-{
-    GtkWidget *darea = (GtkWidget *)data;
+gboolean timeout_callback(gpointer data) {
+    GtkWidget *darea = (GtkWidget *) data;
     gtk_widget_queue_draw(darea);
     return TRUE; /* Continue calling this function */
 }
@@ -54,16 +49,15 @@ gboolean timeout_callback(gpointer data)
 /**
  * Handles the 'draw' event to render the color data.
  */
-gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data) 
-{
+gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
     SharedData *data;
     int i;
-	int j;
-	double red;
-	double green;
-	double blue;
+    int j;
+    double red;
+    double green;
+    double blue;
 
-    data = (SharedData *)user_data;
+    data = (SharedData *) user_data;
     for (i = 0; i < data->matrix_size; i++) {
         for (j = 0; j < data->matrix_size; j++) {
             red = data->ptr[(i * data->matrix_size + j) * 3] / 255.0;
@@ -77,8 +71,7 @@ gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data)
     return FALSE; /* Event propagation stops here */
 }
 
-int main(int argc, char *argv[]) 
-{
+int main(int argc, char *argv[]) {
     int shm_fd;
     GtkWidget *window;
     GtkWidget *darea;
@@ -92,13 +85,13 @@ int main(int argc, char *argv[])
     }
 
     data.matrix_size = atoi(argv[1]);
-    shm_fd = shm_open("/matrix", O_RDONLY, 0666);
+    shm_fd = shm_open("/matrix", O_RDONLY, S_IRUSR | S_IWUSR);
     if (shm_fd == -1) {
         perror("shm_open");
         return EXIT_FAILURE;
     }
 
-    data.ptr = mmap(0, data.matrix_size * data.matrix_size * 3 * sizeof(int), 
+    data.ptr = mmap(0, data.matrix_size * data.matrix_size * 3 * sizeof(int),
                     PROT_READ, MAP_SHARED, shm_fd, 0);
     if (data.ptr == MAP_FAILED) {
         perror("mmap");

@@ -31,10 +31,6 @@
  * This program fills a matrix in shared memory with random color values.
  * The matrix size is passed as a command-line argument. The program
  * uses POSIX shared memory and updates the colors at regular intervals.
- *
- * @author Alain Lebret
- * @version 1.2
- * @date 2023-12-01
  */
 
 #define MAX_MATRIX_SIZE 800
@@ -78,7 +74,7 @@ int main(int argc, char *argv[]) {
     sigaction(SIGINT, &action, NULL);
 
     /* Open a shared memory segment */
-    shm_fd = shm_open("/matrix", O_CREAT | O_RDWR, 0666);
+    shm_fd = shm_open("/matrix", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     if (shm_fd == -1) {
         perror("shm_open");
         exit(EXIT_FAILURE);

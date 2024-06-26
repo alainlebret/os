@@ -32,10 +32,6 @@
  *
  * Another example using parent and child processes sharing a complex structure memory.
  * Link with \c -lrt.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2022-05-23
  */
 
 /**
@@ -76,8 +72,7 @@ typedef struct s1_et_s2 {
 } s1_and_s2_t;
 
 
-int main(void)
-{
+int main(void) {
     int shm_fd;
     pid_t pid;
     s1_t *ptr1;
@@ -92,10 +87,10 @@ int main(void)
     }
 
     ftruncate(shm_fd, sizeof(s1_and_s2_t));
-	if (ftruncate(shm_fd, sizeof(s1_and_s2_t)) == -1) {
-	    handle_error("Error setting size with ftruncate: ");
-	}
-	
+    if (ftruncate(shm_fd, sizeof(s1_and_s2_t)) == -1) {
+        handle_error("Error setting size with ftruncate: ");
+    }
+
     /* map the shared memory segment for struct s1 to the address space of the process */
     ptr1 = (s1_t *) mmap(NULL, sizeof(s1_t), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
     if (ptr1 == MAP_FAILED) {
@@ -116,7 +111,7 @@ int main(void)
         handle_error("Error [fork()]: ");
     }
     if (pid > 0) { /* parent process */
-	    strncpy(ptr1->name, "Monkeypox", 20);
+        strncpy(ptr1->name, "Monkeypox", 20);
         ptr2->col.red = 112;
     } else { /* child process */
         printf("%s\n", ptr1->name);
@@ -139,12 +134,11 @@ int main(void)
     if (pid > 0) {
         shm_unlink("/pipeautique3");
     }
-    
-	return EXIT_SUCCESS;
+
+    return EXIT_SUCCESS;
 }
 
-void handle_error(const char *message)
-{
+void handle_error(const char *message) {
     perror(message);
     exit(EXIT_FAILURE);
 }

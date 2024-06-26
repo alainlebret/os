@@ -29,14 +29,9 @@
  *
  * Example using a server and a client sharing memory.
  * Link with \c -lrt.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2016-11-01
  */
 
 #define MAC_OSX 0
-#define FOREVER for (;;)
 #define MEMORY_PATH "/shm_name"
 
 /**
@@ -50,8 +45,7 @@ struct memory_t {
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_error(const char *message)
-{
+void handle_error(const char *message) {
     perror(message);
     exit(EXIT_FAILURE);
 }
@@ -59,8 +53,7 @@ void handle_error(const char *message)
 /**
  * Unlinks the shared memory when receiving the SIGINT signal.
  */
-void handle_sigint(int signum)
-{
+void handle_sigint(int signum) {
     if (shm_unlink(MEMORY_PATH) < 0) {
         handle_error("Error [shm_unlink()]: ");
     }
@@ -76,9 +69,9 @@ void handle_sigint(int signum)
  */
 int check_for_new_data(struct memory_t *memory, struct memory_t *last_read) {
     /* Check if the current data is different from the last read data */
-    if (memory->value != last_read->value || 
+    if (memory->value != last_read->value ||
         memory->square_root != last_read->square_root) {
-		/* Update last_read to the current data */
+        /* Update last_read to the current data */
         last_read->value = memory->value;
         last_read->square_root = memory->square_root;
         return 1; /* New data is available */
@@ -86,8 +79,7 @@ int check_for_new_data(struct memory_t *memory, struct memory_t *last_read) {
     return 0; /* No new data */
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     int memory_descriptor;
     size_t memory_size;
     struct memory_t *memory;
@@ -139,16 +131,16 @@ int main(int argc, char *argv[])
     fprintf(stderr, "Shared memory of %zu bytes has been allocated\n",
             memory_size);
 
-    FOREVER {
+    while (1) {
         printf("Value is %d ... ", memory->value);
         printf("and its square root is %f \n", memory->square_root);
-        if (check_for_new_data(memory, &last_read)) { 
+        if (check_for_new_data(memory, &last_read)) {
             printf("New data read from shared memory.\n");
         }
         sleep(3);
     }
 
     if (munmap(memory, memory_size) == -1) {
-        perror("munmap"); 
+        perror("munmap");
     }
 }

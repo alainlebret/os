@@ -30,17 +30,11 @@
 
 /**
  * @file posix_msg_receiver.c
- * @brief A Receiver application using POSIX mqueue
  *
- * @author Alain Lebret
- * @version	1.0
- * @date 2016-11-01
+ * @brief A Receiver application using POSIX mqueue
  */
 
-#define FOREVER for (;;)
-
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     int size;
     int nb_messages;
     long int duration;
@@ -78,32 +72,32 @@ int main(int argc, char *argv[])
 
     received_hour = (struct timeval *) buffer;
 
-	FOREVER {
-	    nb_messages = 0;
-	    max_duration = 0;
-	    min_duration = LONG_MAX;  /* Use LONG_MAX from limits.h */
-	    sum_durations = 0;
+    while (1) {
+        nb_messages = 0;
+        max_duration = 0;
+        min_duration = LONG_MAX;  /* Use LONG_MAX from limits.h */
+        sum_durations = 0;
 
-	    long start_time, current_time;
-	    gettimeofday(&hour, NULL);
-	    start_time = hour.tv_sec * 1000000L + hour.tv_usec;
+        long start_time, current_time;
+        gettimeofday(&hour, NULL);
+        start_time = hour.tv_sec * 1000000L + hour.tv_usec;
 
-	    do {
-	        mq_receive(mq, buffer, size, NULL);
+        do {
+            mq_receive(mq, buffer, size, NULL);
 
-	        gettimeofday(&hour, NULL);
-	        current_time = hour.tv_sec * 1000000L + hour.tv_usec;
-	        duration = current_time - (received_hour->tv_sec * 1000000L + received_hour->tv_usec);
+            gettimeofday(&hour, NULL);
+            current_time = hour.tv_sec * 1000000L + hour.tv_usec;
+            duration = current_time - (received_hour->tv_sec * 1000000L + received_hour->tv_usec);
 
-	        /* Update min and max durations */
-	        if (duration > max_duration) max_duration = duration;
-	        if (duration < min_duration) min_duration = duration;
-	        sum_durations += duration;
-        
-	        nb_messages++;
-	    } while (current_time - start_time < 1000000L); // 1 second in microseconds
+            /* Update min and max durations */
+            if (duration > max_duration) max_duration = duration;
+            if (duration < min_duration) min_duration = duration;
+            sum_durations += duration;
 
-	    fprintf(stdout, "min = %3ld max = %3ld moy= %5.1f\n",
-	            min_duration, max_duration, ((float) sum_durations) / nb_messages);
-	}
+            nb_messages++;
+        } while (current_time - start_time < 1000000L); /* 1 second in microseconds */
+
+        fprintf(stdout, "min = %3ld max = %3ld moy= %5.1f\n",
+                min_duration, max_duration, ((float) sum_durations) / nb_messages);
+    }
 }

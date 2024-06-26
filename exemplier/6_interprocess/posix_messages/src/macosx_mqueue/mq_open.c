@@ -42,14 +42,16 @@ mqd_t mq_open(const char *pathname, int oflag, ...) {
     char fs_pathname[MQ_FS_NAME_MAX];
     if (mq_get_fs_pathname(pathname, fs_pathname) == EINVAL) {
         errno = EINVAL;
-        return ((mqd_t) -1);
+        return ((mqd_t) - 1);
     };
 
     again:
     if (oflag & O_CREAT) {
         va_start(ap, oflag); /* init ap to final named argument */
-        mode = va_arg(ap, va_mode_t) & ~S_IXUSR;
-        attr = va_arg(ap, struct mq_attr *);
+        mode = va_arg(ap,
+        va_mode_t) &~S_IXUSR;
+        attr = va_arg(ap,
+        struct mq_attr *);
         va_end(ap);
 
         /* open and specify O_EXCL and user-execute */
@@ -58,7 +60,7 @@ mqd_t mq_open(const char *pathname, int oflag, ...) {
             if (errno == EEXIST && (oflag & O_EXCL) == 0)
                 goto exists; /* already exists, OK */
             else
-                return ((mqd_t) -1);
+                return ((mqd_t) - 1);
         }
         created = 1;
         /* first one to create the file initializes it */
@@ -191,5 +193,5 @@ mqd_t mq_open(const char *pathname, int oflag, ...) {
         free(mqinfo);
     close(fd);
     errno = save_errno;
-    return ((mqd_t) -1);
+    return ((mqd_t) - 1);
 }

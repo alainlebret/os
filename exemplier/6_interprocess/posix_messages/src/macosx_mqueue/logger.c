@@ -15,7 +15,8 @@ void log_error(const char *message, ...) {
     va_start(args, message);
     printf(RED);
     log_format("Error", message, args);
-    printf(RESET "");
+    printf(RESET
+    "");
     va_end(args);
 }
 
@@ -31,6 +32,7 @@ void log_debug(const char *message, ...) {
     va_start(args, message);
     printf(CYN);
     log_format("Debug", message, args);
-    printf(RESET "");
+    printf(RESET
+    "");
     va_end(args);
 }

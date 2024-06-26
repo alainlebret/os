@@ -30,18 +30,13 @@
  *
  * Example using a server and a client sharing memory.
  * Link with \c -lrt under Linux.
- *
- * @author Alain Lebret
- * @version	1.1
- * @date 2016-11-01
  */
 
-#define FOREVER for(;;)
 #define MEMORY_PATH "/shm_name"
 
- /**
- * Structure to store a value and its square root.
- */
+/**
+* Structure to store a value and its square root.
+*/
 struct memory_t {
     int value;
     double square_root;
@@ -50,8 +45,7 @@ struct memory_t {
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_error(const char *message)
-{
+void handle_error(const char *message) {
     perror(message);
     exit(EXIT_FAILURE);
 }
@@ -59,8 +53,7 @@ void handle_error(const char *message)
 /**
  * Unlinks the shared memory when receiving the SIGINT signal.
  */
-void handle_sigint(int signum)
-{
+void handle_sigint(int signum) {
     if (shm_unlink(MEMORY_PATH) < 0) {
         handle_error("Error [shm_unlink()]: ");
     }
@@ -68,8 +61,7 @@ void handle_sigint(int signum)
     exit(EXIT_SUCCESS);
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     int memory_descriptor;
     int value;
     size_t memory_size;
@@ -110,7 +102,7 @@ int main(int argc, char *argv[])
 
     value = 1;
 
-    FOREVER {
+    while (1) {
         memory->value = value;
         memory->square_root = sqrt(value);
         fprintf(stderr, "Updated shared memory: value = %d, square root = %f\n",

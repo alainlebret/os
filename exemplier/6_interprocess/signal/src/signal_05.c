@@ -25,10 +25,6 @@
  * @file signal_05.c
  *
  * A simple program that uses POSIX signals and handles many signals.
- *
- * @author Alain Lebret
- * @version	1.1
- * @date 2023-12-01
  */
 
 volatile sig_atomic_t exit_flag = 0;
@@ -37,8 +33,7 @@ volatile sig_atomic_t exit_flag = 0;
  * @brief Defines a naive handler to display the received signal number.
  * @param signal Number of the signal.
  */
-void handle(int signal)
-{
+void handle(int signal) {
     printf("Signal number %d has been received.\n", signal);
     fflush(stdout);
 
@@ -47,10 +42,9 @@ void handle(int signal)
     }
 }
 
-int main(void)
-{
+int main(void) {
     struct sigaction action;
-	
+
     /* Clean up the structure before using it */
     memset(&action, '\0', sizeof(action));
     /* Set the new handler */

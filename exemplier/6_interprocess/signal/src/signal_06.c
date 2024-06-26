@@ -25,10 +25,6 @@
  * @file signal_06.c
  *
  * A simple program that uses POSIX signals and manages masks to block signals.
- *
- * @author Alain Lebret
- * @version	1.1
- * @date 2022-04-22
  */
 
 #define NBR_SIGNALS 2
@@ -39,30 +35,29 @@ int signals[NBR_SIGNALS] = {SIGINT, SIGTERM};
 /** An array to store the old signal handlers */
 struct sigaction old_handlers[NBR_SIGNALS];
 
-int main(void)
-{
+int main(void) {
     int i;
     sigset_t new_mask;
     sigset_t old_mask;
     sigset_t pending_signals;
 
-   /*
-    * Create a mask to block the two signals.
-    */
+    /*
+     * Create a mask to block the two signals.
+     */
     sigemptyset(&new_mask);
     for (i = 0; i < NBR_SIGNALS; i++) {
         sigaddset(&new_mask, signals[i]);
     }
 
-   /*
-    * Exchange old and new masks
-    */
+    /*
+     * Exchange old and new masks
+     */
     sigprocmask(SIG_SETMASK, &new_mask, &old_mask);
 
-   /*
-    * Sleep for 20 seconds (maybe enough to try sending CTRL-C and SIGTERM and
-    * SIGHUP signals)...
-    */
+    /*
+     * Sleep for 20 seconds (maybe enough to try sending CTRL-C and SIGTERM and
+     * SIGHUP signals)...
+     */
     printf("20 seconds to send <CTRL>-C and kill -15 %d to this process\n", getpid());
     sleep(20);
 

@@ -9,7 +9,7 @@ int mq_send(mqd_t mqd, const char *ptr, size_t len, unsigned int prio) {
 
     struct timespec distant_future;
     distant_future.tv_nsec = 0;
-    distant_future.tv_sec = (int64_t) (UINT64_MAX / 2);
+    distant_future.tv_sec = (int64_t)(UINT64_MAX / 2);
 
     return mq_timedsend(mqd, ptr, len, prio, &distant_future);
 }

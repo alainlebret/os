@@ -29,10 +29,6 @@
  *
  * A producer program that uses a named pipe (FIFO) to send messages to a
  * consumer.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2011-12-01
  */
 
 #define BUFFER_SIZE 100
@@ -40,8 +36,7 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(const char *msg)
-{
+void handle_fatal_error(const char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
@@ -52,8 +47,7 @@ void handle_fatal_error(const char *msg)
  * @param mode Permissions access.
  * @return The pipe identifier.
  */
-int create_pipe(const char *name, mode_t mode)
-{
+int create_pipe(const char *name, mode_t mode) {
     if (mkfifo(name, mode) == -1) {
         handle_fatal_error("Error [mkfifo()]: ");
     }
@@ -65,8 +59,7 @@ int create_pipe(const char *name, mode_t mode)
  * @param name Name of the pipe.
  * @return The pipe descriptor.
  */
-int open_pipe(const char *name)
-{
+int open_pipe(const char *name) {
     int pd = open(name, O_WRONLY);
     if (pd == -1) {
         handle_fatal_error("Error [open()]: ");
@@ -74,15 +67,14 @@ int open_pipe(const char *name)
     return pd;
 }
 
-int main(void)
-{
+int main(void) {
     char buffer[BUFFER_SIZE] = "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium...";
     ssize_t bytes_written;
 
-   /*
-    * Create a new pipe named "testfifo" with read/write permissions for owner,
-    * and with read permissions for group and others.
-    */
+    /*
+     * Create a new pipe named "testfifo" with read/write permissions for owner,
+     * and with read permissions for group and others.
+     */
     create_pipe("testfifo", S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
     int pd = open_pipe("testfifo");
 

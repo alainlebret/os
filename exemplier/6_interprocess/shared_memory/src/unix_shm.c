@@ -43,8 +43,7 @@ sem_t *sem;        /* sync semaphore */
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(const char *message)
-{
+void handle_fatal_error(const char *message) {
     perror(message);
     exit(EXIT_FAILURE);
 }
@@ -53,8 +52,7 @@ void handle_fatal_error(const char *message)
  * Initializes the shared memory and semaphore's value.
  * @return The number of child processes
  */
-int initialize()
-{
+int initialize() {
     unsigned int number_children; /* fork count */
     key_t shmkey;                 /* shared memory key */
     unsigned int sem_value;       /* semaphore value */
@@ -92,8 +90,7 @@ int initialize()
 /**
  * Manages the parent process. Parent is waiting for his child.
  */
-void manage_parent(int shmid)
-{
+void manage_parent(int shmid) {
     pid_t child;
 
     printf("Parent process (PID %d)\n", getpid());
@@ -121,8 +118,7 @@ void manage_parent(int shmid)
  * Manages the child process. Child enters critical section and modifies the
  * shared value.
  */
-void manage_child(int child_number)
-{
+void manage_child(int child_number) {
     printf("Child process (PID %d)\n", getpid());
 
     sem_wait(sem);           /* P operation */
@@ -137,11 +133,10 @@ void manage_child(int child_number)
     if (sem_close(sem) == -1) {
         handle_fatal_error("Error closing semaphore: ");
     }
-	
+
 }
 
-int main(void)
-{
+int main(void) {
     pid_t pid;
     int number_children; /* fork count */
     int child_number;

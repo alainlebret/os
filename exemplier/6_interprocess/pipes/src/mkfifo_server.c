@@ -28,15 +28,10 @@
  *
  * A server program that returns the result of a a+b request sent by a client.
  * They both communicate using fifos.
- *
- * @author Alain Lebret <alain.lebret@ensicaen.fr>
- * @version	1.0
- * @date 2011-12-01
  */
 
 #define QUESTION "cli2serv"
 #define RESPONSE "serv2cli"
-#define FOREVER for (;;)
 
 /**
  * Reads the expression "a <op> b" (op = '+', '-', '*' or '/') from the
@@ -46,10 +41,9 @@
  * @param fdr The descriptor of the named pipe for the response to the client.
  * @param fdq The descriptor of the named pipe to receive queries from the client.
  */
-void manage_server();
+void manage_server(int fdr, int fdq);
 
-int main(void)
-{
+int main(void) {
     int fdq;
     int fdr;
 
@@ -86,15 +80,14 @@ int main(void)
     return EXIT_SUCCESS;
 }
 
-void manage_server(int fdr, int fdq)
-{
+void manage_server(int fdr, int fdq) {
     int operand1, operand2, result;
     char operator;
     char question[11];
     char response[11];
     ssize_t bytes_read, bytes_written;
 
-    FOREVER {
+    while (1) {
         bytes_read = read(fdq, question, 10);
         if (bytes_read == -1) {
             perror("Error reading from pipe");
@@ -112,11 +105,21 @@ void manage_server(int fdr, int fdq)
             strcpy(response, "Error");
         } else {
             switch (operator) {
-                case '+' : result = operand1 + operand2; break;
-                case '-' : result = operand1 - operand2; break;
-                case '*' : result = operand1 * operand2; break;
-                case '/' : result = (operand2 != 0) ? operand1 / operand2 : 32767; break;
-                default : strcpy(response, "Invalid Op"); continue;
+                case '+' :
+                    result = operand1 + operand2;
+                    break;
+                case '-' :
+                    result = operand1 - operand2;
+                    break;
+                case '*' :
+                    result = operand1 * operand2;
+                    break;
+                case '/' :
+                    result = (operand2 != 0) ? operand1 / operand2 : 32767;
+                    break;
+                default :
+                    strcpy(response, "Invalid Op");
+                    continue;
             }
 
             if (result == 32767) {

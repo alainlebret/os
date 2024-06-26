@@ -34,10 +34,6 @@
  *
  * Consumer using an IPC/System V shared memory. The program displays content
  * on the shared memory. It can be stopped using Ctrl-C.
- *
- * @author Alain Lebret
- * @version	1.0.2
- * @date 2011-12-01
  */
 
 /**
@@ -55,19 +51,16 @@ volatile int loop = CONTINUE;
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(const char *message)
-{
+void handle_fatal_error(const char *message) {
     perror(message);
     exit(EXIT_FAILURE);
 }
 
-void stop_loop(int signal)
-{
+void stop_loop(int signal) {
     loop = STOP;
 }
 
-int main(void)
-{
+int main(void) {
     int id;
     key_t key;
     data_t *shared_memory;
@@ -89,11 +82,11 @@ int main(void)
         }
     }
 
-	shared_memory = (data_t *) shmat(id, NULL, SHM_R);
-	if (shared_memory == (void *) -1) {
-	    handle_fatal_error("Error using shmat()! ");
-	}
-	
+    shared_memory = (data_t *) shmat(id, NULL, SHM_R);
+    if (shared_memory == (void *) -1) {
+        handle_fatal_error("Error using shmat()! ");
+    }
+
     loop = CONTINUE;
 
     action.sa_handler = stop_loop;

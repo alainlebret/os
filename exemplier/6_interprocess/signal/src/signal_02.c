@@ -25,10 +25,6 @@
  * @file signal_02.c
  *
  * A simple program that uses POSIX signals and handles SIGALRM.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2011-12-01
  */
 
 #define DURATION 5
@@ -37,16 +33,14 @@
  * @brief Defines the new handler of the SIGALRM signal.
  * @param signal Number of the signal
  */
-void handle_alarm(int signal)
-{
+void handle_alarm(int signal) {
     if (signal == SIGALRM) {
         printf("\nToo late!\n");
         exit(EXIT_FAILURE);
     }
 }
 
-int main(void)
-{
+int main(void) {
     struct sigaction action;
     int value;
     int remaining_time;

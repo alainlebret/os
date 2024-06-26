@@ -30,10 +30,6 @@
  * kill -s SIGUSR1 <PID>
  * What if using the following command?
  * kill -s SIGINT <PID>
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2011-12-01 
  */
 
 volatile sig_atomic_t got_usr1;
@@ -41,26 +37,24 @@ volatile sig_atomic_t got_usr1;
 /**
  * @brief Handles the signal SIGUSR1.
  */
-void sigusr1_handler(int signal)
-{
+void sigusr1_handler(int signal) {
     if (signal == SIGUSR1) {
         got_usr1 = 1;
     }
 }
 
-int main(void)
-{
+int main(void) {
     struct sigaction action;
-	sigset_t the_new_mask;
+    sigset_t the_new_mask;
 
     got_usr1 = 0;
 
     /* Initialize the_new_mask to full, including all signals to be blocked */
-	sigfillset(&the_new_mask);
-	/* Remove SIGUSR1 from the_new_mask */
-	sigdelset(&the_new_mask, SIGUSR1);
-	/* Change the signal mask with the_new_mask */
-	sigprocmask(SIG_SETMASK, &the_new_mask, NULL);
+    sigfillset(&the_new_mask);
+    /* Remove SIGUSR1 from the_new_mask */
+    sigdelset(&the_new_mask, SIGUSR1);
+    /* Change the signal mask with the_new_mask */
+    sigprocmask(SIG_SETMASK, &the_new_mask, NULL);
 
 
     /* Set the new handler */

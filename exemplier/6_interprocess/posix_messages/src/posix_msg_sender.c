@@ -31,11 +31,8 @@
 
 /**
  * @file posix_msg_sender.c
- * @brief A sender application using POSIX mqueue.
  *
- * @author Alain Lebret
- * @version	1.1
- * @date 2023-12-01
+ * @brief A sender application using POSIX mqueue.
  */
 
 volatile sig_atomic_t keep_running = 1;
@@ -44,10 +41,9 @@ void handle_sigint(int sig) {
     keep_running = 0;
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     mqd_t mq;
-    struct timeval hour;	
+    struct timeval hour;
     struct sigaction action;
 
     /* Clean up the structure before using it */

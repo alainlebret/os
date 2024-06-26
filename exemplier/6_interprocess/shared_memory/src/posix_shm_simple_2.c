@@ -32,10 +32,6 @@
  *
  * Another example using parent and child processes sharing memory without 
  * synchronization. Link with \c -lrt under Linux.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2017-06-08
  */
 
 typedef struct memory {
@@ -52,8 +48,7 @@ void display(char *prog, int *bytes, int n);
  */
 void handle_error(const char *message);
 
-int main(void)
-{
+int main(void) {
     int shm_fd;     /* file descriptor, from shm_open() */
     int *shm_base;  /* base address, from mmap() */
     int *ptr;       /* shm_base is fixed, ptr is movable */
@@ -129,14 +124,12 @@ int main(void)
     return EXIT_SUCCESS;
 }
 
-void handle_error(const char *message)
-{
+void handle_error(const char *message) {
     fprintf(stderr, "%s: %s\n", message, strerror(errno));
     exit(EXIT_FAILURE);
 }
 
-void display(char *prog, int *values, int n)
-{
+void display(char *prog, int *values, int n) {
     int i;
 
     printf("Display: %s\n", prog);

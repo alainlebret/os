@@ -29,10 +29,6 @@
  * kill -s SIGUSR1 <PID>
  * What if using the following command?
  * kill -s SIGINT <PID> 
- *
- * @author Alain Lebret
- * @version	1.1
- * @date 2022-04-08
  */
 
 volatile sig_atomic_t got_usr1;
@@ -40,24 +36,21 @@ volatile sig_atomic_t got_usr1;
 /**
  * @brief Handles the signal SIGUSR1.
  */
-void sigusr1_handler(int signal)
-{
+void sigusr1_handler(int signal) {
     got_usr1 = 1;
 }
 
 /**
  * @brief Handles the signal SIGINT.
  */
-void sigint_handler(int signal)
-{
+void sigint_handler(int signal) {
     printf("SIGINT received, exiting.\n");
     exit(EXIT_SUCCESS);
 }
 
-int main(void)
-{
+int main(void) {
     struct sigaction action_usr1;
-	struct sigaction action_int;
+    struct sigaction action_int;
 
     got_usr1 = 0;
 

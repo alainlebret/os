@@ -29,13 +29,7 @@
  *
  * Producer using an IPC/System V shared memory. The program reads a serie of
  * integers and stores their sum in a shared memory.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2011-12-01
  */
-
-#define FOREVER for (;;)
 
 /**
  * Structure to store the number of \c nb integers and their sum.
@@ -50,14 +44,12 @@ typedef struct data data_t;
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(const char *message)
-{
+void handle_fatal_error(const char *message) {
     perror(message);
     exit(EXIT_FAILURE);
 }
 
-int main(void)
-{
+int main(void) {
     int id;
     int value;
     key_t key;
@@ -79,24 +71,24 @@ int main(void)
         }
     }
 
-	shared_memory = (data_t *) shmat(id, NULL, SHM_R | SHM_W);
-	if (shared_memory == (void *) -1) {  
-	    handle_fatal_error("Error using shmat()! ");
-	}
+    shared_memory = (data_t *) shmat(id, NULL, SHM_R | SHM_W);
+    if (shared_memory == (void *) -1) {
+        handle_fatal_error("Error using shmat()! ");
+    }
 
     shared_memory->nb = 0;
     shared_memory->total = 0;
 
-	FOREVER {
-	    printf("+ ");
-	    if (scanf("%d", &value) != 1 || value == -1) { /* Exit on non-integer or -1 */
-	        break;
-	    }
-	    shared_memory->nb++;
-	    shared_memory->total += value;
-	    printf("The sum of %d integers equals %d\n", shared_memory->nb,
-	           shared_memory->total);
-	}
+    while (1) {
+        printf("+ ");
+        if (scanf("%d", &value) != 1 || value == -1) { /* Exit on non-integer or -1 */
+            break;
+        }
+        shared_memory->nb++;
+        shared_memory->total += value;
+        printf("The sum of %d integers equals %d\n", shared_memory->nb,
+               shared_memory->total);
+    }
     printf("---\n");
 
     if (shmdt((char *) shared_memory) == -1) {

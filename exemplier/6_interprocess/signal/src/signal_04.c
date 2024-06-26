@@ -27,13 +27,7 @@
  * @file signal_04.c
  *
  * A simple program that uses POSIX signals and handles SIGCHLD.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2011-12-01
  */
-
-#define FOREVER for (;;)
 
 int child_exited = 0;
 
@@ -42,8 +36,7 @@ int child_exited = 0;
  * zombies.
  * @param signal Number of the signal.
  */
-void handle_sigchild(int signal)
-{
+void handle_sigchild(int signal) {
     pid_t child;
     int status;
 
@@ -61,8 +54,7 @@ void handle_sigchild(int signal)
  * It displays the given error message, then exits.
  * @param msg The error message to display before exiting.
  */
-void handle_fatal_error_and_exit(const char *msg)
-{
+void handle_fatal_error_and_exit(const char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
@@ -70,15 +62,14 @@ void handle_fatal_error_and_exit(const char *msg)
 /**
  * @brief Manages the parent process.
  */
-void manage_parent()
-{
+void manage_parent() {
     struct sigaction action;
 
     /* Clean up the structure before using it */
     memset(&action, '\0', sizeof(action));
     /* Set the new handler */
     action.sa_handler = &handle_sigchild;
-	/* We ensure that certain system calls are automatically restarted if interrupted by a signal */
+    /* We ensure that certain system calls are automatically restarted if interrupted by a signal */
     action.sa_flags = SA_RESTART;
 
     /* Install the new handler of the SIGCHLD signal */
@@ -99,16 +90,14 @@ void manage_parent()
  *
  * It just does some stuff for 10 seconds.
  */
-void manage_child()
-{
+void manage_child() {
     printf("Child process (PID %d)\n", getpid());
     printf("Child: I am doing some stuff for 10 seconds...\n");
     sleep(10);
     exit(EXIT_SUCCESS);
 }
 
-int main(void)
-{
+int main(void) {
     pid_t pid;
 
     pid = fork();

@@ -24,14 +24,9 @@
 /**
  * @file test_messages.c
  * @brief Test message handling functions.
- *
- * @author Alain Lebret
- * @version	1.1
- * @date 2022-04-15
  */
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     message_t message;
     struct timeval time;
     double begin;

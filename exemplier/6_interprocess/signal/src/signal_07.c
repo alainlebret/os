@@ -26,10 +26,6 @@
  * @file signal_07.c
  *
  * A simple program that uses POSIX signals and handles the SIGUSR1 signal.
- *
- * @author Alain Lebret
- * @version	1.1
- * @date 2022-04-11
  */
 
 unsigned char nb_calls = 7;
@@ -38,8 +34,7 @@ unsigned char nb_calls = 7;
  * @brief Handles the signal SIGUSR1 by decrementing \em nbCalls.
  * @param signal Number of the received signal.
  */
-void handle_seven_lifes(int signal)
-{
+void handle_seven_lifes(int signal) {
     if (signal == SIGUSR1) {
         nb_calls--;
         printf("Still have %d lifes....\n", (int) nb_calls);
@@ -52,8 +47,7 @@ void handle_seven_lifes(int signal)
  * It displays the given error message, then exits.
  * @param msg The error message to display before exiting.
  */
-void handle_fatal_error_and_exit(const char *msg)
-{
+void handle_fatal_error_and_exit(const char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
@@ -64,8 +58,7 @@ void handle_fatal_error_and_exit(const char *msg)
  * It decrements the number of lifes before sending the signal SIGUSR1 to 
  * his child and waiting for his death.
  */
-void manage_parent(pid_t child)
-{
+void manage_parent(pid_t child) {
     printf("Parent process (PID %d)\n", getpid());
 
     while (nb_calls-- != 0) {
@@ -87,8 +80,7 @@ void manage_parent(pid_t child)
  * It configures the handler to react to the signal SIGUSR1. The child process
  * exits when \em nbCalls reaches 0.
  */
-void manage_child()
-{
+void manage_child() {
     struct sigaction managing_lifes;
 
     printf("Child process (PID %d)\n", getpid());
@@ -107,8 +99,7 @@ void manage_child()
     exit(EXIT_SUCCESS);
 }
 
-int main(void)
-{
+int main(void) {
     pid_t pid;
 
     pid = fork();

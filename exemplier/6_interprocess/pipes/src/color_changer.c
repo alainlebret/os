@@ -35,10 +35,6 @@
  * its background color to match the received color values, providing a 
  * dynamic visual display of colors. When receiving "FIN", it unlinks the 
  * pipe and terminates.
- *
- * @author Alain Lebret
- * @version	1.0.2
- * @date 2023-12-02
  */
 
 #define COLORPIPE "colorpipe"
@@ -49,26 +45,25 @@ typedef struct {
     int pipe_fd;
 } ThreadData;
 
-void set_window_color(gpointer user_data) 
-{
+void set_window_color(gpointer user_data) {
     ThreadData *thread_data;
     GtkWidget *window;
     int pipe_fd;
-	char color_name[COLOR_NAME_SIZE];
+    char color_name[COLOR_NAME_SIZE];
     ssize_t bytes_read;
 
-    thread_data = (ThreadData *)user_data;
+    thread_data = (ThreadData *) user_data;
     window = thread_data->window;
     pipe_fd = thread_data->pipe_fd;
 
     while ((bytes_read = read(pipe_fd, color_name, sizeof(color_name))) > 0) {
         color_name[bytes_read - 1] = '\0'; /* Enlève le caractère de fin de passage à la ligne */
 
-		/* Teste si le mot reçu est le mot-clé "FIN" de manière à quitter */
+        /* Teste si le mot reçu est le mot-clé "FIN" de manière à quitter */
         if (strcmp(color_name, "FIN") == 0) {
             break;
         }
-		
+
         GdkRGBA color;
         gdk_rgba_parse(&color, color_name);
 
@@ -78,8 +73,8 @@ void set_window_color(gpointer user_data)
         gtk_widget_queue_draw(window);
         gdk_threads_leave();
     }
-	
-	/* Ferme et détruit le tube nommé */
+
+    /* Ferme et détruit le tube nommé */
     close(pipe_fd);
     unlink(COLORPIPE);
 
@@ -89,14 +84,12 @@ void set_window_color(gpointer user_data)
     gdk_threads_leave();
 }
 
-gpointer thread_func(gpointer user_data) 
-{
+gpointer thread_func(gpointer user_data) {
     set_window_color(user_data);
     return NULL;
 }
 
-int main(int argc, char *argv[]) 
-{
+int main(int argc, char *argv[]) {
     gtk_init(&argc, &argv);
 
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
