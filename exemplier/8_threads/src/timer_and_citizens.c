@@ -27,62 +27,59 @@
 
 #define NB_THREADS 6
 
-void* timer_begin_new_day(void *data);
-void* citizen_spends_his_day(void *data);
+void *timer_begin_new_day(void *data);
+
+void *citizen_spends_his_day(void *data);
 
 pthread_mutex_t day_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t citizen_can_wake_up_cond = PTHREAD_COND_INITIALIZER;
-int thread_ids[NB_THREADS] = { 0, 1, 2, 3, 4, 5 };
+int thread_ids[NB_THREADS] = {0, 1, 2, 3, 4, 5};
 
-int main(void)
-{
-	int i;
-	pthread_t threads[NB_THREADS];
+int main(void) {
+    int i;
+    pthread_t threads[NB_THREADS];
 
-	for (i = 1; i < NB_THREADS; i++) {
-		pthread_create(&threads[i], NULL, citizen_spends_his_day, &thread_ids[i]);
-	}
-	
-	/* 
-	 * the citizen threads have already started and are waiting
-	 * on the condition to wake up.
-	 */
-	sleep(1);
-	pthread_create(&threads[0], NULL, timer_begin_new_day, &thread_ids[0]);
+    for (i = 1; i < NB_THREADS; i++) {
+        pthread_create(&threads[i], NULL, citizen_spends_his_day, &thread_ids[i]);
+    }
 
-	for (i = 0; i < NB_THREADS; i++) {
-		pthread_join(threads[i], NULL);
-		printf("thread %i joined\n",i);
-	}
+    /*
+     * the citizen threads have already started and are waiting
+     * on the condition to wake up.
+     */
+    sleep(1);
+    pthread_create(&threads[0], NULL, timer_begin_new_day, &thread_ids[0]);
 
-	return EXIT_SUCCESS;
+    for (i = 0; i < NB_THREADS; i++) {
+        pthread_join(threads[i], NULL);
+        printf("thread %i joined\n", i);
+    }
+
+    return EXIT_SUCCESS;
 }
 
-void *timer_begin_new_day(void *data)
-{
-	int *id = (int *) data;
+void *timer_begin_new_day(void *data) {
+    int *id = (int *) data;
 
-	pthread_mutex_lock(&day_mutex);
-	printf("Timer %d wakes up citizens by broadcasting\n",*id);
-	pthread_cond_broadcast(&citizen_can_wake_up_cond);
-	pthread_mutex_unlock(&day_mutex);
+    pthread_mutex_lock(&day_mutex);
+    printf("Timer %d wakes up citizens by broadcasting\n", *id);
+    pthread_cond_broadcast(&citizen_can_wake_up_cond);
+    pthread_mutex_unlock(&day_mutex);
 
-	return NULL;
+    return NULL;
 }
 
-void *citizen_spends_his_day(void *data)
-{
-	int *id = (int *) data;
+void *citizen_spends_his_day(void *data) {
+    int *id = (int *) data;
 
-	pthread_mutex_lock(&day_mutex);
-	printf("The citizen %d is sleeping\n",*id);
-	pthread_cond_wait(&citizen_can_wake_up_cond, &day_mutex);
-	printf("The citizen %d woke up\n",*id);
-	pthread_mutex_unlock(&day_mutex);
+    pthread_mutex_lock(&day_mutex);
+    printf("The citizen %d is sleeping\n", *id);
+    pthread_cond_wait(&citizen_can_wake_up_cond, &day_mutex);
+    printf("The citizen %d woke up\n", *id);
+    pthread_mutex_unlock(&day_mutex);
 
-	printf("The citizen %d spends his day...\n",*id);
-	/* Doing a lot of things */
-	
-	return NULL;
+    printf("The citizen %d spends his day...\n", *id);
+    /* Doing a lot of things */
+
+    return NULL;
 }
-

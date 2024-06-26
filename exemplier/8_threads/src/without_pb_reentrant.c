@@ -27,18 +27,13 @@
  * @see pb_reentrant.c
  *
  * A simple program to show the importance of using "reentrant" functions.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2012-04-10
  */
 
 #define THREADS 4
 
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-int f_reentrant(void)
-{
+int f_reentrant(void) {
     static unsigned int next;
 
     pthread_mutex_lock(&mutex);
@@ -54,16 +49,13 @@ int f_reentrant(void)
     return next;
 }
 
-void *doit(void *vargp)
-{
-    (void)vargp;  /* Mark it as unused */
-    //printf("[%p]: val = %d\n", pthread_self(), f_reentrant());
-    printf("[%lu]: val = %d\n", (uintptr_t)pthread_self(), f_reentrant());
+void *doit(void *vargp) {
+    (void) vargp;  /* Mark it as unused */
+    printf("[%lu]: val = %d\n", (uintptr_t) pthread_self(), f_reentrant());
     return NULL;
 }
 
-int main(void)
-{
+int main(void) {
     int i;
     pthread_t tid[4];
 

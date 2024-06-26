@@ -31,31 +31,23 @@
  *
  * On Mac OS X, compile with gcc -Wall -Wextra -pedantic thread_with_signal.c
  * On Linux, compile with gcc -Wall -Wextra -pedantic thread_with_signal.c -pthread
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2012-04-10
  */
-
-#define FOREVER for (;;)
 
 typedef struct data {
     char name[12];
     int age;
 } data_t;
 
-void handle_signal(int sig)
-{
-    (void)sig;  /* Mark sig as unused */
+void handle_signal(int sig) {
+    (void) sig;  /* Mark sig as unused */
     write(1, "Caught signal SIGINT\n", 21);
     pthread_exit(NULL);
 }
 
-void* func(void* arg)
-{
-    data_t *p = (data_t *)arg;
-	
-    FOREVER {
+void *func(void *arg) {
+    data_t *p = (data_t *) arg;
+
+    while (1) {
         fprintf(stderr, "This is from thread function\n");
         strcpy(p->name, "Linux Lover");
         p->age = 55;
@@ -64,8 +56,7 @@ void* func(void* arg)
     /* Unreachable */
 }
 
-int main(void)
-{
+int main(void) {
     pthread_t tid;
     pthread_attr_t attr;
     data_t d;
@@ -83,6 +74,6 @@ int main(void)
     pthread_join(tid, NULL);
     fprintf(stderr, "Name: %s\n", ptr->name);
     fprintf(stderr, "Age: %d\n", ptr->age);
-	
-	return EXIT_SUCCESS;
+
+    return EXIT_SUCCESS;
 }

@@ -27,16 +27,11 @@
  *
  * On Mac OS X, compile with gcc -Wall -Wextra -ansi -pedantic thread_01.c
  * On Linux, compile with gcc -Wall -Wextra -ansi -pedantic thread_01.c -pthread
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2012-04-10
  */
 
 int global_value = -10;
 
-void *do_A(void *arg)
-{
+void *do_A(void *arg) {
     int i;
     int n;
 
@@ -49,8 +44,7 @@ void *do_A(void *arg)
     pthread_exit(NULL);
 }
 
-void *do_B(void *arg)
-{
+void *do_B(void *arg) {
     int i;
     int n;
 
@@ -62,8 +56,7 @@ void *do_B(void *arg)
     pthread_exit(NULL);
 }
 
-int main(void)
-{
+int main(void) {
     pthread_t thA;
     pthread_t thB;
     int n = 10;

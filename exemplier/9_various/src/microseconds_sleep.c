@@ -25,26 +25,20 @@
  * @file microseconds_sleep.c
  *
  * A simple program to provide microsecond sleeping.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2023-07-13
  */
 
 /**
  * Sleeps for a number of microseconds.
  */
-void us_sleep(int nb_usec)
-{
-	struct timeval waiting;
-	
-	waiting.tv_sec = nb_usec / 1000000; 
-	waiting.tv_usec = nb_usec % 1000000; 
-	select(0, NULL, NULL, NULL, &waiting);
+void us_sleep(int nb_usec) {
+    struct timeval waiting;
+
+    waiting.tv_sec = nb_usec / 1000000;
+    waiting.tv_usec = nb_usec % 1000000;
+    select(0, NULL, NULL, NULL, &waiting);
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     clock_t begin_time;
     clock_t end_time;
     double duration;

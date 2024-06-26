@@ -41,17 +41,12 @@
  * Usage:
  *     Compile with -lpthread flag (gcc -lpthread barrier.c)
  *     Run the executable
- *
- * @author Alain Lebret
- * @version 1.0
- * @date 2021-04-16
  */
 
 pthread_barrier_t barrier;
 
-void *doit(void *arg)
-{
-    int tid = *(int *)arg;
+void *doit(void *arg) {
+    int tid = *(int *) arg;
     int wait_sec = 1 + rand() % 5;
 
     printf("thread %d: wait for %d seconds.\n", tid, wait_sec);
@@ -66,8 +61,7 @@ void *doit(void *arg)
     return NULL;
 }
 
-int main(void)
-{
+int main(void) {
     pthread_t tid[THREAD_COUNT];
     int i, status;
 

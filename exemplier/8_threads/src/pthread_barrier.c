@@ -24,7 +24,7 @@
 
 int pthread_barrier_init(pthread_barrier_t *barrier, const void *attr, unsigned count) {
     int status;
-	
+
     status = pthread_mutex_init(&barrier->mutex, NULL);
     if (status != 0) return status;
     status = pthread_cond_init(&barrier->cond, NULL);

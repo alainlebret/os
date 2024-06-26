@@ -33,15 +33,10 @@
  *
  * On Mac OS X, compile using gcc -Wall -Wextra pthread_test.c
  * On Linux, compile using gcc -Wall -Wextra pthread_test.c -o pthread_test -pthread
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2012-04-10
  */
 
-void *do_little(void *unused)
-{
-	(void)unused; /* Deactivate warning */
+void *do_little(void *unused) {
+    (void) unused; /* Deactivate warning */
     int i;
 
     i = 0;
@@ -50,8 +45,7 @@ void *do_little(void *unused)
     pthread_exit(NULL);
 }
 
-int main(void)
-{
+int main(void) {
     int action, i;
     pthread_t tid;
     pthread_attr_t attr;

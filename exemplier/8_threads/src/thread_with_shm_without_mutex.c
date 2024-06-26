@@ -29,15 +29,11 @@
  *
  * On Mac OS X, compile with gcc -Wall -Wextra shm_without_mutex.c
  * On Linux, compile with gcc -Wall -Wextra shm_without_mutex.c -pthread
- *
- * @author Alain Lebret
- * @version	1.0
  * @date 2012-04-10
  */
 
 #define BUFFER_SPACE 0
 #define BUFFER_FULL  1
-#define FOREVER for (;;)
 
 struct {
     int status;
@@ -47,9 +43,8 @@ struct {
 /**
  * Consumer task that reads the shared memory.
  */
-void *consume(void *pv)
-{
-    FOREVER {
+void *consume(void *pv) {
+    while (1) {
         if (memory.status == BUFFER_FULL) {
             /* get the value */
             printf("%d\n", memory.value);
@@ -63,9 +58,8 @@ void *consume(void *pv)
 /**
  * Producer task that writes on the shared memory.
  */
-void *produce(void *pv)
-{
-    FOREVER {
+void *produce(void *pv) {
+    while (1) {
         if (memory.status == BUFFER_SPACE) {
             /* doing some stuff ... */
             memory.status = BUFFER_FULL;
@@ -76,8 +70,7 @@ void *produce(void *pv)
     /* Unreachable */
 }
 
-int main(void)
-{
+int main(void) {
     pthread_t th1;
     pthread_t th2;
     pthread_t th3;

@@ -29,16 +29,11 @@
  *
  * On Mac OS X, compile with gcc -DMUTEX -Wall -Wextra shm_without_mutex.c
  * On Linux, compile with gcc -Wall -Wextra shm_without_mutex.c -DMUTEX -pthread
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2012-04-10
  */
 
 #define BUFFER_SPACE 0
 #define BUFFER_FULL 1
 #define ITERATIONS 100000
-#define FOREVER for(;;)
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -50,9 +45,8 @@ struct {
 /**
  * Consumer task that reads the shared memory.
  */
-void *consume(void *pv)
-{
-    FOREVER {
+void *consume(void *pv) {
+    while (1) {
         pthread_mutex_lock(&mutex);
 
         if (memory.status == BUFFER_FULL) {
@@ -70,8 +64,7 @@ void *consume(void *pv)
 /**
  * Producer task that writes on the shared memory.
  */
-void *produce(void *pv)
-{
+void *produce(void *pv) {
     int i = 0;
 
     while (i++ < ITERATIONS) {
@@ -87,8 +80,7 @@ void *produce(void *pv)
     pthread_exit(NULL);
 }
 
-int main(void)
-{
+int main(void) {
     pthread_t th1, th2, th3, th4, th5;
 
     /* Creation of the threads */

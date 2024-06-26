@@ -25,17 +25,12 @@
  * @see without_pb_reentrant.c
  *
  * A simple program to show the importance of using "reentrant" functions.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2012-04-10
  */
 
 #define THREADS 4
 
 
-int f(void)
-{
+int f(void) {
     static unsigned int next = 1;
 
     next = next * 1103515245 + 12345;
@@ -44,15 +39,13 @@ int f(void)
     return next;
 }
 
-void *doit(void *vargp)
-{
-	(void)vargp; /* Deactivate warning */
+void *doit(void *vargp) {
+    (void) vargp; /* Deactivate warning */
     printf("[%ld]: val = %d\n", pthread_self(), f());
     return NULL;
 }
 
-int main(void)
-{
+int main(void) {
     int i;
     pthread_t tid[4];
 

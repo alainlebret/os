@@ -48,8 +48,7 @@ int count = 0;
 pthread_mutex_t count_mutex;
 pthread_cond_t count_threshold_cv;
 
-void *inc_count(void *t)
-{
+void *inc_count(void *t) {
     int i;
     long my_id = (long) t;
 
@@ -78,8 +77,7 @@ void *inc_count(void *t)
     pthread_exit(NULL);
 }
 
-void *watch_count(void *t)
-{
+void *watch_count(void *t) {
     long my_id = (long) t;
 
     printf("watch_count(): thread %ld\n", my_id);
@@ -105,8 +103,7 @@ void *watch_count(void *t)
     pthread_exit(NULL);
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     int i;
     long t1;
     long t2;
@@ -143,6 +140,6 @@ int main(int argc, char *argv[])
     pthread_attr_destroy(&attr);
     pthread_mutex_destroy(&count_mutex);
     pthread_cond_destroy(&count_threshold_cv);
-	
+
     return EXIT_SUCCESS;
 }

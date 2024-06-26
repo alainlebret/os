@@ -29,10 +29,6 @@
  * A simple program to test fork vs threads (see \c thread_test.c).
  *
  * Compile using gcc -Wall -Wextra fork_test.c
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2012-04-10
  */
 
 #define NB_FORKS 50000
@@ -40,14 +36,12 @@
 /**
  * Handles a fatal error. It displays a message, then exits.
  */
-void handle_fatal_error(char *msg)
-{
+void handle_fatal_error(char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
 
-void do_little(void)
-{
+void do_little(void) {
     int i;
 
     i = 0;
@@ -56,8 +50,7 @@ void do_little(void)
     exit(EXIT_SUCCESS);
 }
 
-int main(void)
-{
+int main(void) {
     int pid;
     int status;
     int i;

@@ -27,18 +27,13 @@
  *
  * On Mac OS X, compile with gcc -DMUTEX -Wall -Wextra thread_02_withmutex.c
  * On Linux, compile with gcc -DMUTEX -Wall -Wextra thread_02_withmutex.c -pthread
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2012-04-10
  */
 
 #define ITERATIONS 100000
 
 pthread_mutex_t mutex;
 
-void display(int n, char letter)
-{
+void display(int n, char letter) {
     int i;
     int j;
 
@@ -51,8 +46,7 @@ void display(int n, char letter)
     }
 }
 
-void *threadA(void *unused)
-{
+void *threadA(void *unused) {
     display(100, 65);
     printf("\n End of the thread A\n");
     fflush(stdout);
@@ -60,8 +54,7 @@ void *threadA(void *unused)
     pthread_exit(NULL);
 }
 
-void *threadC(void *unused)
-{
+void *threadC(void *unused) {
     display(150, 67);
 
     printf("\n End of the thread C\n");
@@ -70,8 +63,7 @@ void *threadC(void *unused)
     pthread_exit(NULL);
 }
 
-void *threadB(void *unused)
-{
+void *threadB(void *unused) {
     pthread_t thC;
 
     pthread_create(&thC, NULL, threadC, NULL);
@@ -86,8 +78,7 @@ void *threadB(void *unused)
     pthread_exit(NULL);
 }
 
-int main(void)
-{
+int main(void) {
     pthread_t thA;
     pthread_t thB;
 

@@ -27,16 +27,11 @@
  *
  * On Mac OS X, compile with gcc -Wall -Wextra -ansi -pedantic thread_02.c
  * On Linux, compile with gcc -Wall -Wextra -ansi -pedantic thread_02.c -pthread
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2012-04-10
  */
 
 #define ITERATIONS 100000
 
-void display(int n, char letter)
-{
+void display(int n, char letter) {
     int i;
     int j;
 
@@ -48,9 +43,8 @@ void display(int n, char letter)
     }
 }
 
-void *threadA(void *unused)
-{
-	(void)unused; /* Deactivate warning */
+void *threadA(void *unused) {
+    (void) unused; /* Deactivate warning */
     display(100, 65);
     printf("\n End of the thread A\n");
     fflush(stdout);
@@ -58,9 +52,8 @@ void *threadA(void *unused)
     pthread_exit(NULL);
 }
 
-void *threadC(void *unused)
-{
-	(void)unused; /* Deactivate warning */
+void *threadC(void *unused) {
+    (void) unused; /* Deactivate warning */
     display(150, 67);
 
     printf("\n End of the thread C\n");
@@ -69,9 +62,8 @@ void *threadC(void *unused)
     pthread_exit(NULL);
 }
 
-void *threadB(void *unused)
-{
-	(void)unused; /* Deactivate warning */
+void *threadB(void *unused) {
+    (void) unused; /* Deactivate warning */
     pthread_t thC;
 
     pthread_create(&thC, NULL, threadC, NULL);
@@ -86,8 +78,7 @@ void *threadB(void *unused)
     pthread_exit(NULL);
 }
 
-int main(void)
-{
+int main(void) {
     pthread_t thA;
     pthread_t thB;
 
