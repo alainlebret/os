@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#include <stdint.h>    /* C99 int types */
-#include <inttypes.h>  /* C99 int types */
 #include <stdio.h>     /* printf() */
 #include <stdlib.h>    /* exit() and execl()*/
 #include <unistd.h>    /* getpid() and getpgrp() */
@@ -28,10 +26,6 @@
  * @file process_08.c
  *
  * A simple program about a process that executes Gtk windows through his childs.
- *
- * @author Alain Lebret
- * @version	1.1
- * @date 2023-09-10
  */
 
 static char *path = "./moving_window";
@@ -40,15 +34,15 @@ static char *path = "./moving_window";
  * This block will be executed by the first son
  */
 void manage_son1() {
-	/* Arguments for the GTK application */
-	char *args[] = {"moving_window", "100", "100", "#5bccc9", NULL};
+    /* Arguments for the GTK application */
+    char *args[] = {"moving_window", "100", "100", "#5bccc9", NULL};
 
-	/* Execute the GTK application */
-	execvp(path, args);
+    /* Execute the GTK application */
+    execvp(path, args);
 
-	/* If execvp() fails */
-	perror("execvp failed for son 1");
-	exit(EXIT_FAILURE);	
+    /* If execvp() fails */
+    perror("execvp failed for son 1");
+    exit(EXIT_FAILURE);
 }
 
 /*
@@ -63,7 +57,7 @@ void manage_son2() {
 
     /* If execvp() fails */
     perror("execvp failed for son 2");
-    exit(EXIT_FAILURE);    
+    exit(EXIT_FAILURE);
 }
 
 int main(void) {
@@ -78,25 +72,28 @@ int main(void) {
     }
 
     if (pid1 == 0) {
-		manage_son1();
+        manage_son1();
     }
 
     /* Second fork to create the second son */
-    pid2 = fork();
+    if (pid1 > 0) {
+        pid2 = fork();
 
-    if (pid2 < 0) {
-        perror("Fork failed");
-        exit(EXIT_FAILURE);
+            if (pid2 < 0) {
+                perror("Fork failed");
+                exit(EXIT_FAILURE);
+            }
+
+            if (pid2 == 0) {
+                manage_son2();
+            }
     }
 
-    if (pid2 == 0) {
-		manage_son2();
-	}
-
     /* Parent process waits for both sons to finish */
-    wait(NULL);
-    wait(NULL);
+    if (pid1 > 0 && pid2 > 0) {
+        waitpid(pid1, NULL, 0);
+        waitpid(pid2, NULL, 0);
+    }
 
     return EXIT_SUCCESS;
 }
-

@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-#include <inttypes.h>  /* C99 int types */
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>     /* exit() */
+#include <stdlib.h>    /* exit() */
 #include <unistd.h>    /* fork() and sleep() */
 #include <sys/types.h> /* pid_t */
 
@@ -28,10 +27,6 @@
  * A simple program that clones a process using the fork() primitive, and
  * where the parent process dies before his child. The child process becomes
  * orphean.
- *
- * @author Alain Lebret
- * @version	1.1
- * @date 2017-12-31
  */
 
 #define DURATION 20
@@ -42,8 +37,7 @@
  * It displays the given error message, then exits.
  * @param msg The error message to display before exiting.
  */
-void handle_fatal_error_and_exit(const char *msg)
-{
+void handle_fatal_error_and_exit(const char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
@@ -51,31 +45,31 @@ void handle_fatal_error_and_exit(const char *msg)
 /**
  * @brief Manages the parent process. 
  *
- * The parent process do not wait for his child and it dies.
+ * The parent process prints its PID and then exits, leaving the child
+ * process orphaned.
  */
-void manage_parent()
-{
-    printf("Parent process (PID %" PRId32 ")\n", getpid());
+void manage_parent() {
+    printf("Parent process (PID %d)\n", getpid());
+	exit(EXIT_SUCCESS); /* Explicit exit to simulate the parent dying */
 }
 
 /**
  * @brief Manages the child process. 
  *
- * The child process is blocked during \em DURATION seconds.
+ * The child process is blocked during DURATION seconds and then checks its
+ * parent.
  */
-void manage_child()
-{
-    printf("Child process (PID %" PRId32 ")\n", getpid());
-    printf("Child will be blocked during %" PRId32 " seconds...\n", DURATION);
+void manage_child() {
+    printf("Child process (PID %d)\n", getpid());
+    printf("Child will be blocked during %d seconds...\n", DURATION);
 
     sleep(DURATION);
 
     printf("Child has finished to sleep.\n");
-    printf("The PID of my parent is %" PRId32 ". I am an orphean.\n", getppid());
+    printf("The PID of my parent is %d. I am an orphean.\n", getppid());
 }
 
-int main(void)
-{
+int main(void) {
     pid_t pid;
 
     pid = fork();

@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#include <stdint.h>    /* C99 int types */
-#include <inttypes.h>  /* C99 int types */
 #include <stdio.h>     /* printf() */
 #include <stdlib.h>    /* exit() */
 #include <unistd.h>    /* fork() */
@@ -26,13 +24,10 @@
 
 /**
  * @file process_02.c
+ *
  * @brief This program demonstrates process cloning using fork() and explores
  * how a variable's value changes independently in the parent and child 
  * processes.
- *
- * @author Alain Lebret
- * @version	1.1
- * @date 2017-12-31
  */
 
 /**
@@ -41,35 +36,33 @@
  * It displays the given error message, then exits.
  * @param msg The error message to display before exiting.
  */
-void handle_fatal_error_and_exit(const char *msg)
-{
+void handle_fatal_error_and_exit(const char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
 
 /**
  * @brief Manages the parent process by modifying value of the given parameter.
+ * @param parameter Pointer to the integer to modify.
  */
-void manage_parent(int32_t *parameter)
-{
-    printf("Parent process (PID %" PRId32 ")\n", getpid());
-    printf("Parent modifies its own variable...\n");
+void manage_parent(int32_t *parameter) {
+    printf("Parent process (PID %d) begins...\n", getpid());
     *parameter = 10;
-    wait(NULL);
+    wait(NULL);  /* Wait for the child process to exit */
+    printf("Parent process (PID %d) ends with variable: %d\n", getpid(), *parameter);
 }
 
 /**
  * @brief Manages the child process by modifying value of the given parameter.
+ * @param parameter Pointer to the integer to modify.
  */
-void manage_child(int32_t *parameter)
-{
-    printf("Child process (PID %" PRId32 ")\n", getpid());
-    printf("Child modifies its own variable...\n");
+void manage_child(int32_t *parameter) {
+    printf("Child process (PID %d) begins...\n", getpid());
     *parameter = 20;
+    printf("Child process (PID %d) ends with variable: %d\n", getpid(), *parameter);
 }
 
-int main(void)
-{
+int main(void) {
     pid_t pid;
     int32_t own_variable = 0;
 
@@ -83,7 +76,6 @@ int main(void)
     } else {
         manage_child(&own_variable);
     }
-    printf("\nPID %" PRId32 " has its own variable equals to: %" PRId32 "\n", getpid(), own_variable);
 
     return EXIT_SUCCESS;
 }

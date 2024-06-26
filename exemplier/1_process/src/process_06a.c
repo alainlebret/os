@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#include <stdint.h>    /* C99 int types */
-#include <inttypes.h>  /* C99 int types */
 #include <stdio.h>     /* printf() */
 #include <stdlib.h>    /* exit() and execl()*/
 #include <unistd.h>    /* fork() */
@@ -26,66 +24,53 @@
 
 /**
  * @file process_06a.c
- * @brief A simple program that clones a process using the fork() primitive.
- * The child is overlayed by a new program using the exec() family 
- * functions.
  *
- * @author Alain Lebret
- * @version	1.1
- * @date 2017-12-31
+ * @brief Demonstrates process cloning using fork() and overlaying the child
+ * with a new program using execl().
  */
 
 /**
- * @brief Handles a fatal error and exit. 
- *
- * It displays the given error message, then exits.
+ * @brief Handles a fatal error and exits.
  * @param msg The error message to display before exiting.
  */
-void handle_fatal_error_and_exit(const char *msg)
-{
+void handle_fatal_error_and_exit(const char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
 
 /**
- * @brief Manages the parent process. 
- *
- * The parent is waiting for his child to exit.
+ * @brief Manages the parent process by waiting for the child to exit.
  */
-void manage_parent()
-{
+void manage_parent() {
     pid_t child;
-    int32_t status;
+    int status;
 
-    printf("Parent process (PID %" PRId32 ")\n", getpid());
-
+    printf("Parent process (PID %d) waiting for the child.\n", getpid());
     child = wait(&status);
     if (WIFEXITED(status)) {
-        printf("%d : child %" PRId32 " has finished is work (code: %" PRId32 ")\n",
-                getpid(), child, WEXITSTATUS(status));
+        printf("Parent (PID %d): Child (PID %d) finished with exit code: %d\n", getpid(), child, WEXITSTATUS(status));
     }
 }
 
 /**
- * @brief Manages the child process. 
- *
- * The child process is calling the execlp() function to execute the
- * \em ls command.
+ * @brief Manages the child process, replaces it with the 'ls' command.
  */
-void manage_child()
-{
+void manage_child() {
     const char *path = "/bin/ls";
     const char *command = "ls";
     const char *arguments = "-al";
 
-    printf("Child process (PID %" PRId32 ")\n", getpid());
-    execl(path, command, arguments, (void *) 0);
+    printf("Child process (PID %d) will execute ls command.\n", getpid());
+    execl(path, command, arguments, NULL);
+
+    /* If execl() returns, there was an error */
+    perror("Error executing execl");
+    exit(EXIT_FAILURE);
 }
 
-int main(void)
-{
+int main(void) {
     pid_t pid;
-
+    
     pid = fork();
     if (pid == -1) {
         handle_fatal_error_and_exit("Error [fork()]: ");

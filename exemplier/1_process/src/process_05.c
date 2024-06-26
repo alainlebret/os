@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#include <stdint.h>    /* C99 int types */
-#include <inttypes.h>  /* C99 int types */
 #include <stdio.h>     /* printf() */
 #include <stdlib.h>    /* exit() */
 #include <unistd.h>    /* fork() and sleep() */
@@ -27,12 +25,8 @@
 /**
  * @file process_05.c
  *
- * A simple program that clones a process using the fork() primitive. The
- * parent is waiting for his child to finish.
- *
- * @author Alain Lebret
- * @version	1.1
- * @date 2017-12-31
+ * @brief A simple program that clones a process using the fork() primitive. 
+ * The parent is waiting for his child to finish.
  */
 
 #define DURATION 20
@@ -43,8 +37,7 @@
  * It displays the given error message, then exits.
  * @param msg The error message to display before exiting.
  */
-void handle_fatal_error_and_exit(const char *msg)
-{
+void handle_fatal_error_and_exit(const char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
@@ -54,37 +47,28 @@ void handle_fatal_error_and_exit(const char *msg)
  *
  * The parent is waiting for his child to exit.
  */
-void manage_parent()
-{
+void manage_parent() {
     pid_t child;
-    int32_t status;
+    int status;
 
-    printf("Parent process (PID %d)\n", getpid());
+    printf("Parent process (PID %d) is waiting for the child to finish.\n", getpid());
     child = wait(&status);
     if (WIFEXITED(status)) {
-        printf("%d : child %" PRId32 " has finished his work (code: %" PRId32 ")\n", 
-		   getpid(), child, WEXITSTATUS(status));
+        printf("Parent (PID %d): Child (PID %d) has finished with exit code: %d\n",
+               getpid(), child, WEXITSTATUS(status));
     }
 }
 
 /**
- * @brief Manages the child process. 
- *
- * The child process is blocked during \em DURATION seconds.
+ * @brief Manages the child process, simulating work by sleeping.
  */
-void manage_child()
-{
-    printf("Child process (PID %" PRId32 ")\n", getpid());
-    printf("Child will be blocked during %" PRId32 " seconds...\n", DURATION);
-
+void manage_child() {
+    printf("Child process (PID %d) starts and will be blocked for %d seconds.\n", getpid(), DURATION);
     sleep(DURATION);
-
-    printf("Child has finished to sleep.\n");
-    printf("The PID of my parent is %" PRId32 ".\n", getppid());
+    printf("Child (PID %d) has finished sleeping. My parent's PID is %d.\n", getpid(), getppid());
 }
 
-int main(void)
-{
+int main(void) {
     pid_t pid;
 
     pid = fork();

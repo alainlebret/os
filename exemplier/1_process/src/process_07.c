@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#include <stdint.h>    /* C99 int types */
-#include <inttypes.h>  /* C99 int types */
 #include <stdio.h>     /* printf() */
 #include <stdlib.h>    /* exit() and execl()*/
 #include <unistd.h>    /* getpid() and getpgrp() */
@@ -27,62 +25,49 @@
 /**
  * @file process_07.c
  *
- * A simple program about a process and its group.
- *
- * @author Alain Lebret
- * @version	1.1
- * @date 2017-12-31
+ * @brief A simple program about a process and its group.
  */
 
 /**
- * @brief Handles a fatal error and exit. 
- *
- * It displays the given error message, then exits.
+ * @brief Handles a fatal error and exits.
  * @param msg The error message to display before exiting.
  */
-void handle_fatal_error_and_exit(char *msg)
-{
+void handle_fatal_error_and_exit(const char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }
 
 /**
- * @brief Manages the parent process. 
- *
- * The parent is waiting for his child to exit.
+ * @brief Manages the parent process by waiting for the child to exit and
+ * displaying its PID and group ID.
  */
-void manage_parent()
-{
+void manage_parent() {
     pid_t child;
-    int32_t status;
+    int status;
 
-    printf("Parent process: %" PRId32 "\n", getpid());
-    printf("Parent group: %" PRId32 "\n", getpgrp());
+    printf("Parent process: PID=%d, Group ID=%d\n", getpid(), getpgrp());
 
     child = wait(&status);
 
     if (WIFEXITED(status)) {
-        printf("%d : child %" PRId32 " has finished is work (code: %" PRId32 ")\n",
+        printf("Parent (PID %d): Child (PID %d) exited with status %d\n",
                 getpid(), child, WEXITSTATUS(status));
     }
 }
 
 /**
- * @brief Manages the child process by just displaying its PID and group. 
+ * @brief Manages the child process by displaying its PID and group ID.
  */
-void manage_child()
-{
-    printf("Child process: %" PRId32 "\n", getpid());
-    printf("Child group: %" PRId32 "\n", getpgrp());
+void manage_child() {
+    printf("Child process: PID=%d, Group ID=%d\n", getpid(), getpgrp());
 }
 
-int main(void)
-{
+int main(void) {
     pid_t pid;
 
     pid = fork();
     if (pid == -1) {
-        handle_fatal_error_and_exit("Error using fork().\n");
+        handle_fatal_error_and_exit("Fork failed: Unable to create child process.\n");
     }
 
     if (pid > 0) {

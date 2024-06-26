@@ -22,18 +22,12 @@
 
 /**
  * @file test_thread.c
+ *
  * @brief This program prints the process ID and the main thread ID of the
  * executing program.
- *
- * @author Alain Lebret
- * @version	1.1
- * @date 2023-09-10
  */
 
-int main(void)
-{
-    printf("%d / %ld\n",getpid(), pthread_self());
-	
+int main(void) {
+    printf("%d / %ld\n", getpid(), pthread_self());
     return EXIT_SUCCESS;
 }
-

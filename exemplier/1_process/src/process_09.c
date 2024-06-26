@@ -16,71 +16,59 @@
  * limitations under the License.
  */
 
-#include <stdio.h> 
+#include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h> 
-#include <fcntl.h> 
-#include <sys/types.h> 
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 
 /**
  * @file process_09.c
+ *
  * @brief Another simple program that uses execvp() to executes different
  * applications with arguments.
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2023-09-10
  */
 
-int main(void)
-{
-	int pid1;
-	int pid2;
-	int pid3;
-	int pid4;	
-	int status;
+/**
+ * Launches the given program with its given arguments.
+ *
+ * @param path The path of the program to launch.
+ * @param args The arguments to pass to the program.
+ */
+void launch_process(const char *path, char *const args[]) {
+    pid_t pid = fork();
+    if (pid == 0) {
+        execvp(path, args);
+        perror("execvp failed");
+        exit(EXIT_FAILURE);
+    } else if (pid < 0) {
+        perror("fork failed");
+        exit(EXIT_FAILURE);
+    }
+}
 
-	char *firefox_args1[] = { "firefox", "-url", "https://foad.ensicaen.fr", 
-							"-new-tab", "-url", "https://gitlab.ecole.ensicaen.fr", NULL };
-	char *firefox_args2[] = { "firefox", "--search", "chatgpt", NULL };
-	char *gedit_args[] = { "gedit", "pointeurs_et_cie1.c", NULL };
-	char *vlc_args[] = { "vlc", "resources/mister_trololo.mp4", NULL };
-	
-	pid1 = fork();
-	
-	if (pid1 == 0) { /* child 1 executes firefox with args 1 */
-	    execvp("/usr/bin/firefox", firefox_args1);
-	    perror("execvp failed for firefox_args1");
-	    exit(EXIT_FAILURE);
-	} else {
-		pid2 = fork();
-	    if (pid2 == 0) { /* child 2 executes firefox with args 2 */
-	        execvp("/usr/bin/firefox", firefox_args2);
-	        perror("execvp failed for firefox_args2");
-	        exit(EXIT_FAILURE);
-	    } else {
-			pid3 = fork();
-	        if (pid3 == 0) { /* child 3 executes gedit with args */
-	            execvp("/usr/bin/gedit", gedit_args);
-	            perror("execvp failed for gedit_args");
-	            exit(EXIT_FAILURE);
-	        } else {
-				pid4 = fork();
-	            if (pid4 == 0) {
-	                execvp("/usr/bin/vlc", vlc_args);
-	                perror("execvp failed for vlc_args");
-	                exit(EXIT_FAILURE);
-	            } else {
-					wait(NULL);
-					wait(NULL);
-					wait(NULL);
-					wait(NULL);					
-	            }
-	        }
-	    }
-	}
+int main(void) {
+    char *firefox_args1[] = {"firefox", "-url", "https://foad.ensicaen.fr",
+                             "-new-tab", "-url", "https://gitlab.ecole.ensicaen.fr", NULL};
+    char *firefox_args2[] = {"firefox", "--search", "chatgpt", NULL};
+    char *gedit_args[] = {"gedit", "pointeurs_et_cie1.c", NULL};
+    char *vlc_args[] = {"vlc", "resources/mister_trololo.mp4", NULL};
 
-	return EXIT_SUCCESS;
-}     
+    /* child 1 executes firefox with firefox_args1 */
+    launch_process("/usr/bin/firefox", firefox_args1);
+    /* child 2 executes firefox with firefox_args2 */
+    launch_process("/usr/bin/firefox", firefox_args2);
+    /* child 3 executes gedit with gedit_args */
+    launch_process("/usr/bin/gedit", gedit_args);
+    /* child 4 executes VLC with vlc_args */
+    launch_process("/usr/bin/vlc", vlc_args);
+
+    // Wait for all children to exit
+    for (int i = 0; i < 4; i++) {
+        wait(NULL);
+    }
+
+    return EXIT_SUCCESS;
+}
