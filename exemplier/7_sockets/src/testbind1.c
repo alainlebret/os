@@ -28,10 +28,6 @@
  * This program creates a TCP/IP stream socket and binds it to a specified
  * port number on the local host. The program is a basic demonstration of
  * socket programming in C.
- *
- * @author Alain Lebret
- * @version 1.0
- * @date 2012-04-10
  */
 
 int main(int argc, char *argv[]) {
@@ -62,7 +58,7 @@ int main(int argc, char *argv[]) {
     }
 
     /* Here you could call to listen() if needed */
- 
+
     printf("Socket bound to port %d\n", port);
     close(sd);
 

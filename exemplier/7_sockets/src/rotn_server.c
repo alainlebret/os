@@ -31,13 +31,8 @@
  * connection, it forks a new process to handle the connection. It reads data
  * from the connection, applies ROTn obfuscation, and sends the result back.
  * The server also handles SIGCHLD signals to prevent zombie processes.
- *
- * @author Alain Lebret
- * @version 1.0
- * @date 2020-09-12
  */
 
-#define FOREVER for (;;)
 #define MAX_LINE 16384
 
 /**
@@ -47,8 +42,7 @@
  * @param rot Number of positions to rotate.
  * @return char The obfuscated character.
  */
-char rot_char(char c, int rot)
-{
+char rot_char(char c, int rot) {
     char result;
 
     result = c;
@@ -89,7 +83,7 @@ void handle_child(int fd) {
 
     outbuf_used = 0;
 
-    FOREVER {
+    while (1) {
         char ch;
 
         /* Read each character from the client */
@@ -135,10 +129,10 @@ void run() {
     /* Set port number, using htons function to use proper byte order */
     sin.sin_port = htons(6789);
 
-   /* 
-	* Create the socket. The three arguments are: 1) Internet domain 2) Stream
-    * socket 3) Default protocol (TCP in this case)
-    */
+    /*
+     * Create the socket. The three arguments are: 1) Internet domain 2) Stream
+     * socket 3) Default protocol (TCP in this case)
+     */
     listener = socket(AF_INET, SOCK_STREAM, 0);
 
     /* Bind the address struct to the socket */
@@ -158,11 +152,11 @@ void run() {
     sa.sa_handler = &sigchld_handler;
     sigaction(SIGCHLD, &sa, NULL);
 
-    FOREVER {
+    while (1) {
         struct sockaddr_storage ss;
         socklen_t slen;
-		int fd;
-		
+        int fd;
+
         slen = sizeof(ss);
         /* Accept call creates a new socket for the incoming connection */
         fd = accept(listener, (struct sockaddr *) &ss, &slen);
@@ -181,5 +175,6 @@ void run() {
 
 int main(void) {
     run();
+	
     return EXIT_SUCCESS;
 }

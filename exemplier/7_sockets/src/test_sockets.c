@@ -25,28 +25,20 @@
 
 /**
  * @file test_sockets.c
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2012-04-10
  */
-
-#define FOREVER for(;;)
 
 /**
  * New handler of the SIGINT signal.
  * @param signal Number of the signal
  */
-void handle(int signal)
-{
+void handle(int signal) {
     if (signal == SIGINT) {
         printf("SIGINT signal received!\n");
         exit(EXIT_SUCCESS);
     }
 }
 
-int main(void)
-{
+int main(void) {
     int s1; /* socket descriptors for the test */
     int s2;
     int s3;

@@ -29,9 +29,6 @@
  *
  * This program takes a hostname as a command line argument and resolves it
  * to its corresponding IP address(es).
- * @author Alain Lebret
- * @version 1.0
- * @date 2012-04-10
  */
 
 /**
@@ -40,7 +37,9 @@
  * @param hostname The hostname to resolve.
  */
 void resolve_and_print(const char *hostname) {
-    struct addrinfo hints, *res, *p;
+    struct addrinfo hints;
+    struct addrinfo *res;
+    struct addrinfo *p;
     char ipstr[INET6_ADDRSTRLEN];
     int status;
 
@@ -55,17 +54,17 @@ void resolve_and_print(const char *hostname) {
 
     printf("%s addresses: ", hostname);
     for (p = res; p != NULL; p = p->ai_next) {
-        void *addr;
+        void *address = NULL;
         if (p->ai_family == AF_INET) { /* IPv4 */
-            struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
-            addr = &(ipv4->sin_addr);
+            struct sockaddr_in *ipv4 = (struct sockaddr_in *) p->ai_addr;
+            address = &(ipv4->sin_addr);
         } else { /* IPv6 */
-            struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)p->ai_addr;
-            addr = &(ipv6->sin6_addr);
+            struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *) p->ai_addr;
+            address = &(ipv6->sin6_addr);
         }
 
         /* Convert the IP to a string and print it: */
-        inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
+        inet_ntop(p->ai_family, address, ipstr, sizeof ipstr);
         printf("%s ", ipstr);
     }
     printf("\n");
@@ -80,6 +79,6 @@ int main(int argc, char **argv) {
     }
 
     resolve_and_print(argv[1]);
-    
+
     return EXIT_SUCCESS;
 }

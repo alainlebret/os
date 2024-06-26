@@ -28,17 +28,12 @@
 
 /**
  * @file testgethostbyname.c
- *
- * @author Alain Lebret
- * @version	1.0
- * @date 2012-04-10
  */
 
 /**
  * A simple test of the gethostbyname function.
  */
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     struct hostent *hp;
     unsigned int count;
 
