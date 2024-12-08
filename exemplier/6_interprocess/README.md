@@ -66,6 +66,14 @@ This sub-section contains examples related to signal handling for interprocess c
 | `signal_08b.c` | Handles SIGUSR1 and masking other signals                      | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_08b.c) |
 | `signal_09.c`  | Setups a signal handler with 3 arguments including `siginfo_t` | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_09.c)  |
 
+# Timer Handling
+
+This sub-section contains examples related to timer handling for interprocess communication in C. Below is a list of the source files with links to their content.
+
+| File Name      | Description                                                    | Link                                                                                                   |
+|----------------|----------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| `linux_clock.c`  | Handles POSIX timer to create a clock (see [signal_03.c](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_03.c))                 | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/timers/src/linux_clock.c)  |
+| `macosx_clock.c`  | Handles timer to create a clock (see [signal_03.c](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_03.c))                                                | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/timers/src/macosx_clock.c)  |
 
 # IPC/System V Messages
 
