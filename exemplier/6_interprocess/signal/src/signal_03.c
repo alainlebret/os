@@ -27,8 +27,6 @@
  * A simple program that uses POSIX signals and handles SIGALRM to create a clock.
  */
 
-#define FOREVER for (;;)
-
 unsigned int h = 0; /* Hours */
 unsigned int m = 0; /* Minutes */
 unsigned int s = 0; /* Seconds */
