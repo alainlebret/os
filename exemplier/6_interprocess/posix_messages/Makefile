@@ -5,7 +5,7 @@ BIN_DIR=bin
 OBJ_DIR=.tmp
 MAC_SRC_DIR=$(SRC_DIR)/macosx_mqueue
 CPPFLAGS=-I $(INCLUDE_DIR) -D_REENTRANT
-CFLAGS=-Wall -Wextra -pedantic -std=c11 -g
+CFLAGS = -Wall -Wextra -pedantic -std=c11 -O2
 
 # libraries to link (-lXXX ex: -lm for maths)
 # Detect OS
@@ -113,7 +113,7 @@ endif
 # -----------------------------------------------------------------------------
 #
 clean:
-	rm -rf .tmp/*.o .tmp/.DS_Store ; rmdir .tmp
+	rm -rf $(OBJ_DIR)
 
 distclean: clean
-	rm -f $(BIN_DIR)/message_viewer $(BIN_DIR)/message_sender $(BIN_DIR)/posix_msg_receiver $(BIN_DIR)/posix_msg_sender
+	rm -rf $(BIN_DIR)

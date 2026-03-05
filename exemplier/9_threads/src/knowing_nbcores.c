@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,8 @@ int main(void) {
     int cores;
 
 #ifdef __APPLE__
+    /* SECURITY NOTE: popen() executes through a shell.
+     * In production, avoid shelling out when equivalent system APIs exist. */
     FILE *f = popen("grep processor /proc/cpuinfo | wc -l", "r");
     if (!f) {
         perror("popen");

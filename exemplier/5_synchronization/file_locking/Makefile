@@ -8,7 +8,7 @@ src = $(wildcard $(SRC_DIR)/*.c)
 obj = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(src))
 
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic -O2
+CFLAGS = -Wall -Wextra -pedantic -std=c11 -O2
 LDFLAGS =
 
 BIN = lock_file
@@ -30,6 +30,6 @@ clean:
 	rm -f $(OBJ_DIR)/*.o
 
 distclean: clean
-	rm -f $(BIN_DIR)/$(BIN)
+	rm -rf $(BIN_DIR)
 
 .PHONY: all clean distclean

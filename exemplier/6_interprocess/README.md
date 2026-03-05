@@ -12,8 +12,8 @@ This sub-section contains examples related to the use of pipes for interprocess 
 | `color_sender.c`      | Process that sends background color to `color_changer` through a named pipe        | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/pipes/src/color_sender.c)      |
 | `mkfifo_client.c`     | Client that sends a request to a server through a named pipe                       | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/pipes/src/mkfifo_client.c)     |
 | `mkfifo_server.c`     | Server that returns the result of a calculation request sent by a client           | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/pipes/src/mkfifo_server.c)     |
-| `mkfifo_consumer.c`   | Producer that sends a message through a named pipe                                 | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/pipes/src/mkfifo_consumer.c)   |
-| `mkfifo_producer.c`   | Producer that reads a message from a named pipe                                    | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/pipes/src/mkfifo_producer.c)   |
+| `mkfifo_producer.c`   | Producer that sends a message through a named pipe                                 | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/pipes/src/mkfifo_producer.c)   |
+| `mkfifo_consumer.c`   | Consumer that reads a message from a named pipe                                    | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/pipes/src/mkfifo_consumer.c)   |
 
 ## POSIX Message Queues
 
@@ -24,7 +24,7 @@ This sub-section contains examples related to the use of POSIX message queues fo
 | `message_sender.c`     | Sends messages to `message_viewer` throught a message queue      | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/posix_messages/src/message_sender.c)     |
 | `message_viewer.c`     | Receives messages from `message_sender` throught a message queue | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/posix_messages/src/message_viewer.c)     |
 | `posix_msg_receiver.c` | A Receiver process using POSIX mqueue                            | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/posix_messages/src/posix_msg_receiver.c) |
-| `posix_msg_sender.c`   | A sender process using POSIX mqueue]                             | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/posix_messages/src/posix_msg_sender.c)   |
+| `posix_msg_sender.c`   | A sender process using POSIX mqueue                              | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/posix_messages/src/posix_msg_sender.c)   |
 
 
 ## Shared Memory
@@ -64,7 +64,8 @@ This sub-section contains examples related to signal handling for interprocess c
 | `signal_07.c`  | Handles SIGUSR1                                                | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_07.c)  |
 | `signal_08a.c` | Handles SIGUSR1 without masking other signals                  | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_08a.c) |
 | `signal_08b.c` | Handles SIGUSR1 and masking other signals                      | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_08b.c) |
-| `signal_09.c`  | Setups a signal handler with 3 arguments including `siginfo_t` | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_09.c)  |
+| `signal_08c.c` | Variant of `signal_08a/b`: handles SIGUSR1 and SIGUSR2 with distinct handlers | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_08c.c) |
+| `signal_09.c`  | Sets up a signal handler with 3 arguments including `siginfo_t` | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/signal/src/signal_09.c)  |
 
 # Timer Handling
 
@@ -82,6 +83,6 @@ This sub-section contains examples related to the use of IPC/System message queu
 | File Name.        | Description                                          | Link                                                                                                             |
 |-------------------|------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
 | `message.c`       | Creates and displays messages (used by all programs) | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/unix_messages/src/message.c)       |
-| `test_message.c`  | Tests the functions in n                             | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/unix_messages/src/test_message.c)  |
+| `test_message.c`  | Tests the message creation and display functions     | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/unix_messages/src/test_message.c)  |
 | `unix_msg_recv.c` | Receives a message through an IPC/System V queue     | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/unix_messages/src/unix_msg_recv.c) |
 | `unix_msg_send.c` | Sends a message through an IPC/System V queue        | [View](https://github.com/alainlebret/os/blob/master/exemplier/6_interprocess/unix_messages/src/unix_msg_send.c) |

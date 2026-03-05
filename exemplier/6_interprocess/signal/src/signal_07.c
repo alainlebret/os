@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
  * A simple program that uses POSIX signals and handles the SIGUSR1 signal.
  */
 
-unsigned char nb_calls = 7;
+volatile sig_atomic_t nb_calls = 7;
 
 /**
  * @brief Handles the signal SIGUSR1 by decrementing \em nbCalls.
@@ -80,12 +80,12 @@ void manage_parent(pid_t child) {
  * It configures the handler to react to the signal SIGUSR1. The child process
  * exits when \em nbCalls reaches 0.
  */
-void manage_child() {
+void manage_child(void) {
     struct sigaction managing_lifes;
 
     printf("Child process (PID %d)\n", getpid());
 
-    /* Clean up the structure before using it */
+    /* Initialize the structure to zero before use. */
     memset(&managing_lifes, '\0', sizeof(managing_lifes));
 
     /* Set the new handler */

@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2022 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
  * and a dynamically allocated memory block (heap).
  */
 
-void print_stack_location() {
+void print_stack_location(void) {
     int stack_variable;
     printf("Location of stack variable inside function: %p\n", (void *)&stack_variable);
 }

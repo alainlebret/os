@@ -1,4 +1,4 @@
-SUBDIRS = 1_process 3_files 4_memory 5_synchronization 6_interprocess 7_sockets 8_threads
+SUBDIRS = 1_process 3_files 4_memory 5_synchronization 6_interprocess 7_sockets 8_multiplexing 9_threads 10_various
 
 all:
 	for dir in $(SUBDIRS) ; do \

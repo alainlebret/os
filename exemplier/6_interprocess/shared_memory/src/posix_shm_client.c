@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 
     fprintf(stderr, "Shared memory object %s has been opened", MEMORY_PATH);
 
-    if (MAC_OSX) { /* MAC OS X abnormality about ftruncate */
+    if (MAC_OSX) { /* macOS-specific behavior with ftruncate() */
         struct stat mapstat;
         if (fstat(memory_descriptor, &mapstat) == -1) {
             handle_error("Error [fstat()]: ");

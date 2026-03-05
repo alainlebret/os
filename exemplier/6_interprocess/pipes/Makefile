@@ -9,7 +9,7 @@ src = $(wildcard $(SRC_DIR)/*.c)
 bins = $(patsubst $(SRC_DIR)/%.c, $(BIN_DIR)/%, $(src))
 
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic -O2
+CFLAGS = -Wall -Wextra -pedantic -std=c11 -O2
 LDFLAGS =
 COLOR_CHANGER_CFLAGS = `pkg-config --cflags gtk+-3.0`
 COLOR_CHANGER_LDFLAGS = `pkg-config --libs gtk+-3.0`
@@ -45,6 +45,6 @@ clean:
 	rm -f $(OBJ_DIR)/*.o
 
 distclean: clean
-	rm -f $(bins)
+	rm -rf $(BIN_DIR)
 
 .PHONY: all clean distclean

@@ -10,6 +10,7 @@ This section contains examples related to memory management in C. Below is a lis
 | `memory_04.c`     | Highlights the memory leak problem in a specific scenario                 | [View](https://github.com/alainlebret/os/blob/master/exemplier/4_memory/src/memory_04.c) |
 | `memory_05a.c`    | Demonstrates a memory leak issue in a different context                   | [View](https://github.com/alainlebret/os/blob/master/exemplier/4_memory/src/memory_05a.c) |
 | `memory_05b.c`    | Further illustrates how avoid memory leak problem                         | [View](https://github.com/alainlebret/os/blob/master/exemplier/4_memory/src/memory_05b.c) |
+| `memory_06.c`     | Displays the full memory layout of a process (text, data, BSS, heap, stack) using external symbols `etext`, `edata`, `end` | [View](https://github.com/alainlebret/os/blob/master/exemplier/4_memory/src/memory_06.c) |
 | `memory_07.c`     | Provides insights into stack memory usage                                 | [View](https://github.com/alainlebret/os/blob/master/exemplier/4_memory/src/memory_07.c) |
 | `mmap1.c`         | Shows how to project a file onto a memory segment                         | [View](https://github.com/alainlebret/os/blob/master/exemplier/4_memory/src/mmap1.c) |
 | `mmap2.c`         | Demonstrates file projection onto a memory segment with a different approach | [View](https://github.com/alainlebret/os/blob/master/exemplier/4_memory/src/mmap2.c) |

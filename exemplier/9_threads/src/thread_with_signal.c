@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,22 +38,24 @@ typedef struct data {
     int age;
 } data_t;
 
+static volatile sig_atomic_t stop_requested = 0;
+
 void handle_signal(int sig) {
     (void) sig;  /* Mark sig as unused */
     write(1, "Caught signal SIGINT\n", 21);
-    pthread_exit(NULL);
+    stop_requested = 1;
 }
 
 void *func(void *arg) {
     data_t *p = (data_t *) arg;
 
-    while (1) {
+    while (!stop_requested) {
         fprintf(stderr, "This is from thread function\n");
-        strcpy(p->name, "Linux Lover");
+        snprintf(p->name, sizeof(p->name), "Linux Lover");
         p->age = 55;
         sleep(2);
     }
-    /* Unreachable */
+    return NULL;
 }
 
 int main(void) {

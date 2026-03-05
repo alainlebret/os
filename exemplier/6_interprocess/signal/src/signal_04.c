@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
  * A simple program that uses POSIX signals and handles SIGCHLD.
  */
 
-int child_exited = 0;
+static volatile sig_atomic_t child_exited = 0;
 
 /** 
  * @brief Defines a new handler of the SIGCHLD signal in charge of suppressing
@@ -40,6 +40,8 @@ void handle_sigchild(int signal) {
     pid_t child;
     int status;
 
+    /* SECURITY NOTE: signal handlers should use only async-signal-safe operations.
+     * In production, set a sig_atomic_t flag and do I/O/cleanup in normal flow. */
     if (signal == SIGCHLD) {
         while ((child = waitpid(-1, &status, WNOHANG)) > 0) {
             printf("My child (%d) died. He will not be a zombie.\n", child);
@@ -62,10 +64,10 @@ void handle_fatal_error_and_exit(const char *msg) {
 /**
  * @brief Manages the parent process.
  */
-void manage_parent() {
+void manage_parent(void) {
     struct sigaction action;
 
-    /* Clean up the structure before using it */
+    /* Initialize the structure to zero before use. */
     memset(&action, '\0', sizeof(action));
     /* Set the new handler */
     action.sa_handler = &handle_sigchild;
@@ -88,9 +90,9 @@ void manage_parent() {
 /**
  * @brief Manages the child process. 
  *
- * It just does some stuff for 10 seconds.
+ * The child simulates work for 10 seconds.
  */
-void manage_child() {
+void manage_child(void) {
     printf("Child process (PID %d)\n", getpid());
     printf("Child: I am doing some stuff for 10 seconds...\n");
     sleep(10);

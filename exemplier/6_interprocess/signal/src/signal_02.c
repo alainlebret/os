@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@
 #define DURATION 5
 
 /**
- * @brief Defines the new handler of the SIGALRM signal.
+ * @brief Signal handler for SIGALRM signal.
  * @param signal Number of the signal
  */
 void handle_alarm(int signal) {
@@ -46,7 +46,7 @@ int main(void) {
     int remaining_time;
     int result;
 
-    /* Clean up the structure before using it */
+    /* Initialize the structure to zero before use. */
     memset(&action, '\0', sizeof(action));
 
     /* Set the new handler */

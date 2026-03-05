@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ void handle_fatal_error_and_exit(const char *msg) {
  * The parent process prints its PID and then exits, leaving the child
  * process orphaned.
  */
-void manage_parent() {
+void manage_parent(void) {
     printf("Parent process (PID %d)\n", getpid());
 	exit(EXIT_SUCCESS); /* Explicit exit to simulate the parent dying */
 }
@@ -59,7 +59,7 @@ void manage_parent() {
  * The child process is blocked during DURATION seconds and then checks its
  * parent.
  */
-void manage_child() {
+void manage_child(void) {
     printf("Child process (PID %d)\n", getpid());
     printf("Child will be blocked during %d seconds...\n", DURATION);
 

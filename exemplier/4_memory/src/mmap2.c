@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2022 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
     int fdin;
     int fdout;
     char *src;
-    char **dst;
+    char *dst;
     long file_size;
 
     if (argc != 3) {
@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
 
     /* Same for the output one */
     dst = mmap(NULL, file_size, PROT_READ | PROT_WRITE, MAP_SHARED, fdout, 0);
-    assert(src != MAP_FAILED);
+    assert(dst != MAP_FAILED);
 
     /* Performs a memory copy from src to dst */
     memcpy(dst, src, file_size);

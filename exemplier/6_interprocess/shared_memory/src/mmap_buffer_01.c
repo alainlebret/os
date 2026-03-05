@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ void manage_child(void *shared_memory) {
  * Creates and initializes a new shared memory using the mmap primitive.
  * @return Pointer on the shared memory
  */
-void *create_shared_memory() {
+void *create_shared_memory(void) {
     /* initialize shared memory using mmap */
     void *shared_memory = mmap(0, /* beginning (starting address is ignored) */
                                INTEGER_SIZE, /* size of the shared memory */

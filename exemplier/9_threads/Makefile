@@ -11,7 +11,7 @@ bins = $(patsubst $(SRC_DIR)/%.c, $(BIN_DIR)/%, $(src))
 
 CC = gcc
 CPPFLAGS = -I $(INC_DIR)
-CFLAGS = -Wall -Wextra -pedantic -O2
+CFLAGS = -Wall -Wextra -pedantic -std=c11 -O2
 LDFLAGS = -lpthread
 
 ifeq ($(shell uname -s),Darwin)
@@ -50,8 +50,9 @@ $(BIN_DIR)/%: $(OBJ_DIR)/%.o
 	$(CC) $< -o $@ $(LDFLAGS)
 
 clean:
-	rm -f $(OBJ_DIR)/*.o $(all_bins)
+	rm -f $(OBJ_DIR)/*.o
 
 distclean: clean
+	rm -rf $(BIN_DIR)
 
 .PHONY: all clean distclean

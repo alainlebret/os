@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,12 @@
  * A simple program that uses POSIX signals and handles SIGALRM to create a clock.
  */
 
-unsigned int h = 0; /* Hours */
-unsigned int m = 0; /* Minutes */
-unsigned int s = 0; /* Seconds */
+volatile sig_atomic_t h = 0; /* Hours */
+volatile sig_atomic_t m = 0; /* Minutes */
+volatile sig_atomic_t s = 0; /* Seconds */
 
 /** 
- * @brief Defines the new handler of the SIGINT signal.
+ * @brief Signal handler for SIGINT signal.
  * @param signal Number of the signal
  */
 void handle_sigint(int signal) {
@@ -43,7 +43,7 @@ void handle_sigint(int signal) {
 }
 
 /** 
- * @brief Defines the new handler of the SIGALRM signal.
+ * @brief Signal handler for SIGALRM signal.
  * @param signal Number of the signal
  */
 void tick(int signal) {
@@ -59,7 +59,7 @@ void tick(int signal) {
                     h = 0;
             }
         }
-        printf("%u:%u:%u\n", h, m, s);
+        printf("%d:%d:%d\n", h, m, s);
 
         /* Re-engage the alarm */
         alarm(1);
@@ -70,14 +70,14 @@ int main(void) {
     struct sigaction action;
     struct sigaction sigint_action;
 
-    /* Clean up the structure before using it */
+    /* Initialize the structure to zero before use. */
     memset(&action, '\0', sizeof(action));
     /* Set the new handler */
     action.sa_handler = &tick;
     /* Install the new handler of the SIGALRM signal */
     sigaction(SIGALRM, &action, NULL);
 
-    /* Same for SIGINT */
+    /* Repeat the same setup for SIGINT. */
     memset(&sigint_action, '\0', sizeof(sigint_action));
     sigint_action.sa_handler = &handle_sigint;
     sigaction(SIGINT, &sigint_action, NULL);

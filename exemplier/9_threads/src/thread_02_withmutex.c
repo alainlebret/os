@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,30 +21,32 @@
 #include <unistd.h>
 
 /**
- * @file threads_02.c
+ * @file threads_02_withmutex.c
  *
- * A simple program using 3 POSIX threads.
+ * A simple program using 3 POSIX threads and a mutex.
  *
- * On Mac OS X, compile with gcc -Wall -Wextra -ansi -pedantic thread_02.c
- * On Linux, compile with gcc -Wall -Wextra -ansi -pedantic thread_02.c -pthread
+ * On Mac OS X, compile with gcc -DMUTEX -Wall -Wextra thread_02_withmutex.c
+ * On Linux, compile with gcc -DMUTEX -Wall -Wextra thread_02_withmutex.c -pthread
  */
 
 #define ITERATIONS 100000
+
+pthread_mutex_t mutex;
 
 void display(int n, char letter) {
     int i;
     int j;
 
     for (j = 1; j < n; j++) {
-        for (i = 1; i < ITERATIONS; i++) {
-            printf("%c", letter);
-        }
+        pthread_mutex_lock(&mutex);
+        for (i = 1; i < ITERATIONS; i++);
+        printf("%c", letter);
         fflush(stdout);
+        pthread_mutex_unlock(&mutex);
     }
 }
 
 void *threadA(void *unused) {
-    (void) unused; /* Deactivate warning */
     display(100, 65);
     printf("\n End of the thread A\n");
     fflush(stdout);
@@ -53,7 +55,6 @@ void *threadA(void *unused) {
 }
 
 void *threadC(void *unused) {
-    (void) unused; /* Deactivate warning */
     display(150, 67);
 
     printf("\n End of the thread C\n");
@@ -63,7 +64,6 @@ void *threadC(void *unused) {
 }
 
 void *threadB(void *unused) {
-    (void) unused; /* Deactivate warning */
     pthread_t thC;
 
     pthread_create(&thC, NULL, threadC, NULL);
@@ -82,6 +82,7 @@ int main(void) {
     pthread_t thA;
     pthread_t thB;
 
+    pthread_mutex_init(&mutex, NULL);
     printf(" Creation of the thread A\n");
     pthread_create(&thA, NULL, threadA, NULL);
     printf(" Creation of the thread B\n");

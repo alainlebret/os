@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,21 +33,22 @@
  * A simple program that uses POSIX signals and handles SIGINT.
  */
 
+static volatile sig_atomic_t got_sigint = 0;
+
 /**
- * @brief Defines the new handler of the SIGINT signal.
+ * @brief Signal handler for SIGINT signal.
  * @param signal Number of the signal
  */
 void handle_sigint(int signal) {
     if (signal == SIGINT) {
-        printf("SIGINT signal received!\n");
-        exit(EXIT_SUCCESS);
+        got_sigint = 1;
     }
 }
 
 int main(void) {
     struct sigaction action;
 
-    /* Clean up the structure before using it */
+    /* Initialize the structure to zero before use. */
     memset(&action, '\0', sizeof(action));
 
     /* Set the new handler */
@@ -58,10 +59,11 @@ int main(void) {
 
     printf("Program started. Press Ctrl-C to send SIGINT.\n");
 
-    /* Wait for the signal SIGINT (<Ctrl-C>) */
-    pause();
-
-    printf("This will never be displayed.\n");
+    /* Wait for SIGINT and handle it in normal flow. */
+    while (!got_sigint) {
+        pause();
+    }
+    printf("SIGINT signal received!\n");
 
     return EXIT_SUCCESS;
 }

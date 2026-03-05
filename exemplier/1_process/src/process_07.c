@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ void handle_fatal_error_and_exit(const char *msg) {
  * @brief Manages the parent process by waiting for the child to exit and
  * displaying its PID and group ID.
  */
-void manage_parent() {
+void manage_parent(void) {
     pid_t child;
     int status;
 
@@ -58,7 +58,7 @@ void manage_parent() {
 /**
  * @brief Manages the child process by displaying its PID and group ID.
  */
-void manage_child() {
+void manage_child(void) {
     printf("Child process: PID=%d, Group ID=%d\n", getpid(), getpgrp());
 }
 

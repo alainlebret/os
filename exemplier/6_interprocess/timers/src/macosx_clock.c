@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,9 @@
 #include <time.h>
 #include <unistd.h>
 
-unsigned int h = 0; 
-unsigned int m = 0; 
-unsigned int s = 0;
+volatile sig_atomic_t h = 0;
+volatile sig_atomic_t m = 0;
+volatile sig_atomic_t s = 0;
 
 void handle_sigint(int signal) {
     if (signal == SIGINT) {
@@ -54,7 +54,7 @@ void tick(int signal) {
                     h = 0;
             }
         }
-        printf("%u:%u:%u (macOS, SIGALRM via setitimer)\n", h, m, s);
+        printf("%d:%d:%d (macOS, SIGALRM via setitimer)\n", h, m, s);
         fflush(stdout);
     }
 }
@@ -63,7 +63,7 @@ int main(void) {
     struct sigaction action;
     struct sigaction sigint_action;
 	
-    /* Clean up the structure before using it */
+    /* Initialize the structure to zero before use. */
     memset(&action, 0, sizeof(action));
     /* Set the new handler */
     action.sa_handler = &tick;
@@ -74,7 +74,7 @@ int main(void) {
         exit(EXIT_FAILURE);
     }
 
-    /* Same for SIGINT */
+    /* Repeat the same setup for SIGINT. */
     memset(&sigint_action, 0, sizeof(sigint_action));
     sigint_action.sa_handler = &handle_sigint;
     sigint_action.sa_flags = SA_RESTART;

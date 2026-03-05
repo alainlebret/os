@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,11 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <signal.h>
 #include <netinet/in.h> /* Internet structures and functions. */
 #include <sys/socket.h> /* Socket functions. */
+#include <sys/wait.h>
 
 /**
  * @file rotn_server.c
@@ -34,6 +36,26 @@
  */
 
 #define MAX_LINE 16384
+
+static int send_all(int fd, const char *buffer, size_t len) {
+    size_t total_sent = 0;
+
+    while (total_sent < len) {
+        ssize_t sent = send(fd, buffer + total_sent, len - total_sent, 0);
+        if (sent < 0) {
+            if (errno == EINTR) {
+                continue;
+            }
+            return -1;
+        }
+        if (sent == 0) {
+            return -1;
+        }
+        total_sent += (size_t) sent;
+    }
+
+    return 0;
+}
 
 /**
  * @brief Apply ROTn obfuscation to a character.
@@ -63,6 +85,7 @@ char rot_char(char c, int rot) {
  * @param sig Signal number (not used).
  */
 void sigchld_handler(int sig) {
+    (void) sig;
     /* Wait for all dead processes. */
     /* We use a non-blocking call to avoid hanging if a child hasn't exited yet. */
     while (waitpid(-1, NULL, WNOHANG) > 0);
@@ -95,14 +118,17 @@ void handle_child(int fd) {
             break;
         }
 
-        /* Test not to overflowing the output buffer. */
+        /* Prevent output buffer overflow. */
         if (outbuf_used < sizeof(outbuf)) {
             outbuf[outbuf_used++] = rot_char(ch, 3);
         }
 
         if (ch == '\n') {
             /* Send message to the socket of the incoming connection */
-            send(fd, outbuf, outbuf_used, 0);
+            if (send_all(fd, outbuf, outbuf_used) == -1) {
+                perror("send");
+                break;
+            }
             outbuf_used = 0;
         }
     }
@@ -116,11 +142,13 @@ void handle_child(int fd) {
  * Initializes the server socket, listens for incoming connections,
  * and handles them by forking new processes.
  */
-void run() {
+void run(void) {
     int listener;
     struct sockaddr_in sin;
     struct sigaction sa;
 
+    /* SECURITY NOTE: this demo server has no authentication, encryption, or rate limiting.
+     * Production services need TLS, access control, timeouts, and DoS protections. */
     /*---- Configure settings of the server address struct ----*/
     /* Address family = Internet */
     sin.sin_family = AF_INET;
@@ -150,6 +178,7 @@ void run() {
     /* Set up SIGCHLD handler to prevent zombie processes */
     memset(&sa, 0, sizeof(sa));
     sa.sa_handler = &sigchld_handler;
+    sa.sa_flags = SA_RESTART;
     sigaction(SIGCHLD, &sa, NULL);
 
     while (1) {
@@ -161,6 +190,9 @@ void run() {
         /* Accept call creates a new socket for the incoming connection */
         fd = accept(listener, (struct sockaddr *) &ss, &slen);
         if (fd < 0) {
+            if (errno == EINTR) {
+                continue;
+            }
             perror("accept");
         } else {
             if (fork() == 0) {

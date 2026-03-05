@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,10 +52,10 @@ void handle_fatal_error(const char *message) {
  * Initializes the shared memory and semaphore's value.
  * @return The number of child processes
  */
-int initialize() {
+int initialize(void) {
     unsigned int number_children; /* fork count */
-    key_t shmkey;                 /* shared memory key */
     unsigned int sem_value;       /* semaphore value */
+    key_t shmkey;                 /* shared memory key */
 
     /* initialize a shared variable in shared memory */
     shmkey = ftok("/dev/null", 5);  /* valid directory name and a number */

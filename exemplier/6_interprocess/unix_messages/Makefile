@@ -6,7 +6,7 @@ BIN_DIR = bin
 
 CC = gcc
 CPPFLAGS = -I $(INC_DIR)
-CFLAGS = -Wall -Wextra -pedantic -O2
+CFLAGS = -Wall -Wextra -pedantic -std=c11 -O2
 LDFLAGS =
 BINS = $(BIN_DIR)/test_message $(BIN_DIR)/unix_msg_recv $(BIN_DIR)/unix_msg_send
 
@@ -39,6 +39,6 @@ clean:
 	rm -f $(OBJ_DIR)/*.o
 
 distclean: clean
-	rm -f $(BINS)
+	rm -rf $(BIN_DIR)
 
 .PHONY: all clean distclean

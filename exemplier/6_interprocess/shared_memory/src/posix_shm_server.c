@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <string.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -33,6 +34,8 @@
  */
 
 #define MEMORY_PATH "/shm_name"
+
+static volatile sig_atomic_t stop_requested = 0;
 
 /**
 * Structure to store a value and its square root.
@@ -54,11 +57,8 @@ void handle_error(const char *message) {
  * Unlinks the shared memory when receiving the SIGINT signal.
  */
 void handle_sigint(int signum) {
-    if (shm_unlink(MEMORY_PATH) < 0) {
-        handle_error("Error [shm_unlink()]: ");
-    }
-    fprintf(stderr, "Shared memory %s unlinked successfully.\n", MEMORY_PATH);
-    exit(EXIT_SUCCESS);
+    (void) signum;
+    stop_requested = 1;
 }
 
 int main(int argc, char *argv[]) {
@@ -70,6 +70,7 @@ int main(int argc, char *argv[]) {
 
     memory_size = (1 * sizeof(struct memory_t));
 
+    memset(&action, '\0', sizeof(action));
     action.sa_handler = &handle_sigint;
 
     sigaction(SIGINT, &action, NULL);
@@ -102,7 +103,7 @@ int main(int argc, char *argv[]) {
 
     value = 1;
 
-    while (1) {
+    while (!stop_requested) {
         memory->value = value;
         memory->square_root = sqrt(value);
         fprintf(stderr, "Updated shared memory: value = %d, square root = %f\n",
@@ -111,6 +112,17 @@ int main(int argc, char *argv[]) {
         value++;
     }
 
-    munmap(memory, memory_size);
-    close(memory_descriptor);
+    if (munmap(memory, memory_size) == -1) {
+        perror("munmap");
+    }
+    if (close(memory_descriptor) == -1) {
+        perror("close");
+    }
+    if (shm_unlink(MEMORY_PATH) == -1) {
+        perror("shm_unlink");
+        return EXIT_FAILURE;
+    }
+    fprintf(stderr, "Shared memory %s unlinked successfully.\n", MEMORY_PATH);
+
+    return EXIT_SUCCESS;
 }

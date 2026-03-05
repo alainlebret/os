@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,16 +29,23 @@
  * siginfo_t.
  */
 
+static volatile sig_atomic_t got_sigterm = 0;
+static volatile sig_atomic_t got_sigint = 0;
+static volatile sig_atomic_t sender_pid = -1;
+static volatile sig_atomic_t sender_uid = -1;
+
 void hdl(int signal, siginfo_t *siginfo, void *context) {
+    (void) context;
     if (signal == SIGTERM) {
-        printf("Sending PID: %ld, UID: %ld\n", (long) siginfo->si_pid, (long) siginfo->si_uid);
+        sender_pid = (sig_atomic_t) siginfo->si_pid;
+        sender_uid = (sig_atomic_t) siginfo->si_uid;
+        got_sigterm = 1;
     }
 }
 
 void sigint_handler(int signal) {
     if (signal == SIGINT) {
-        printf("SIGINT received, exiting.\n");
-        exit(EXIT_SUCCESS);
+        got_sigint = 1;
     }
 }
 
@@ -46,9 +53,9 @@ int main(int argc, char *argv[]) {
     struct sigaction action;
     struct sigaction sigint_action;
 
-    /* Clean up the structure before using it */
+    /* Initialize the structure to zero before use. */
     memset(&action, '\0', sizeof(action));
-    /* Use the sa_sigaction field because the handles has two additional parameters */
+    /* Use the sa_sigaction field because the handler has two additional parameters */
     action.sa_sigaction = &hdl;
     /* The SA_SIGINFO flag tells sigaction() to use the sa_sigaction field, not sa_handler. */
     action.sa_flags = SA_SIGINFO;
@@ -66,9 +73,14 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    while (1) {
-        sleep(10);
+    while (!got_sigint) {
+        pause();
+        if (got_sigterm) {
+            printf("Sending PID: %ld, UID: %ld\n", (long) sender_pid, (long) sender_uid);
+            got_sigterm = 0;
+        }
     }
+    printf("SIGINT received, exiting.\n");
 
     return EXIT_SUCCESS;
 }

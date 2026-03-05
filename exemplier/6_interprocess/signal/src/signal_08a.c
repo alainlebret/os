@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ int main(void) {
     /* Clear the mask */
     sigemptyset(&action_usr1.sa_mask);
 
-    /* Same for SIGINT */
+    /* Repeat the same setup for SIGINT. */
     action_int.sa_handler = sigint_handler;
     action_int.sa_flags = 0;
     sigemptyset(&action_int.sa_mask);

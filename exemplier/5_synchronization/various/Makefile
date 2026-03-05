@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -std=c99
+CFLAGS = -Wall -Wextra -pedantic -std=c11 -O2
 LDFLAGS =
 BIN_DIR = bin
 SRC_DIR = src
@@ -28,7 +28,7 @@ SRCS := $(SRC_DIR)/color_writer.c $(SRC_DIR)/color_displayer.c $(SRC_DIR)/color_
 TARGETS := $(BIN_DIR)/color_writer $(BIN_DIR)/color_displayer $(BIN_DIR)/color_writer_without_synchro\
         $(BIN_DIR)/color_displayer_without_synchro $(BIN_DIR)/without_synchro
 
-.PHONY: all clean
+.PHONY: all clean distclean
 
 all: directories $(TARGETS)
 
@@ -58,4 +58,4 @@ clean:
 	rm -f $(OBJ_DIR)/*.o
 
 distclean: clean
-	rm -f $(TARGETS)
+	rm -rf $(BIN_DIR)

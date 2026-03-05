@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@
  * Displays the provided error message using perror and exits with failure.
  * @param msg The error message to display before exiting.
  */
-void handle_fatal_error_and_exit(char *msg) {
+void handle_fatal_error_and_exit(const char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
 }

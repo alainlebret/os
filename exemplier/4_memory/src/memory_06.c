@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2022 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,7 +117,7 @@ int main(int argc, char *argv[], char *envp[]) {
         exit(EXIT_FAILURE);
     }
 
-    strcpy(g_buff, " Layout of virtual memory \n ");
+    snprintf(g_buff, sizeof(g_buff), " Layout of virtual memory \n ");
 
     if (write(1, g_buff, strlen(g_buff) + 1) == -1) {
         perror("Error [write()]: ");

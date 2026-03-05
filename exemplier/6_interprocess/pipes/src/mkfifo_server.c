@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,8 @@
 
 #define QUESTION "cli2serv"
 #define RESPONSE "serv2cli"
+/* SECURITY NOTE: predictable FIFO names in shared directories are vulnerable to local attacks.
+ * Production code should use private directories, strict permissions, and peer validation. */
 
 /**
  * Reads the expression "a <op> b" (op = '+', '-', '*' or '/') from the
@@ -96,13 +98,15 @@ void manage_server(int fdr, int fdq) {
         question[bytes_read] = '\0'; /* Null-terminate the question */
 
         if (strncmp(question, "Pouce!", 6) == 0) {
-            strcpy(response, "OK");
+            snprintf(response, sizeof(response), "OK");
             write(fdr, response, strlen(response) + 1); /* +1 for null terminator */
             break;
         }
 
-        if (sscanf(question, "%d%1s%d", &operand1, &operator, &operand2) < 3) {
-            strcpy(response, "Error");
+        /* SECURITY NOTE: parse the operator as a char to avoid writing a string
+         * into one-byte storage. In production, also validate input length/range. */
+        if (sscanf(question, "%d %c %d", &operand1, &operator, &operand2) < 3) {
+            snprintf(response, sizeof(response), "Error");
         } else {
             switch (operator) {
                 case '+' :
@@ -118,14 +122,14 @@ void manage_server(int fdr, int fdq) {
                     result = (operand2 != 0) ? operand1 / operand2 : 32767;
                     break;
                 default :
-                    strcpy(response, "Invalid Op");
+                    snprintf(response, sizeof(response), "Invalid Op");
                     continue;
             }
 
             if (result == 32767) {
-                strcpy(response, "NaN");
+                snprintf(response, sizeof(response), "NaN");
             } else {
-                sprintf(response, "%d", result);
+                snprintf(response, sizeof(response), "%d", result);
             }
         }
 

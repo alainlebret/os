@@ -1,10 +1,10 @@
-# Exemplier - System Programming Examples
+# Exemplier -- Unix system programming examples
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Ce dépôt contient une collection d'exemples de programmation système en C, utilisés dans mes cours à l'Université Paris-Est, France (2011-2014), et à l'ENSICAEN, France (depuis 2016). Ces exemples couvrent divers aspects de la programmation système tels que la gestion des processus, la communication inter-processus, les sockets, et plus encore.
+Ce dépôt contient une collection d'exemples de programmation système Unix en C, utilisés dans mes cours à l'Université Paris-Est, France (2011-2014), et à l'ENSICAEN, France (depuis 2016). Ces exemples couvrent divers aspects de la programmation système tels que la gestion des processus, la communication inter-processus, les sockets, et plus encore.
 
-## Table des Matières
+## Table des matières
 - [1_process](1_process/README.md)
 - [2_shell](2_shell/README.md)
 - [3_files](3_files/README.md)
@@ -12,8 +12,9 @@ Ce dépôt contient une collection d'exemples de programmation système en C, ut
 - [5_synchronization](5_synchronization/README.md)
 - [6_interprocess](6_interprocess/README.md)
 - [7_sockets](7_sockets/README.md)
-- [8_threads](8_threads/README.md)
-- [9_various](9_various/README.md)
+- [8_multiplexing](8_multiplexing/README.md)
+- [9_threads](9_threads/README.md)
+- [10_various](10_various/README.md)
 
 ## Utilisation
 
@@ -38,8 +39,9 @@ This repository contains a collection of system programming examples in C, used 
 - [5_synchronization](5_synchronization/README.md)
 - [6_interprocess](6_interprocess/README.md)
 - [7_sockets](7_sockets/README.md)
-- [8_threads](8_threads/README.md)
-- [9_various](9_various/README.md)
+- [8_multiplexing](8_multiplexing/README.md)
+- [9_threads](9_threads/README.md)
+- [10_various](10_various/README.md)
 
 ## Usage
 

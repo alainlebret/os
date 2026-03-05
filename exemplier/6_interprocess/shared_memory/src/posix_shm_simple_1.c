@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,18 +40,21 @@ int main(void) {
     int i;
     int *ptr;
     pid_t pid;
+    const size_t shm_bytes = SHM_SIZE * sizeof(int);
 
     srand(time(NULL));
 
     fd = shm_open("/pipeautique1", O_CREAT | O_RDWR, 0644);
     printf("shm_open returned %d (%d: %s)\n", fd, errno, strerror(errno));
 
-    if (ftruncate(fd, SHM_SIZE) == -1) {
+    if (ftruncate(fd, (off_t) shm_bytes) == -1) {
         perror("Error [ftruncate()]: ");
         exit(EXIT_FAILURE);
     }
 
-    ptr = (int *) mmap(NULL, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    /* SECURITY NOTE (teaching demo): this sample omits strict size checks.
+     * In production, map sizeof(int) * element_count and validate all indices. */
+    ptr = (int *) mmap(NULL, shm_bytes, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     printf("mmap returned %p (%d: %s)\n", (void *) ptr, errno, strerror(errno));
 
     pid = fork();
@@ -68,7 +71,7 @@ int main(void) {
         }
         printf("\n");
     }
-    munmap(ptr, SHM_SIZE);
+    munmap(ptr, shm_bytes);
     if (pid > 0) {
         shm_unlink("/pipeautique1");
     }

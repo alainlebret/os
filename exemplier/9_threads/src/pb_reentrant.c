@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,43 +15,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include <pthread.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 
 /**
- * @file without_pb_reentrant.c
- * @see pb_reentrant.c
+ * @file pb_reentrant.c
+ * @see without_pb_reentrant.c
  *
  * A simple program to show the importance of using "reentrant" functions.
  */
 
 #define THREADS 4
 
-static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-int f_reentrant(void) {
-    static unsigned int next;
+int f(void) {
+    static unsigned int next = 1;
 
-    pthread_mutex_lock(&mutex);
-    /* Beginning of critical section */
-    next = 1;
     next = next * 1103515245 + 12345;
     next = (unsigned int) (next / 65536) % 32768;
-    /* End of critical section */
-    pthread_mutex_unlock(&mutex);
-
-    usleep(10);
 
     return next;
 }
 
 void *doit(void *vargp) {
-    (void) vargp;  /* Mark it as unused */
-    printf("[%lu]: val = %d\n", (uintptr_t) pthread_self(), f_reentrant());
+    (void) vargp; /* Deactivate warning */
+    printf("[%ld]: val = %d\n", pthread_self(), f());
     return NULL;
 }
 

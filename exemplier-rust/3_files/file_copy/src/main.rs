@@ -1,7 +1,7 @@
 ///
 /// Unix System Programming Examples / Exemplier de programmation système Unix
 ///
-/// Copyright (C) 1995-2022 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+/// Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
 ///
 /// Licensed under the Apache License, Version 2.0 (the "License");
 /// you may not use this file except in compliance with the License.
@@ -15,22 +15,57 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 ///
-
-use std::fs;
+use nix::fcntl::{open, OFlag};
+use nix::sys::stat::Mode;
+use nix::unistd::{close, read, write};
 use std::process::exit;
 
 ///
-/// Copy from keyboard to a file.
+/// Copies the text typed on the keyboard to a file named file.out.
+/// Reads input from stdin in 80-byte chunks until EOF (Ctrl+D).
 ///
 
-fn main() {
-    let mut buffer: String;
+const SIZE: usize = 80;
 
-    buffer = String::new();
-    std::io::stdin()
-        .read_line(&mut buffer)
-        .expect("Unable to read from standard input!");
-    fs::write("file.out", buffer).expect("Unable to open file!");
+fn main() {
+    let fd = open(
+        "file.out",
+        OFlag::O_CREAT | OFlag::O_WRONLY | OFlag::O_TRUNC,
+        Mode::from_bits_truncate(0o644),
+    )
+    .unwrap_or_else(|e| {
+        eprintln!("Error opening file.out: {}", e);
+        exit(1);
+    });
+
+    write(1, b"Type your input (Ctrl+D to end):\n").unwrap_or_else(|e| {
+        eprintln!("Error writing prompt: {}", e);
+        exit(1);
+    });
+
+    let mut buffer = [0u8; SIZE];
+    loop {
+        match read(0, &mut buffer) {
+            Ok(0) => break,
+            Ok(n) => {
+                write(fd, &buffer[..n]).unwrap_or_else(|e| {
+                    eprintln!("Error writing to file: {}", e);
+                    close(fd).ok();
+                    exit(1);
+                });
+            }
+            Err(e) => {
+                eprintln!("Error reading from stdin: {}", e);
+                close(fd).ok();
+                exit(1);
+            }
+        }
+    }
+
+    close(fd).unwrap_or_else(|e| {
+        eprintln!("Error closing file: {}", e);
+        exit(1);
+    });
 
     exit(0);
 }

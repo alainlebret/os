@@ -10,7 +10,7 @@ obj = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(src))
 
 CC = gcc
 CPPFLAGS = -I $(INC_DIR)
-CFLAGS = -Wall -Wextra -pedantic -O2
+CFLAGS = -Wall -Wextra -pedantic -std=c11 -O2
 LDFLAGS =
 
 BIN = microseconds_sleep
@@ -32,6 +32,6 @@ clean:
 	rm -f $(OBJ_DIR)/*.o
 
 distclean: clean
-	rm -f $(BIN_DIR)/$(BIN)
+	rm -rf $(BIN_DIR)
 
 .PHONY: all clean distclean

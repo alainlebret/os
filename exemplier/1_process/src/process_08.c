@@ -1,7 +1,7 @@
 /*
  * Unix System Programming Examples / Exemplier de programmation système Unix
  *
- * Copyright (C) 1995-2023 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+ * Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ static char *path = "./moving_window";
 /*
  * This block will be executed by the first son
  */
-void manage_son1() {
+void manage_son1(void) {
     /* Arguments for the GTK application */
     char *args[] = {"moving_window", "100", "100", "#5bccc9", NULL};
 
@@ -48,7 +48,7 @@ void manage_son1() {
 /*
  * This block will be executed by the second son
  */
-void manage_son2() {
+void manage_son2(void) {
     /* Arguments for the GTK application */
     char *args[] = {"moving_window", "350", "100", "#bca850", NULL};
 

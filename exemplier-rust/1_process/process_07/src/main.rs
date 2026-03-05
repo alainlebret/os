@@ -1,7 +1,7 @@
 ///
 /// Unix System Programming Examples / Exemplier de programmation système Unix
 ///
-/// Copyright (C) 1995-2022 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
+/// Copyright (C) 1995-2026 Alain Lebret <alain.lebret [at] ensicaen [dot] fr>
 ///
 /// Licensed under the Apache License, Version 2.0 (the "License");
 /// you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 ///
-use libc::{getpgrp, WEXITSTATUS, WIFEXITED};
-use nix::sys::wait::wait;
-use nix::unistd::{fork, getpid, getppid, sleep, ForkResult};
+use libc::getpgrp;
+use nix::sys::wait::{wait, WaitStatus};
+use nix::unistd::{fork, getpid, ForkResult};
 use std::process;
 use std::process::exit;
 
@@ -26,43 +26,53 @@ use std::process::exit;
 ///
 
 ///
-/// Manages the child process by just displaying its PID and group.
+/// Manages the child process by displaying its PID and group ID.
 ///
 fn manage_child() {
-    println!("Child process (PID n° {})", process::id());
     unsafe {
-        println!("Child's group: {}.", getpgrp());
+        println!(
+            "Child process: PID={}, Group ID={}",
+            process::id(),
+            getpgrp()
+        );
     }
     exit(0);
 }
 
 ///
-/// Manages the parent process. The parent is waiting for his child to exit.
+/// Manages the parent process. The parent displays its group ID then waits
+/// for the child to exit.
 ///
 fn manage_parent() {
-    println!("Parent process (PID n° {})", process::id());
+    unsafe {
+        println!(
+            "Parent process: PID={}, Group ID={}",
+            process::id(),
+            getpgrp()
+        );
+    }
 }
 
 fn main() {
-    let status = 0;
-
     match unsafe { fork() } {
         Ok(ForkResult::Child) => {
             manage_child();
         }
 
-        Ok(ForkResult::Parent { child }) => {
+        Ok(ForkResult::Parent { child: _ }) => {
             manage_parent();
-            wait().expect("Unable to wait for my child to end!");
-            if (WIFEXITED(status)) {
-                println!(
-                    "{} : child {} has finished his work (code: {} )",
-                    getpid(),
-                    child,
-                    WEXITSTATUS(status)
-                );
+            match wait() {
+                Ok(WaitStatus::Exited(child_pid, code)) => {
+                    println!(
+                        "{} : child {} has finished his work (code: {})",
+                        getpid(),
+                        child_pid,
+                        code
+                    );
+                }
+                Ok(_) => {}
+                Err(err) => panic!("Error [wait()]: {}", err),
             }
-            exit(0);
         }
 
         Err(err) => {
