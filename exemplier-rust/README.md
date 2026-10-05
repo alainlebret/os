@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Ce sous-répertoire contient la version Rust des exemples du cours de systèmes d'exploitation.
+Ce sous-dossier contient la version en Rust des exemples utilisés dans le cours de systèmes d'exploitation.
 
 Les exemples forment un *workspace* Cargo (crate `nix` 0.30) : `cargo build` à la racine de
 `exemplier-rust/` les construit tous ; `cargo run -p process_05` lance l'un d'eux (ou `cargo run`
@@ -22,16 +22,15 @@ dans son dossier). Chacun correspond au fichier C de même nom de `../exemplier/
 | `3_files/file_copy` | `file_copy.c` | Copie le clavier dans `file.out` avec `read()`/`write()`, écritures partielles traitées |
 | `3_files/fs_block` | `fs_block.c` | `statvfs()` : taille de bloc et nombre de blocs, comptés en `f_frsize` |
 
-`fork()` est `unsafe` en Rust : chaque programme explique en commentaire (`// SAFETY:`)
-pourquoi l'appel est sûr ici (un seul thread).
+L'utilisation de `fork()` est considérée comme dangereuse en Rust. Chaque programme inclut un commentaire (`// SAFETY:`) expliquant pourquoi l'appel est sûr dans ce contexte.
 
-Ces exemples de code sont fournis sous licence [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+Ces exemples de code sont fournis sous la licence [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
 ----
 
-This repository contains some system programming examples written in Rust used in the course.
+This repository contains system programming examples written in Rust for use in the course.
 
-The examples form a Cargo workspace (`nix` 0.30): run `cargo build` in `exemplier-rust/`, then `cargo run -p <name>` (for instance `cargo run -p process_05`). Each one mirrors the C file of the same name in `../exemplier/`.
+The examples are organized as a Cargo workspace (`nix` 0.30). Run `cargo build` to build all examples. Use `cargo run -p <name>` (for example, `cargo run -p process_05`) to run a specific example. Each example corresponds to a C file with the same name in `../exemplier/`.
 
-These codes are provided under the [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0) License.
+These code examples are provided under the [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0) License.
 
