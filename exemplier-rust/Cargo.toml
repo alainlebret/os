@@ -1,0 +1,26 @@
+# Workspace: one shared target/ directory and one Cargo.lock for all examples.
+# Build everything with `cargo build`, run one example with
+# `cargo run -p process_05` (or `cargo run` inside its directory).
+[workspace]
+resolver = "2"
+members = [
+    "1_process/process_01",
+    "1_process/process_02",
+    "1_process/process_03",
+    "1_process/process_04a",
+    "1_process/process_04b",
+    "1_process/process_05",
+    "1_process/process_06a",
+    "1_process/process_06b",
+    "1_process/process_07",
+    "3_files/file_copy",
+    "3_files/fs_block",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+
+[workspace.dependencies]
+nix = { version = "0.30", features = ["process", "signal", "fs"] }

@@ -227,3 +227,6 @@ TSWLatexianTemp*
 hs_err_pid*
 
 .DS_Store
+
+# Cargo.lock of the Rust examples: versioned, so that everyone builds the same versions
+!exemplier-rust/Cargo.lock
