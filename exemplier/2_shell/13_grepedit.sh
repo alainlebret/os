@@ -8,7 +8,7 @@
 # Unix System Programming Examples / Exemplier de programmation système Unix
 # "Shell bash" / "Interpréteur de commandes bash"
 #
-# Copyright (C) 1995-2023 Alain Lebret (alain.lebret@ensicaen.fr)
+# Copyright (C) 1995-2026 Alain Lebret (alain.lebret@ensicaen.fr)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ shift
 
 echo "Searching for files containing the word '$word'..."
 while [ $# -gt 0 ]; do
-  if [ -f "$1" ] && [ -r "$1" ] && grep -q "${word}" "$1"; then
+  if [ -f "$1" ] && [ -r "$1" ] && grep -q -F -w -- "${word}" "$1"; then
     vim "$1"
   else
     echo "Word '$word' not found or file '$1' cannot be read."

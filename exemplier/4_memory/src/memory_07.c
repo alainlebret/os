@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>    /* uintptr_t */
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -37,12 +38,14 @@ void print_stack_location(void) {
 int main(void) {
     void *heap_memory;
 
-    printf("Location of main() function code: %p\n", (void *)main);
-    printf("Location of print_stack_location() function code: %p\n", (void *)print_stack_location);
+    /* ISO C forbids converting a function pointer directly to void *:
+     * go through an integer type (uintptr_t) */
+    printf("Location of main() function code: %p\n", (void *) (uintptr_t) main);
+    printf("Location of print_stack_location() function code: %p\n", (void *) (uintptr_t) print_stack_location);
     
     print_stack_location(); /* Function call to demonstrate stack location */
 
-    heap_memory = malloc(100e6); /* Reduced the size to a more reasonable amount for demonstration */
+    heap_memory = malloc(100000000UL); /* 100 MB */
     if (heap_memory == NULL) {
         fprintf(stderr, "Failed to allocate memory.\n");
         return EXIT_FAILURE;

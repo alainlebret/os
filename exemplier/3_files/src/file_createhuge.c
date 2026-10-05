@@ -44,13 +44,13 @@ void handle_fatal_error_and_exit(const char *msg) {
 
 int main(int argc, char *argv[]) {
     int fd;
-    int zero;
+    char zero;
     char *filename;
-    size_t length;
+    off_t length;
 
     /* argc should be 3 */
     if (argc != 3) {
-        printf("Usage: %s <filename> <number of gigabytes>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <filename> <number of gigabytes>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
@@ -67,17 +67,17 @@ int main(int argc, char *argv[]) {
     /* Open a new file. */
     fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (fd == -1) {
-        handle_fatal_error_and_exit("Error [open()]: ");
+        handle_fatal_error_and_exit("Error [open()]");
     }
 
     /* Jump to where we want the file to end. */
     if (lseek(fd, length - 1, SEEK_SET) == -1) {
-        handle_fatal_error_and_exit("Error [lseek()]: ");
+        handle_fatal_error_and_exit("Error [lseek()]");
     }
 
     /* Write a single 0 byte. */
     if (write(fd, &zero, 1) != 1) {
-        handle_fatal_error_and_exit("Error [write()]: ");
+        handle_fatal_error_and_exit("Error [write()]");
     }
 
     if (close(fd) == -1) {

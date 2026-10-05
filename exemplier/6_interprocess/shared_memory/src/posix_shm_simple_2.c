@@ -20,7 +20,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
-#include <sys/shm.h>
+#include <sys/wait.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <sys/types.h>
@@ -32,11 +32,12 @@
  *
  * Another example using parent and child processes sharing memory without 
  * synchronization. Link with \c -lrt under Linux.
+ *
+ * sleep() is not a synchronization: it makes the expected order likely, but
+ * does not guarantee it (a loaded machine may run the processes in any order).
  */
 
-typedef struct memory {
-    int *table;
-} memory_t;
+#define N 3  /* number of shared integers */
 
 /**
  * Displays content of the specified integer values.
@@ -51,62 +52,60 @@ void handle_error(const char *message);
 int main(void) {
     int shm_fd;     /* file descriptor, from shm_open() */
     int *shm_base;  /* base address, from mmap() */
-    int *ptr;       /* shm_base is fixed, ptr is movable */
-    memory_t mem;   /* the shared memory */
-
-    mem.table = (int *) malloc(3 * sizeof(int));
     const char *name = "/pipeautique2"; /* shared memory name */
-    const int SIZE = sizeof(mem); /* shared memory size */
+    const size_t SIZE = N * sizeof(int); /* shared memory size: the integers
+                                            themselves, never a pointer */
 
     /* create the shared memory segment as if it was a file */
     shm_fd = shm_open(name, O_CREAT | O_RDWR, 0644);
     if (shm_fd == -1) {
-        handle_error("Shared memory failed: %s\n");
+        handle_error("Error [shm_open()]");
     }
 
     /* configure the size of the shared memory segment */
-    ftruncate(shm_fd, SIZE);
+    if (ftruncate(shm_fd, SIZE) == -1) {
+        handle_error("Error [ftruncate()]");
+    }
 
     /* map the shared memory segment to the address space of the process */
     shm_base = mmap(0, SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
     if (shm_base == MAP_FAILED) {
-        handle_error("Map failed: %s\n");
+        handle_error("Error [mmap()]");
     }
 
-    int pid = fork();
+    pid_t pid = fork();
 
     if (pid < 0) {
-        handle_error("Shared memory failed: %s\n");
+        handle_error("Error [fork()]");
     }
     if (pid > 0) { /* parent process */
-        display("prod1", shm_base, 3);
+        display("prod1", shm_base, N);
         shm_base[0] = 1;
-        display("prod1", shm_base, 3);
+        display("prod1", shm_base, N);
         sleep(1);
-        display("prod1", shm_base, 3);
+        display("prod1", shm_base, N);
         shm_base[1] = 3;
-        display("prod1", shm_base, 3);
+        display("prod1", shm_base, N);
         sleep(1);
-        display("prod1", shm_base, 3);
+        display("prod1", shm_base, N);
         shm_base[2] = 5;
-        display("prod1", shm_base, 3);
+        display("prod1", shm_base, N);
         sleep(1);
     } else { /* child process */
-        display("prod2", shm_base, 3);
+        display("prod2", shm_base, N);
         shm_base[0] = 2;
-        display("prod2", shm_base, 3);
+        display("prod2", shm_base, N);
         sleep(1);
-        display("prod2", shm_base, 3);
+        display("prod2", shm_base, N);
         shm_base[1] = 4;
-        display("prod2", shm_base, 3);
+        display("prod2", shm_base, N);
         sleep(1);
-        display("prod2", shm_base, 3);
+        display("prod2", shm_base, N);
         shm_base[2] = 6;
-        display("prod2", shm_base, 3);
+        display("prod2", shm_base, N);
         sleep(1);
     }
 
-    free(mem.table);
     /* remove the mapped memory segment from the address space of the process */
     if (munmap(shm_base, SIZE) == -1) {
         handle_error("Error [unmap()]: ");
@@ -118,6 +117,7 @@ int main(void) {
     }
 
     if (pid > 0) {
+        wait(NULL);
         shm_unlink("/pipeautique2");
     }
 

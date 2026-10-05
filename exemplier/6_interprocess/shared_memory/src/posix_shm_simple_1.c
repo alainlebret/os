@@ -23,14 +23,16 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <errno.h>
-#include <string.h>
+#include <sys/wait.h>
 
 /**
  * @file posix_shm_simple_1.c
  *
  * Example using parent and child processes sharing memory without synchronization.
  * Link with \c -lrt under Linux.
+ *
+ * No synchronization on purpose: the child will probably display 0s, read
+ * before the parent has written.
  */
 
 #define SHM_SIZE 100
@@ -45,19 +47,28 @@ int main(void) {
     srand(time(NULL));
 
     fd = shm_open("/pipeautique1", O_CREAT | O_RDWR, 0644);
-    printf("shm_open returned %d (%d: %s)\n", fd, errno, strerror(errno));
-
-    if (ftruncate(fd, (off_t) shm_bytes) == -1) {
-        perror("Error [ftruncate()]: ");
+    if (fd == -1) {
+        perror("Error [shm_open()]");
         exit(EXIT_FAILURE);
     }
 
-    /* SECURITY NOTE (teaching demo): this sample omits strict size checks.
-     * In production, map sizeof(int) * element_count and validate all indices. */
+    if (ftruncate(fd, (off_t) shm_bytes) == -1) {
+        perror("Error [ftruncate()]");
+        exit(EXIT_FAILURE);
+    }
+
     ptr = (int *) mmap(NULL, shm_bytes, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-    printf("mmap returned %p (%d: %s)\n", (void *) ptr, errno, strerror(errno));
+    if (ptr == MAP_FAILED) {
+        perror("Error [mmap()]");
+        exit(EXIT_FAILURE);
+    }
+    close(fd);
 
     pid = fork();
+    if (pid == -1) {
+        perror("Error [fork()]");
+        exit(EXIT_FAILURE);
+    }
 
     if (pid > 0) {
         for (i = 0; i < SHM_SIZE; i++) {
@@ -73,6 +84,7 @@ int main(void) {
     }
     munmap(ptr, shm_bytes);
     if (pid > 0) {
+        wait(NULL);
         shm_unlink("/pipeautique1");
     }
 

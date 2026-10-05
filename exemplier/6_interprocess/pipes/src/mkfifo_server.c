@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 #include <stdio.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -28,6 +29,10 @@
  *
  * A server program that returns the result of a a+b request sent by a client.
  * They both communicate using fifos.
+ *
+ * Simplification: each read() is taken as one whole request. A pipe is a
+ * stream of bytes, so this holds only because requests are short and the
+ * client waits for each response before sending the next one.
  */
 
 #define QUESTION "cli2serv"
@@ -48,6 +53,10 @@ void manage_server(int fdr, int fdq);
 int main(void) {
     int fdq;
     int fdr;
+
+    /* If the client leaves, write() fails with EPIPE instead of killing the
+       server with SIGPIPE: the server can then remove the FIFOs */
+    signal(SIGPIPE, SIG_IGN);
 
     unlink(QUESTION);
     unlink(RESPONSE);
@@ -83,7 +92,8 @@ int main(void) {
 }
 
 void manage_server(int fdr, int fdq) {
-    int operand1, operand2, result;
+    int operand1, operand2, result = 0;
+    const char *error;
     char operator;
     char question[11];
     char response[11];
@@ -95,11 +105,16 @@ void manage_server(int fdr, int fdq) {
             perror("Error reading from pipe");
             break;
         }
+        if (bytes_read == 0) { /* EOF: the client has closed the pipe */
+            break;
+        }
         question[bytes_read] = '\0'; /* Null-terminate the question */
 
         if (strncmp(question, "Pouce!", 6) == 0) {
             snprintf(response, sizeof(response), "OK");
-            write(fdr, response, strlen(response) + 1); /* +1 for null terminator */
+            if (write(fdr, response, strlen(response) + 1) == -1) { /* +1 for '\0' */
+                perror("Error writing to pipe");
+            }
             break;
         }
 
@@ -108,6 +123,7 @@ void manage_server(int fdr, int fdq) {
         if (sscanf(question, "%d %c %d", &operand1, &operator, &operand2) < 3) {
             snprintf(response, sizeof(response), "Error");
         } else {
+            error = NULL;
             switch (operator) {
                 case '+' :
                     result = operand1 + operand2;
@@ -119,15 +135,20 @@ void manage_server(int fdr, int fdq) {
                     result = operand1 * operand2;
                     break;
                 case '/' :
-                    result = (operand2 != 0) ? operand1 / operand2 : 32767;
+                    if (operand2 == 0) {
+                        error = "NaN";
+                    } else {
+                        result = operand1 / operand2;
+                    }
                     break;
                 default :
-                    snprintf(response, sizeof(response), "Invalid Op");
-                    continue;
+                    /* No 'continue': the client waits for a response */
+                    error = "Invalid Op";
+                    break;
             }
 
-            if (result == 32767) {
-                snprintf(response, sizeof(response), "NaN");
+            if (error != NULL) {
+                snprintf(response, sizeof(response), "%s", error);
             } else {
                 snprintf(response, sizeof(response), "%d", result);
             }

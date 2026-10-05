@@ -8,7 +8,7 @@
 # Unix System Programming Examples / Exemplier de programmation système Unix
 # "Shell bash" / "Interpréteur de commandes bash"
 #
-# Copyright (C) 1995-2023 Alain Lebret (alain.lebret@ensicaen.fr)
+# Copyright (C) 1995-2026 Alain Lebret (alain.lebret@ensicaen.fr)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,19 +30,19 @@
 # or in a more robust way:
 #   find ./ -type f | wc -l
 #
+count=0
 LIST=""
-echo "${LIST}"
 
 for file in *; do
     if [ -f "$file" ]; then  # Check if it's a regular file
-        nom=${file%%.*}
-        extension=${file##*.}
-        echo "$extension"
+        name=${file%%.*}       # before the first dot
+        extension=${file##*.}  # after the last dot
+        echo "$name -> $extension"
         LIST="$LIST $file"
-	fi
+        count=$((count + 1))   # counted here: a name may contain spaces
+    fi
 done
 
 echo "List of files: $LIST"
-echo " "
-nb="$( echo "$LIST" | wc -w ) files"
-echo "Number of files: ${nb}"
+echo
+echo "Number of files: $count"

@@ -30,7 +30,7 @@ ssize_t mq_receive(mqd_t mqd, char *ptr, size_t maxlen, unsigned int *priop) {
         return (-1);
     }
 
-    if (maxlen < attr->mq_msgsize) {
+    if (maxlen < (size_t) attr->mq_msgsize) {
         errno = EMSGSIZE;
         goto err;
     }
@@ -41,6 +41,8 @@ ssize_t mq_receive(mqd_t mqd, char *ptr, size_t maxlen, unsigned int *priop) {
         }
         /* wait for a message to be placed onto queue */
         mqhdr->mqh_nwait++;
+        /* may return EINVAL at once between two processes on macOS (see
+         * mq_timedreceive.c): the loop then polls actively */
         while (attr->mq_curmsgs == 0)
             pthread_cond_wait(&mqhdr->mqh_wait, &mqhdr->mqh_lock);
         mqhdr->mqh_nwait--;
@@ -61,9 +63,9 @@ ssize_t mq_receive(mqd_t mqd, char *ptr, size_t maxlen, unsigned int *priop) {
     msghdr->msg_next = mqhdr->mqh_free;
     mqhdr->mqh_free = index;
 
-    /* wake up anyone blocked in mq_send waiting for room */
-    if (attr->mq_curmsgs == attr->mq_maxmsg)
-        pthread_cond_signal(&mqhdr->mqh_wait);
+    /* wake up everyone blocked in mq_send waiting for room: signaling only
+     * when the queue was full loses wake-ups with several blocked senders */
+    pthread_cond_broadcast(&mqhdr->mqh_wait);
     attr->mq_curmsgs--;
 
     pthread_mutex_unlock(&mqhdr->mqh_lock);

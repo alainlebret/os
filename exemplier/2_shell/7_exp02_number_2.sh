@@ -8,7 +8,7 @@
 # Unix System Programming Examples / Exemplier de programmation système Unix
 # "Shell bash" / "Interpréteur de commandes bash"
 #
-# Copyright (C) 1995-2023 Alain Lebret (alain.lebret@ensicaen.fr)
+# Copyright (C) 1995-2026 Alain Lebret (alain.lebret@ensicaen.fr)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,10 +28,16 @@
 echo -n "Enter an integer value x such as: 1 < x < 10 : "
 read -r x
 
+# Stop at once if the input is not an integer (otherwise: "integer expression expected")
+if ! [[ $x =~ ^-?[0-9]+$ ]]; then
+    echo "Bad choice! '$x' is not an integer." >&2
+    exit 1
+fi
+
 # Check if the integer is in the range 1 < x < 10
 if [[ "$x" -gt 1 && "$x" -lt 10 ]]; then
     echo "$x*$x=$((x*x))"
 else
-    echo "Bad choice! The number must be between 1 and 10."
+    echo "Bad choice! The number must be strictly between 1 and 10."
 fi
 

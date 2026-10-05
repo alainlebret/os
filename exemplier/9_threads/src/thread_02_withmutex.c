@@ -17,37 +17,52 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>  /* strerror() */
 #include <pthread.h>
 #include <unistd.h>
 
 /**
- * @file threads_02_withmutex.c
+ * @file thread_02_withmutex.c
  *
- * A simple program using 3 POSIX threads and a mutex.
+ * A simple program using 3 POSIX threads and a mutex: same as thread_02.c,
+ * but each block of letters is displayed under the protection of the mutex,
+ * so that the blocks of the different threads no longer interleave.
  *
- * On Mac OS X, compile with gcc -DMUTEX -Wall -Wextra thread_02_withmutex.c
- * On Linux, compile with gcc -DMUTEX -Wall -Wextra thread_02_withmutex.c -pthread
+ * Compile with gcc -Wall -Wextra -pedantic -std=c11 -pthread thread_02_withmutex.c
  */
 
 #define ITERATIONS 100000
 
 pthread_mutex_t mutex;
 
+/**
+ * Stops the program if a pthread_*() call failed: these functions return an
+ * error number (0 on success) and do not set errno.
+ */
+static void check(int err, const char *what) {
+    if (err != 0) {
+        fprintf(stderr, "%s : %s\n", what, strerror(err));
+        exit(EXIT_FAILURE);
+    }
+}
+
 void display(int n, char letter) {
     int i;
     int j;
 
-    for (j = 1; j < n; j++) {
+    for (j = 0; j < n; j++) {
         pthread_mutex_lock(&mutex);
-        for (i = 1; i < ITERATIONS; i++);
-        printf("%c", letter);
+        for (i = 0; i < ITERATIONS; i++) {
+            printf("%c", letter);
+        }
         fflush(stdout);
         pthread_mutex_unlock(&mutex);
     }
 }
 
 void *threadA(void *unused) {
-    display(100, 65);
+    (void) unused; /* Deactivate warning */
+    display(100, 'A');
     printf("\n End of the thread A\n");
     fflush(stdout);
 
@@ -55,7 +70,8 @@ void *threadA(void *unused) {
 }
 
 void *threadC(void *unused) {
-    display(150, 67);
+    (void) unused; /* Deactivate warning */
+    display(150, 'C');
 
     printf("\n End of the thread C\n");
     fflush(stdout);
@@ -64,13 +80,14 @@ void *threadC(void *unused) {
 }
 
 void *threadB(void *unused) {
+    (void) unused; /* Deactivate warning */
     pthread_t thC;
 
-    pthread_create(&thC, NULL, threadC, NULL);
-    display(100, 66);
+    check(pthread_create(&thC, NULL, threadC, NULL), "pthread_create");
+    display(100, 'B');
 
     printf("\n Thread B is waiting for thread C\n");
-    pthread_join(thC, NULL);
+    check(pthread_join(thC, NULL), "pthread_join");
 
     printf("\n End of the thread B\n");
     fflush(stdout);
@@ -84,15 +101,16 @@ int main(void) {
 
     pthread_mutex_init(&mutex, NULL);
     printf(" Creation of the thread A\n");
-    pthread_create(&thA, NULL, threadA, NULL);
+    check(pthread_create(&thA, NULL, threadA, NULL), "pthread_create");
     printf(" Creation of the thread B\n");
-    pthread_create(&thB, NULL, threadB, NULL);
+    check(pthread_create(&thB, NULL, threadB, NULL), "pthread_create");
     sleep(1);
 
     /* The main thread is waiting for A and B to finish */
     printf("The main thread is waiting for A and B to finish\n");
-    pthread_join(thA, NULL);
-    pthread_join(thB, NULL);
+    check(pthread_join(thA, NULL), "pthread_join");
+    check(pthread_join(thB, NULL), "pthread_join");
+    pthread_mutex_destroy(&mutex);
 
     return EXIT_SUCCESS;
 }

@@ -23,13 +23,14 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#define THREAD_COUNT 10
+#define PTHREAD_BARRIER_SERIAL_THREAD 1
 
 typedef struct {
     pthread_mutex_t mutex;
     pthread_cond_t cond;
-    int count;
-    int waiting;
+    unsigned count;          /* number of threads to wait for */
+    unsigned waiting;        /* number of threads already arrived */
+    unsigned generation;     /* incremented each time the barrier opens */
 } pthread_barrier_t;
 
 int pthread_barrier_init(pthread_barrier_t *barrier, const void *attr, unsigned count);

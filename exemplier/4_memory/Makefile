@@ -9,14 +9,14 @@ src = $(wildcard $(SRC_DIR)/*.c)
 bins = $(patsubst $(SRC_DIR)/%.c, $(BIN_DIR)/%, $(src))
 
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic -std=c11 -O2
-LDFLAGS =
+CFLAGS = -Wall -Wextra -pedantic -std=c11 -O2 -D_DEFAULT_SOURCE  # POSIX + BSD APIs with glibc
+LDFLAGS = -lm   # sqrt() in memory_03.c (libm under Linux)
 
 all: directories $(bins)
 
 # Rule to create directories
 directories:
-	@mkdir -p $(BIN_DIR) $(INC_DIR)
+	@mkdir -p $(BIN_DIR)
 
 # General rule to create object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c

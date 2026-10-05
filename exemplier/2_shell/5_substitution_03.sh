@@ -8,7 +8,7 @@
 # Unix System Programming Examples / Exemplier de programmation système Unix
 # "Shell bash" / "Interpréteur de commandes bash"
 #
-# Copyright (C) 1995-2023 Alain Lebret (alain.lebret@ensicaen.fr)
+# Copyright (C) 1995-2026 Alain Lebret (alain.lebret@ensicaen.fr)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,12 @@ echo "Define BACKUP as ./backup-\$(date +%Y-%m-%d).tar.gz"
 BACKUP="./backup-$(date +%Y-%m-%d).tar.gz"
 echo "BACKUP filename is set to $BACKUP"
 
-SOURCE_DIR="$HOME/Desktop/os/courses/examples/shell"
+# The directory to save is given as parameter (not "." : the archive would contain itself)
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 DIRECTORY" >&2
+    exit 1
+fi
+SOURCE_DIR="$1"
 if [ -d "$SOURCE_DIR" ]; then
     echo "Creating a tarball backup of $SOURCE_DIR"
     if tar -czf "${BACKUP}" "$SOURCE_DIR"; then

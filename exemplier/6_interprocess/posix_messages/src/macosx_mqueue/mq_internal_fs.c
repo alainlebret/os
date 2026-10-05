@@ -26,7 +26,9 @@ int mq_get_fs_pathname(const char *const pathname, char *const out_pathname) {
     }
 
     size_t pathname_len = safe_strlen(pathname, MQ_NAME_MAX);
-    assert(pathname_len < MQ_NAME_MAX);
+    if (pathname_len >= MQ_NAME_MAX) {
+        return ENAMETOOLONG; /* user input: an error, not an assert() */
+    }
 
     size_t internal_len =
             strlen(prefix) + pathname_len + 1; /* +1 for ending '\0' */

@@ -40,10 +40,10 @@ mqd_t mq_open(const char *pathname, int oflag, ...) {
     mqinfo = NULL;
 
     char fs_pathname[MQ_FS_NAME_MAX];
-    if (mq_get_fs_pathname(pathname, fs_pathname) == EINVAL) {
-        errno = EINVAL;
+    if ((i = mq_get_fs_pathname(pathname, fs_pathname)) != 0) {
+        errno = i; /* EINVAL or ENAMETOOLONG */
         return ((mqd_t) - 1);
-    };
+    }
 
     again:
     if (oflag & O_CREAT) {
@@ -54,8 +54,11 @@ mqd_t mq_open(const char *pathname, int oflag, ...) {
         struct mq_attr *);
         va_end(ap);
 
-        /* open and specify O_EXCL and user-execute */
-        fd = open(fs_pathname, oflag | O_EXCL | O_RDWR, mode | S_IXUSR);
+        /* open and specify O_EXCL and user-execute; the access mode of the
+         * caller (O_RDONLY, O_WRONLY) is replaced by O_RDWR: O_WRONLY | O_RDWR
+         * is an invalid access mode (EINVAL) */
+        fd = open(fs_pathname, (oflag & ~O_ACCMODE) | O_EXCL | O_RDWR,
+                  mode | S_IXUSR);
         if (fd < 0) {
             if (errno == EEXIST && (oflag & O_EXCL) == 0)
                 goto exists; /* already exists, OK */
@@ -170,6 +173,7 @@ mqd_t mq_open(const char *pathname, int oflag, ...) {
     if (mptr == MAP_FAILED)
         goto err;
     close(fd);
+    fd = -1; /* already closed: not closed again on error */
 
     /* allocate one mq_info{} for each open */
     if ((mqinfo = malloc(sizeof(struct mq_info))) == NULL)
@@ -191,7 +195,8 @@ mqd_t mq_open(const char *pathname, int oflag, ...) {
         munmap(mptr, filesize);
     if (mqinfo != NULL)
         free(mqinfo);
-    close(fd);
+    if (fd != -1)
+        close(fd);
     errno = save_errno;
     return ((mqd_t) - 1);
 }

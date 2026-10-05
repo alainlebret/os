@@ -8,7 +8,7 @@
 # Unix System Programming Examples / Exemplier de programmation système Unix
 # "Shell bash" / "Interpréteur de commandes bash"
 #
-# Copyright (C) 1995-2023 Alain Lebret (alain.lebret@ensicaen.fr)
+# Copyright (C) 1995-2026 Alain Lebret (alain.lebret@ensicaen.fr)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,17 +23,17 @@
 # limitations under the License.
 #
 
-#!/bin/bash
-
 # A simple script to show how to use substitution in a more complex command
 
 echo "Remove backup files on the desktop"
 
-# Find and remove backup files safely, handling special characters in filenames
+# The substitution $(...) is only used to know whether there are files
 backup_files=$(find ~/Desktop/ -name "*.*~")
 if [ -z "$backup_files" ]; then
     echo "No backup files found."
 else
     echo "Removing backup files..."
-    echo "$backup_files" | xargs rm -i -v
+    # find runs rm itself: names with spaces are safe, and rm -i can ask the
+    # question on the terminal (with "| xargs", its stdin would be the pipe)
+    find ~/Desktop/ -name "*.*~" -exec rm -i -v {} \;
 fi

@@ -17,6 +17,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>  /* strcmp() */
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
@@ -27,12 +28,15 @@
  * @file unix_msg_recv.c
  *
  * Consumer program using a System V IPC message mechanism.
+ * Run unix_msg_send first (it creates the queue). The queue persists after
+ * the programs end: observe it with "ipcs -q", remove it with "ipcrm -q <id>",
+ * or run "./unix_msg_recv -r", which removes it after reading (msgctl()).
  */
 
 #define MSGQ_KEY 1234
-#define MSGQ_PERM 0666
-/* SECURITY NOTE: fixed keys and permissive IPC permissions are for demonstration only.
- * Production code should use least-privilege modes and randomized/isolated naming. */
+#define MSGQ_PERM 0600
+/* Fixed key for the demonstration (see ftok() in the course); permissions
+ * 0600: only the owner can use the queue. */
 
 /**
  * Handles a fatal error. It displays a message, then exits.
@@ -53,24 +57,32 @@ int get_msgq_id(key_t key) {
     msgq_id = msgget(key, msg_flag);
 
     if (msgq_id < 0) {
-        handle_fatal_error("Error using msgget()! ");
+        handle_fatal_error("Error using msgget()!");
     }
 
     return msgq_id;
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
     int msgq_id;
     message_t message;
+    int remove_queue = (argc == 2 && strcmp(argv[1], "-r") == 0);
 
     msgq_id = get_msgq_id(MSGQ_KEY);
 
     /* Receive an answer of message type MSG_TYPE_HANDOUT */
     if (msgrcv(msgq_id, &message, MESSAGE_SIZE, MSG_TYPE_HANDOUT, 0) < 0) {
-        handle_fatal_error("Error using msgrcv()! ");
+        handle_fatal_error("Error using msgrcv()!");
     }
 
     msg_display(&message);
+
+    if (remove_queue) {
+        if (msgctl(msgq_id, IPC_RMID, NULL) == -1) {
+            handle_fatal_error("Error using msgctl(IPC_RMID)");
+        }
+        printf("Queue removed.\n");
+    }
 
     return EXIT_SUCCESS;
 }

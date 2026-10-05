@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include <gtk/gtk.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -57,7 +58,7 @@ void set_window_color(gpointer user_data) {
     pipe_fd = thread_data->pipe_fd;
 
     while ((bytes_read = read(pipe_fd, color_name, sizeof(color_name))) > 0) {
-        color_name[bytes_read - 1] = '\0'; /* Enlève le caractère de fin de passage à la ligne */
+        color_name[bytes_read - 1] = '\0'; /* Termine la chaîne (color_sender envoie déjà le '\0') */
 
         /* Teste si le mot reçu est le mot-clé "FIN" de manière à quitter */
         if (strcmp(color_name, "FIN") == 0) {
@@ -69,7 +70,7 @@ void set_window_color(gpointer user_data) {
 
         /* Met à jour la couleur pour le thread principal */
         gdk_threads_enter();
-        gtk_widget_override_background_color(window, GTK_STATE_NORMAL, &color);
+        gtk_widget_override_background_color(window, GTK_STATE_FLAG_NORMAL, &color);
         gtk_widget_queue_draw(window);
         gdk_threads_leave();
     }
@@ -97,6 +98,12 @@ int main(int argc, char *argv[]) {
     gtk_window_set_default_size(GTK_WINDOW(window), 400, 300);
 
     g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit), NULL);
+
+    /* Crée le tube nommé (EEXIST : il existe déjà, on l'utilise) */
+    if (mkfifo(COLORPIPE, 0600) == -1 && errno != EEXIST) {
+        perror("Error creating the pipe");
+        exit(EXIT_FAILURE);
+    }
 
     int pipe_fd = open(COLORPIPE, O_RDONLY);
     if (pipe_fd == -1) {

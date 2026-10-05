@@ -16,12 +16,13 @@
  * limitations under the License.
  */
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
+#include <stdlib.h>    /* exit() */
 #include <unistd.h>    /* fork() */
 #include <sys/types.h> /* pid_t */
 #include <sys/wait.h>  /* wait() */
 #include <signal.h>    /* sigaction */
 #include <string.h>    /* memset() */
+#include <errno.h>     /* errno */
 
 /**
  * @file signal_04.c
@@ -30,24 +31,28 @@
  */
 
 static volatile sig_atomic_t child_exited = 0;
+static volatile sig_atomic_t last_child = 0;   /* PID of the last reaped child */
 
-/** 
+/**
  * @brief Defines a new handler of the SIGCHLD signal in charge of suppressing
  * zombies.
+ *
+ * Only async-signal-safe operations are used here: waitpid() and assignments
+ * to sig_atomic_t variables. The message is printed later, in the normal
+ * flow of the program (printf() must never be called from a handler).
  * @param signal Number of the signal.
  */
 void handle_sigchild(int signal) {
     pid_t child;
-    int status;
+    int saved_errno = errno;   /* waitpid() may modify errno */
 
-    /* SECURITY NOTE: signal handlers should use only async-signal-safe operations.
-     * In production, set a sig_atomic_t flag and do I/O/cleanup in normal flow. */
     if (signal == SIGCHLD) {
-        while ((child = waitpid(-1, &status, WNOHANG)) > 0) {
-            printf("My child (%d) died. He will not be a zombie.\n", child);
+        while ((child = waitpid(-1, NULL, WNOHANG)) > 0) {
+            last_child = (sig_atomic_t)child;
         }
         child_exited = 1;
     }
+    errno = saved_errno;
 }
 
 /**
@@ -62,28 +67,39 @@ void handle_fatal_error_and_exit(const char *msg) {
 }
 
 /**
- * @brief Manages the parent process.
+ * @brief Installs the SIGCHLD handler. Called before fork(): the handler is
+ * then in place even if the child ends before the parent runs again.
  */
-void manage_parent(void) {
+void install_sigchld_handler(void) {
     struct sigaction action;
 
     /* Initialize the structure to zero before use. */
     memset(&action, '\0', sizeof(action));
     /* Set the new handler */
     action.sa_handler = &handle_sigchild;
-    /* We ensure that certain system calls are automatically restarted if interrupted by a signal */
-    action.sa_flags = SA_RESTART;
+    sigemptyset(&action.sa_mask);
+    /* We ensure that certain system calls are automatically restarted if
+     * interrupted by a signal; no SIGCHLD when a child is only stopped */
+    action.sa_flags = SA_RESTART | SA_NOCLDSTOP;
 
     /* Install the new handler of the SIGCHLD signal */
-    sigaction(SIGCHLD, &action, NULL);
+    if (sigaction(SIGCHLD, &action, NULL) == -1) {
+        handle_fatal_error_and_exit("sigaction");
+    }
+}
 
-    printf("Parent process (PID %d)\n", getpid());
+/**
+ * @brief Manages the parent process.
+ */
+void manage_parent(void) {
+    printf("Parent process (PID %ld)\n", (long) getpid());
 
     while (!child_exited) {
         printf("Parent: I am working...\n");
         sleep(2);
     }
 
+    printf("My child (%ld) died. He will not be a zombie.\n", (long) last_child);
     printf("Parent: My child has exited, so I can stop working :-)\n");
 }
 
@@ -93,7 +109,7 @@ void manage_parent(void) {
  * The child simulates work for 10 seconds.
  */
 void manage_child(void) {
-    printf("Child process (PID %d)\n", getpid());
+    printf("Child process (PID %ld)\n", (long) getpid());
     printf("Child: I am doing some stuff for 10 seconds...\n");
     sleep(10);
     exit(EXIT_SUCCESS);
@@ -102,10 +118,11 @@ void manage_child(void) {
 int main(void) {
     pid_t pid;
 
+    install_sigchld_handler(); /* before fork() */
     pid = fork();
 
     if (pid == -1) {
-        handle_fatal_error_and_exit("Error [fork()]: ");
+        handle_fatal_error_and_exit("Error [fork()]");
     }
 
     if (pid > 0) {

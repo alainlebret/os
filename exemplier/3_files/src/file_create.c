@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 
     /* argc should be 2 */
     if (argc != 2) {
-        printf("Usage: %s <filename>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
     /* Create the file */
     fd = open(filename, O_WRONLY | O_EXCL | O_CREAT, mode);
     if (fd == -1) {
-        handle_fatal_error_and_exit("Error [open()]: ");
+        handle_fatal_error_and_exit("Error [open()]");
     }
 
     if (close(fd) == -1) {

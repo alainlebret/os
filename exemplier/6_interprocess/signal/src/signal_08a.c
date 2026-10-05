@@ -37,15 +37,20 @@ volatile sig_atomic_t got_usr1;
  * @brief Handles the signal SIGUSR1.
  */
 void sigusr1_handler(int signal) {
+    (void) signal;
     got_usr1 = 1;
 }
 
 /**
- * @brief Handles the signal SIGINT.
+ * @brief Handles the signal SIGINT with async-signal-safe functions only
+ * (write() and _exit(), not printf() and exit()).
  */
 void sigint_handler(int signal) {
-    printf("SIGINT received, exiting.\n");
-    exit(EXIT_SUCCESS);
+    const char msg[] = "SIGINT received, exiting.\n";
+
+    (void) signal;
+    write(STDOUT_FILENO, msg, sizeof(msg) - 1);
+    _exit(EXIT_SUCCESS);
 }
 
 int main(void) {
@@ -77,7 +82,7 @@ int main(void) {
     }
 
     while (!got_usr1) {
-        printf("PID %d: working hard...\n", getpid());
+        printf("PID %ld: working hard...\n", (long) getpid());
         sleep(1);
     }
 

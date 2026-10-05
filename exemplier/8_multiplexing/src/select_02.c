@@ -15,6 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define _POSIX_C_SOURCE 200809L
+
 #include <unistd.h>     /* pipe(), fork(), read(), close(), write() */
 #include <stdio.h>      /* printf() */
 #include <stdlib.h>     /* exit() */
@@ -100,14 +102,21 @@ int main(void) {
     close(pipe1[1]);
     close(pipe2[1]);
 
-    nfds = (pipe2[0] > pipe1[0] ? pipe2[0] : pipe1[0]) + 1;
     done = 0;
 
     while (done < 2) {
-        /* Rebuild fd_set before every select() call */
+        /* Rebuild fd_set and nfds before every select() call: a closed
+           pipe (set to -1) is no longer watched */
         FD_ZERO(&readfds);
-        if (pipe1[0] != -1) FD_SET(pipe1[0], &readfds);
-        if (pipe2[0] != -1) FD_SET(pipe2[0], &readfds);
+        nfds = 0;
+        if (pipe1[0] != -1) {
+            FD_SET(pipe1[0], &readfds);
+            if (pipe1[0] + 1 > nfds) nfds = pipe1[0] + 1;
+        }
+        if (pipe2[0] != -1) {
+            FD_SET(pipe2[0], &readfds);
+            if (pipe2[0] + 1 > nfds) nfds = pipe2[0] + 1;
+        }
 
         ready = select(nfds, &readfds, NULL, NULL, NULL);
         if (ready == -1) {

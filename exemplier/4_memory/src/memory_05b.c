@@ -19,6 +19,7 @@
 #include <stdio.h>     /* printf() */
 #include <stdlib.h>    /* exit(), malloc(), free() */
 #include <unistd.h>    /* pause() */
+#include <errno.h>
 #include <signal.h>    /* sigaction */
 #include <sys/types.h> /* pid_t */
 
@@ -31,8 +32,13 @@
  */
 
 void handle_signal(int sig) {
-    printf("Signal %d received. Cleaning up and exiting...\n", sig);
-    exit(EXIT_SUCCESS);
+    /* Only async-signal-safe functions here: the handler just returns, and
+     * pause() then returns in main(), which frees the memory */
+    const char msg[] = "\nSignal received. Cleaning up and exiting...\n";
+    (void) sig;
+    int saved_errno = errno; /* write() may change errno: restore it for main() */
+    write(STDOUT_FILENO, msg, sizeof(msg) - 1);
+    errno = saved_errno;
 }
 
 int main(void) {
@@ -58,8 +64,8 @@ int main(void) {
         exit(EXIT_FAILURE);
     }
 
-    printf("Process with PID %d is paused. Press Ctrl-C to exit.\n", getpid());
-    pause();  /* Wait here until signal is received */
+    printf("Process with PID %ld is paused. Press Ctrl-C to exit.\n", (long) getpid());
+    pause();  /* Returns once the handler has run */
 
     /* Cleanup and exit */
     free(p);

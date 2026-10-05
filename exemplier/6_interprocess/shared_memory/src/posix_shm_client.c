@@ -28,10 +28,14 @@
  * @file posix_shm_client.c
  *
  * Example using a server and a client sharing memory.
- * Link with \c -lrt.
+ * The client only opens the segment created and sized by the server
+ * (neither O_CREAT nor ftruncate()); the server removes it (shm_unlink()).
+ * Link with \c -lrt under Linux.
+ *
+ * No synchronization: the reader may see a value and a result coming from two
+ * different updates. See the course, chapter « Synchronisation ».
  */
 
-#define MAC_OSX 0
 #define MEMORY_PATH "/shm_name"
 
 /**
@@ -50,14 +54,14 @@ void handle_error(const char *message) {
     exit(EXIT_FAILURE);
 }
 
+static volatile sig_atomic_t stop_requested = 0;
+
 /**
- * Unlinks the shared memory when receiving the SIGINT signal.
+ * Requests the end of the main loop when receiving the SIGINT signal.
  */
 void handle_sigint(int signum) {
-    if (shm_unlink(MEMORY_PATH) < 0) {
-        handle_error("Error [shm_unlink()]: ");
-    }
-    exit(EXIT_SUCCESS);
+    (void) signum;
+    stop_requested = 1;
 }
 
 /**
@@ -79,7 +83,7 @@ int check_for_new_data(struct memory_t *memory, struct memory_t *last_read) {
     return 0; /* No new data */
 }
 
-int main(int argc, char *argv[]) {
+int main(void) {
     int memory_descriptor;
     size_t memory_size;
     struct memory_t *memory;
@@ -88,50 +92,47 @@ int main(int argc, char *argv[]) {
 
     memory_size = (1 * sizeof(struct memory_t));
     action.sa_handler = &handle_sigint;
-
-    sigaction(SIGINT, &action, NULL);
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = 0;
+    if (sigaction(SIGINT, &action, NULL) == -1) {
+        perror("sigaction");
+        exit(EXIT_FAILURE);
+    }
 
     memory_descriptor = shm_open(
             MEMORY_PATH,
-            O_RDWR,
-            S_IRWXU | S_IRWXG);
+            O_RDONLY,
+            0);
     if (memory_descriptor < 0) {
-        handle_error("Error [shm_open()]: ");
+        handle_error("Error [shm_open()]");
     }
 
-    fprintf(stderr, "Shared memory object %s has been opened", MEMORY_PATH);
+    fprintf(stderr, "Shared memory object %s has been opened\n", MEMORY_PATH);
 
-    if (MAC_OSX) { /* macOS-specific behavior with ftruncate() */
-        struct stat mapstat;
-        if (fstat(memory_descriptor, &mapstat) == -1) {
-            handle_error("Error [fstat()]: ");
-        }
-
-        if (mapstat.st_size == 0) {
-            if (ftruncate(memory_descriptor, memory_size) == -1) {
-                handle_error("Error [ftruncate()]: ");
-            }
-        }
-    } else {
-        if (ftruncate(memory_descriptor, memory_size) == -1) {
-            handle_error("Error [ftruncate()]: ");
-        }
+    /* The server sizes the segment: check it is done (otherwise SIGBUS) */
+    struct stat mapstat;
+    if (fstat(memory_descriptor, &mapstat) == -1) {
+        handle_error("Error [fstat()]");
+    }
+    if (mapstat.st_size < (off_t) memory_size) {
+        fprintf(stderr, "Shared memory not ready yet\n");
+        exit(EXIT_FAILURE);
     }
 
     memory = (struct memory_t *) mmap(
             NULL,
             memory_size,
-            PROT_READ | PROT_WRITE,
+            PROT_READ,
             MAP_SHARED,
             memory_descriptor,
             0);
     if (memory == MAP_FAILED) {
-        handle_error("Error [mmap()]: ");
+        handle_error("Error [mmap()]");
     }
-    fprintf(stderr, "Shared memory of %zu bytes has been allocated\n",
+    fprintf(stderr, "Shared memory of %zu bytes has been projected\n",
             memory_size);
 
-    while (1) {
+    while (!stop_requested) {
         printf("Value is %d ... ", memory->value);
         printf("and its square root is %f \n", memory->square_root);
         if (check_for_new_data(memory, &last_read)) {
@@ -143,4 +144,7 @@ int main(int argc, char *argv[]) {
     if (munmap(memory, memory_size) == -1) {
         perror("munmap");
     }
+    close(memory_descriptor);
+
+    return EXIT_SUCCESS;
 }

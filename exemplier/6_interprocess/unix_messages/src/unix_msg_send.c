@@ -30,9 +30,9 @@
  */
 
 #define MSGQ_KEY 1234
-#define MSGQ_PERM (IPC_CREAT | 0666)
-/* SECURITY NOTE: fixed keys and permissive IPC permissions are for demonstration only.
- * Production code should use least-privilege modes and randomized/isolated naming. */
+#define MSGQ_PERM (IPC_CREAT | 0600)
+/* Fixed key for the demonstration (see ftok() in the course); permissions
+ * 0600: only the owner can use the queue. */
 
 /**
  * Handles a fatal error. It displays a message, then exits.
@@ -52,7 +52,7 @@ int get_msgq_id(key_t key) {
     msg_flag = MSGQ_PERM;
     msgq_id = msgget(key, msg_flag);
     if (msgq_id < 0) {
-        handle_fatal_error("Error using msgget()! ");
+        handle_fatal_error("Error using msgget()!");
     }
 
     return msgq_id;
@@ -69,15 +69,19 @@ int main(void) {
     message.type = MSG_TYPE_HANDOUT;
 
     printf("Enter a message to add to message queue: ");
-    scanf("%128[^\n]", message.content.buffer);
+    if (scanf("%1023[^\n]", message.content.buffer) /* MESSAGE_SIZE - 1 */ != 1) {
+        fprintf(stderr, "Empty message\n");
+        exit(EXIT_FAILURE);
+    }
     getchar();
 
     length = strlen(message.content.buffer) + 1;
 
     if (msgsnd(msgq_id, &message, length, IPC_NOWAIT) < 0) {
-        printf("%d, %ld, %s, %lu\n", msgq_id, message.type, message.content.buffer,
-               length);
-        handle_fatal_error("Error using msgsnd()! ");
+        perror("msgsnd()"); /* first, while errno is still the one of msgsnd() */
+        fprintf(stderr, "%d, %ld, %s, %zu\n", msgq_id, message.type, message.content.buffer,
+                length);
+        exit(EXIT_FAILURE);
     } else {
         printf("Message sent\n");
     }

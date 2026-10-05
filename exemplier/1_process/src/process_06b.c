@@ -17,8 +17,8 @@
  */
 
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
-#include <unistd.h>    /* fork() */
+#include <stdlib.h>    /* exit() */
+#include <unistd.h>    /* fork(), execlp() and _exit() */
 #include <sys/types.h> /* pid_t */
 #include <sys/wait.h>  /* wait() */
 
@@ -45,10 +45,13 @@ void manage_parent(void) {
     pid_t child;
     int status;
 
-    printf("Parent process (PID %d) waiting for the child.\n", getpid());
+    printf("Parent process (PID %ld) waiting for the child.\n", (long) getpid());
     child = wait(&status);
+    if (child == -1) {
+        handle_fatal_error_and_exit("Error [wait()]");
+    }
     if (WIFEXITED(status)) {
-        printf("Parent (PID %d): Child (PID %d) finished with exit code: %d\n", getpid(), child, WEXITSTATUS(status));
+        printf("Parent (PID %ld): Child (PID %ld) finished with exit code: %d\n", (long) getpid(), (long) child, WEXITSTATUS(status));
     }
 }
 
@@ -56,21 +59,24 @@ void manage_parent(void) {
  * @brief Manages the child process, replaces it with the gnuplot command.
  */
 void manage_child(void) {
-    const char *path = "gnuplot";
+    const char *program = "gnuplot"; /* a name searched in PATH (the p of execlp) */
     const char *command = "gnuplot";
     const char *argument1 = "-persist";
     const char *argument2 = "resources/command.gp";
 
-    printf("Child process (PID %d) will execute Gnuplot.\n", getpid());
-    if (execlp(path, command, argument1, argument2, NULL) == -1) {
-        handle_fatal_error_and_exit("Failed to run Gnuplot using execlp()");
-    }
+    printf("Child process (PID %ld) will execute Gnuplot.\n", (long) getpid());
+    fflush(stdout); /* the stdio buffer would be lost by execlp() */
+    execlp(program, command, argument1, argument2, (char *) NULL);
+
+    /* If execlp() returns, there was an error */
+    perror("Failed to run Gnuplot using execlp()");
+    _exit(127);
 }
 
 int main(void) {
     pid_t pid = fork();
     if (pid == -1) {
-        handle_fatal_error_and_exit("Error [fork()]: ");
+        handle_fatal_error_and_exit("Error [fork()]");
     }
 
     if (pid > 0) {

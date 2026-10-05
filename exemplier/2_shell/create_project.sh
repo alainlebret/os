@@ -12,7 +12,7 @@
 # It provides functions for creating, opening, compiling, and archiving projects.
 #
 # Authors: Alain Lebret (alain.lebret@ensicaen.fr)
-# Dependencies: bash, gcc, make, wget
+# Dependencies: bash, gcc, make, curl (optional: doxygen)
 # Usage: Run the script and follow the on-screen menu options.
 #
 # This script is licensed under the Apache License, Version 2.0 (the "License");
@@ -45,8 +45,8 @@ DEFAULT_C_HEADER="/*
  * or revised without written permission of the authors.
  */"
 
-DEFAULT_COMPILER="gcc"
-DEFAULT_CFLAGS="-Wall -Wextra -ansi -pedantic -g"
+DEFAULT_CC="gcc"
+DEFAULT_CFLAGS="-Wall -Wextra -std=c11 -pedantic -g"
 DEFAULT_HEADER_PATH="include"
 DEFAULT_DOC_PATH="doc"
 DEFAULT_LIBS="-lm"
@@ -54,21 +54,28 @@ DEFAULT_EXEC="prog.exe"
 
 # Example of a directory configuration array
 # Used by initialize_rep()
-DEFAULT_DIR_STRUCTURE=("bin" "bin/tests" ${DEFAULT_DOC_PATH} "etc" ${DEFAULT_HEADER_PATH} "lib" "src" "tests")
+DEFAULT_DIR_STRUCTURE=("bin" "bin/tests" "${DEFAULT_DOC_PATH}" "etc" "${DEFAULT_HEADER_PATH}" "lib" "src" "tests")
 
-# All errors are logged 
-exec 2>>/tmp/create_project.log
+# Errors are shown on screen and also kept in this log file
+LOG_FILE=/tmp/create_project.log
 
 
-# Error handling function.
-# Displays an error message and exits the script.
+# Fatal error: displays the message (screen and log file), then exits.
 # Arguments:
 #   $1 - Error message to display.
 #   $2 - Name of the function where the error occurred.
-function error() { 
-    echo "Error in function $2: $1!" >&2 
-    exit 1 
-} 
+function error() {
+    echo "Error in function $2: $1!" | tee -a "$LOG_FILE" >&2
+    exit 1
+}
+
+# Non-fatal error: displays the message (screen and log file) and returns,
+# so that the menu goes on after a typing mistake.
+# Arguments:
+#   $1 - Error message to display.
+function warn() {
+    echo "Erreur : $1" | tee -a "$LOG_FILE" >&2
+}
 
 # Displays the help message for the script usage.
 # Arguments:
@@ -91,7 +98,7 @@ function help() {
 function initialize_rep() {
     if [ ! -e "$DEFAULT_PROJECT_PATH" ]; then
        if ! mkdir "$DEFAULT_PROJECT_PATH"; then
-		  error "La création du dossier pour le projet a échoué."
+          warn "La création du dossier pour le projet a échoué."
           return 1
        fi
        for dir in "${DEFAULT_DIR_STRUCTURE[@]}"; do
@@ -100,7 +107,7 @@ function initialize_rep() {
        done
        return 0
     else
-       error "Le projet existe déjà"
+       warn "Le projet existe déjà"
        return 1
  fi
 }
@@ -115,7 +122,7 @@ function initialize_rep() {
 #   create_README
 function create_README() {
    cat > "$DEFAULT_PROJECT_PATH/README.md"<<EOF
-# Project "$DEFAULT_PROJECT_PATH"
+# Project $DEFAULT_PROJECT_PATH
 ## Description
 
 A complete description of the project...
@@ -138,7 +145,7 @@ List of dependances...
 
 ## Authors
 
-"$DEFAULT_AUTHORS"
+$DEFAULT_AUTHORS
 $(date)
 EOF
 }
@@ -152,7 +159,7 @@ EOF
 #
 # Globals:
 #   DEFAULT_CC - The compiler to be used for the project (default: gcc).
-#   DEFAULT_CFLAGS - The compiler flags to be used (default: -Wall -Wextra -ansi -pedantic -g).
+#   DEFAULT_CFLAGS - The compiler flags to be used (default: -Wall -Wextra -std=c11 -pedantic -g).
 #
 # Arguments:
 #   None
@@ -164,9 +171,9 @@ function customize_makefile() {
     read -r input
     DEFAULT_CC=${input:-gcc}
 
-    echo "Spécifiez les options du compilateur (par défaut : -Wall -Wextra -ansi -pedantic -g) :"
+    echo "Spécifiez les options du compilateur (par défaut : -Wall -Wextra -std=c11 -pedantic -g) :"
     read -r input
-    DEFAULT_CFLAGS=${input:--Wall -Wextra -ansi -pedantic -g}
+    DEFAULT_CFLAGS=${input:--Wall -Wextra -std=c11 -pedantic -g}
 
     echo "Spécifiez le dossier contenant les entêtes (par défaut : include) :"
     read -r input
@@ -208,7 +215,7 @@ all: ./bin/${DEFAULT_EXEC}
 	\$(CC) \$< -o \$@ \$(LDFLAGS)
 
 ./src/%.o: ./src/%.c
-	\$(CC) \$(CPPFLAGS) \$(${DEFAULT_CFLAGS}) \$< -o \$@ -c
+	\$(CC) \$(CPPFLAGS) \$(CFLAGS) -c \$< -o \$@
 
 doc:
 	-@\$(DOC) ${DEFAULT_DOC_PATH}/Doxyfile
@@ -239,7 +246,7 @@ $DEFAULT_C_HEADER
 int main(int argc, char *argv[]) {
    #define USAGE "Usage : %s text_file\n"
 
-   if ((argc > 1) && (!strcasecmp("-h", argv[1]))) {
+   if ((argc > 1) && (strcmp("-h", argv[1]) == 0)) {
       fprintf(stderr, USAGE, argv[0]);
       return EXIT_FAILURE;
    }   
@@ -278,8 +285,15 @@ EOF
 # Usage:
 #   copy_minunit
 function copy_minunit() {
-	wget -P "${DEFAULT_PROJECT_PATH}/${DEFAULT_HEADER_PATH}" https://raw.githubusercontent.com/siu/minunit/master/minunit.h
-	wget -P "${DEFAULT_PROJECT_PATH}/etc" https://raw.githubusercontent.com/siu/minunit/master/minunit_example.c
+    local url=https://raw.githubusercontent.com/siu/minunit/master
+    # curl is present on macOS and on most Linux systems (wget is not on macOS)
+    if ! command -v curl > /dev/null; then
+        warn "curl est absent : MinUnit n'est pas téléchargé."
+        return 1
+    fi
+    curl -fsSL -o "${DEFAULT_PROJECT_PATH}/${DEFAULT_HEADER_PATH}/minunit.h" "$url/minunit.h" &&
+    curl -fsSL -o "${DEFAULT_PROJECT_PATH}/etc/minunit_example.c" "$url/minunit_example.c" ||
+        warn "Le téléchargement de MinUnit a échoué (connexion ?)."
 }
 
 # Validates the project path input.
@@ -298,10 +312,10 @@ function copy_minunit() {
 #   validate_project_path "example_project"
 function validate_project_path() {
     if [[ -z "$1" ]]; then
-        error "Entrée invalide : le nom du projet ne peut être vide."
+        warn "Entrée invalide : le nom du projet ne peut être vide."
         return 1
     elif [[ $1 =~ [^a-zA-Z0-9_-] ]]; then
-        error "Entrée invalide : le nom du projet contient des caractères spéciaux."
+        warn "Entrée invalide : le nom du projet contient des caractères spéciaux."
         return 1
     fi
     return 0
@@ -345,6 +359,11 @@ function create_project() {
 function open_project() {
    echo "Entrer le nom du projet à ouvrir :"
    read -r DEFAULT_PROJECT_PATH
+   # Only a simple name: never ".", "..", or a path such as ~/Documents
+   if ! validate_project_path "$DEFAULT_PROJECT_PATH"; then
+      DEFAULT_PROJECT_PATH=""
+      return 1
+   fi
    if [ ! -e "$DEFAULT_PROJECT_PATH" ] 
    then
       echo "Projet inexistant. Il va être créé."
@@ -383,7 +402,7 @@ fi
 function create_archive() {
    author1=$( echo "$AUTHOR1" | cut -f2 -d' ' )
    author2=$( echo "$AUTHOR2" | cut -f2 -d' ' )
-   currentdate=$( date +%d−%m−%Y-%H-%M )
+   currentdate=$( date +%d-%m-%Y-%H-%M )
    
    if [ -n "$DEFAULT_PROJECT_PATH" ]; then
       cd "${DEFAULT_PROJECT_PATH}" || return ; make distclean; cd .. ;   
@@ -402,8 +421,16 @@ function create_archive() {
 # Usage:
 #   suppress_project
 function suppress_project() {
-   rm -R -f "$DEFAULT_PROJECT_PATH" ;  
-   echo "Projet courant supprimé."
+   if [ -z "$DEFAULT_PROJECT_PATH" ]; then
+      echo "Aucun projet ouvert."
+      return 1
+   fi
+   read -r -p "Supprimer définitivement le dossier $DEFAULT_PROJECT_PATH ? [o/N] " reponse
+   if [ "$reponse" != o ] && [ "$reponse" != O ]; then
+      echo "Suppression annulée."
+      return 0
+   fi
+   rm -R -f -- "$DEFAULT_PROJECT_PATH" && DEFAULT_PROJECT_PATH="" && echo "Projet courant supprimé."
 }
 
 # Compiles the current C project using the Makefile.
@@ -439,7 +466,7 @@ function menu() {
       echo "A|a : archiver le projet courant"
       echo "Q|q : quitter"
       echo
-      read -s choix # silent mode with no echo
+      read -r -s choix || choix=q # silent mode with no echo; end of input: quit
       case $choix in
          N|n) create_project ;;
          O|o) open_project ;;
@@ -459,7 +486,7 @@ function menu() {
 # Usage:
 #   check_dependencies
 function check_dependencies() {
-    local dependencies=(${DEFAULT_COMPILER} "doxygen" "make" "tar" "wget")
+    local dependencies=("${DEFAULT_CC}" "doxygen" "make" "tar" "curl")
     local missing_deps=()
 
 	for dep in "${dependencies[@]}"; do

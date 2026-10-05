@@ -16,10 +16,12 @@
  * limitations under the License.
  */
 
+#define _POSIX_C_SOURCE 200809L /* sigaction() with -std=c11 */
+
 #include <gtk/gtk.h>
 #include <signal.h>
-#include <math.h>
 #include <stdlib.h>
+#include <unistd.h> /* getpid() */
 
 /**
  * @file moving_window.c
@@ -32,8 +34,8 @@
  * a specified initial color and position. It sets up signal handlers for
  * SIGUSR1 and SIGUSR2. When these signals are received, the background 
  * color of the window changes to predefined colors (color1 and color2).
- * Additionally, the program demonstrates the use of random color generation
- * close to the initial color, signal handling in a GUI application, and
+ * Additionally, the program demonstrates signal handling in a GUI
+ * application (the handler only sets a flag, read by a GTK timer) and
  * basic GTK window creation and manipulation. This example is useful for
  * understanding how to integrate system-level signal handling with
  * graphical user interfaces in C.
@@ -58,59 +60,37 @@ void change_color(double new_color[]) {
     gtk_widget_queue_draw(window);
 }
 
-GdkRGBA generate_random_color_close_to_initial() {
-    GdkRGBA new_color;
-    double delta = 0.8;  /* Adjust this value to control the "speed" of the transition */
-
-    new_color.red = initial_color.red + ((double) rand() / RAND_MAX - 0.5) * delta;
-    new_color.green = initial_color.green + ((double) rand() / RAND_MAX - 0.5) * delta;
-    new_color.blue = initial_color.blue + ((double) rand() / RAND_MAX - 0.5) * delta;
-    new_color.alpha = 1.0;
-
-    /* Clamp the values between 0 and 1 */
-    new_color.red = (new_color.red > 1.0) ? 1.0 : (new_color.red < 0.0) ? 0.0 : new_color.red;
-    new_color.green = (new_color.green > 1.0) ? 1.0 : (new_color.green < 0.0) ? 0.0 : new_color.green;
-    new_color.blue = (new_color.blue > 1.0) ? 1.0 : (new_color.blue < 0.0) ? 0.0 : new_color.blue;
-
-    return new_color;
-}
-
 static gboolean check_sigusr1_received(gpointer data) {
+    (void) data;
     if (sigusr1_received) {
         /* Reset the flag */
         sigusr1_received = 0;
 
         change_color(color1);
-
-        color = generate_random_color_close_to_initial();
-        gtk_widget_override_background_color(window, GTK_STATE_FLAG_NORMAL, &color);
-        gtk_widget_queue_draw(window);
     }
 
     return TRUE;  /* Continue checking */
 }
 
 static gboolean check_sigusr2_received(gpointer data) {
+    (void) data;
     if (sigusr2_received) {
         /* Reset the flag */
         sigusr2_received = 0;
 
         change_color(color2);
-
-        color = generate_random_color_close_to_initial();
-        gtk_widget_override_background_color(window, GTK_STATE_FLAG_NORMAL, &color);
-        gtk_widget_queue_draw(window);
-
     }
 
     return TRUE;  /* Continue checking */
 }
 
 static void handle_sigusr1(int signum) {
+    (void) signum;
     sigusr1_received = 1;
 }
 
 static void handle_sigusr2(int signum) {
+    (void) signum;
     sigusr2_received = 1;
 }
 
@@ -124,6 +104,7 @@ int main(int argc, char *argv[]) {
 
     sa1.sa_handler = handle_sigusr1; /* Pointer to the signal handler function 1 */
     sigemptyset(&sa1.sa_mask); /* Clear any blocked signals during the execution of the signal handler */
+    sa1.sa_flags = 0;
 
     if (sigaction(SIGUSR1, &sa1, NULL) == -1) {
         perror("Error setting up sigaction for SIGUSR1");
@@ -132,6 +113,7 @@ int main(int argc, char *argv[]) {
 
     sa2.sa_handler = handle_sigusr2; /* Pointer to the signal handler function 2 */
     sigemptyset(&sa2.sa_mask); /* Clear any blocked signals during the execution of the signal handler */
+    sa2.sa_flags = 0;
 
     if (sigaction(SIGUSR2, &sa2, NULL) == -1) {
         perror("Error setting up sigaction for SIGUSR2");
@@ -142,17 +124,14 @@ int main(int argc, char *argv[]) {
     gtk_init(&argc, &argv);
 
     /* Check if we have enough arguments */
-	if (argc != 4) {
-	    g_print("Usage: %s <x-pos> <y-pos> <color>\nExample color formats: '#RRGGBB', 'rgb(r,g,b)', 'rgba(r,g,b,a)'\n", argv[0]);
-	    return EXIT_FAILURE;
-	}
+    if (argc != 4) {
+        g_print("Usage: %s <x-pos> <y-pos> <color>\nExample color formats: '#RRGGBB', 'rgb(r,g,b)', 'rgba(r,g,b,a)'\n", argv[0]);
+        return EXIT_FAILURE;
+    }
 
     int x_pos = atoi(argv[1]);
     int y_pos = atoi(argv[2]);
     const char *color_name = argv[3];
-
-    /* Initialize random seed */
-    srand(time(NULL));
 
     /* Set up a timeout function to check the signal_received flag every 100ms */
     g_timeout_add(100, check_sigusr1_received, NULL);
@@ -174,7 +153,7 @@ int main(int argc, char *argv[]) {
     }
 
     /* Create a label with the PID and add it to the window */
-    snprintf(pid_text, sizeof(pid_text), "%d", getpid());
+    snprintf(pid_text, sizeof(pid_text), "%ld", (long) getpid());
     label = gtk_label_new(pid_text);
     gtk_container_add(GTK_CONTAINER(window), label);
 

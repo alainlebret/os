@@ -27,6 +27,8 @@
  * @file mmap_buffer_01.c
  *
  * Producer-consumer program using a shared memory that stores a single integer.
+ * WARNING: sleep() is NOT a synchronization mechanism; values may be missed
+ * or read twice. See mmap_buffer_03.c for a version using semaphores.
  * This code is based on the example proposed by:  Janet Davis (2006) and Henry
  * Walker (2004).
  *
@@ -41,10 +43,11 @@
 #define ITERATIONS 10
 
 /**
- * Handles a fatal error. It displays a message, then exits.
+ * Handles a fatal error. It displays the message followed by the reason
+ * given by errno (perror()), then exits.
  */
 void handle_fatal_error(const char *message) {
-    fprintf(stderr, "%s", message);
+    perror(message);
     exit(EXIT_FAILURE);
 }
 
@@ -57,7 +60,7 @@ void write_memory(void *shared_memory) {
     for (i = 0; i < ITERATIONS; i++) {
         *((int *) shared_memory) = i * i;
 
-        printf("Parent: initial value = %2d\n", i);
+        printf("Parent: i = %2d, value written = %2d (i * i)\n", i, i * i);
         sleep(1);  /* wait 1 sec. to allow his child to read the value */
     }
 }
@@ -70,12 +73,12 @@ void manage_parent(void *shared_memory) {
     pid_t child;
     int status;
 
-    printf("Parent process (PID %d)\n", getpid());
+    printf("Parent process (PID %ld)\n", (long) getpid());
     write_memory(shared_memory);
 
     child = wait(&status);
     if (WIFEXITED(status)) {
-        printf("Parent: child %d has finished (code %d)\n", child,
+        printf("Parent: child %ld has finished (code %d)\n", (long) child,
                WEXITSTATUS(status));
     }
 }
@@ -98,7 +101,7 @@ void read_memory(void *shared_memory) {
  * Manages the child process that reads all data from shared memory.
  */
 void manage_child(void *shared_memory) {
-    printf("Child process (PID %d)\n", getpid());
+    printf("Child process (PID %ld)\n", (long) getpid());
     read_memory(shared_memory);
     printf("Child: memory has been consumed.\n");
 }
@@ -116,8 +119,8 @@ void *create_shared_memory(void) {
                                -1, /* the shared memory do not use a file */
                                0);  /* ignored: only set when using a file */
 
-    if (shared_memory == (void *) -1) {
-        handle_fatal_error("Error [mmap()]: ");
+    if (shared_memory == MAP_FAILED) {
+        handle_fatal_error("Error [mmap()]");
     }
     return shared_memory;
 }
@@ -130,7 +133,7 @@ int main(void) {
 
     pid = fork();
     if (pid == -1) {
-        handle_fatal_error("Error [fork()]: ");
+        handle_fatal_error("Error [fork()]");
     }
     if (pid > 0) {
         manage_parent(shared_memory);

@@ -17,19 +17,35 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>  /* strerror() */
 #include <pthread.h>
 #include <unistd.h>
 
 /**
- * @file threads_01.c
+ * @file thread_01.c
  *
  * A simple program using 2 POSIX threads.
  *
- * On Mac OS X, compile with gcc -Wall -Wextra -ansi -pedantic thread_01.c
- * On Linux, compile with gcc -Wall -Wextra -ansi -pedantic thread_01.c -pthread
+ * WARNING: synchronization is deliberately missing. Thread A writes
+ * global_value while thread B reads it: the displayed values are
+ * unpredictable (a data race). The sleep(1) in main() does not synchronize
+ * anything: only pthread_join() guarantees that the threads are finished.
+ *
+ * Compile with gcc -Wall -Wextra -pedantic -std=c11 -pthread thread_01.c
  */
 
 int global_value = -10;
+
+/**
+ * Stops the program if a pthread_*() call failed: these functions return an
+ * error number (0 on success) and do not set errno.
+ */
+static void check(int err, const char *what) {
+    if (err != 0) {
+        fprintf(stderr, "%s : %s\n", what, strerror(err));
+        exit(EXIT_FAILURE);
+    }
+}
 
 void *do_A(void *arg) {
     int i;
@@ -61,16 +77,16 @@ int main(void) {
     pthread_t thB;
     int n = 10;
 
-    pthread_create(&thA, NULL, do_A, &n);
-    pthread_create(&thB, NULL, do_B, &n);
+    check(pthread_create(&thA, NULL, do_A, &n), "pthread_create");
+    check(pthread_create(&thB, NULL, do_B, &n), "pthread_create");
 
     /* ... */
     sleep(1);
 
     /* The main thread is waiting for A and B to finish */
     printf("The main thread is waiting for A and B to finish\n");
-    pthread_join(thB, NULL);
-    pthread_join(thA, NULL);
+    check(pthread_join(thB, NULL), "pthread_join");
+    check(pthread_join(thA, NULL), "pthread_join");
 
     return EXIT_SUCCESS;
 }

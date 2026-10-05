@@ -15,8 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <time.h>
@@ -38,8 +40,12 @@
  * a pthread_barrier. Once all threads have reached this point, they continue their
  * execution.
  *
+ * rand() is not thread-safe: each thread uses rand_r() with its own seed.
+ * macOS does not provide pthread_barrier_t: pthread_barrier.c is linked
+ * there instead.
+ *
  * Usage:
- *     Compile with -lpthread flag (gcc -lpthread barrier.c)
+ *     Compile with -pthread flag (gcc -pthread barrier.c)
  *     Run the executable
  */
 
@@ -47,7 +53,8 @@ pthread_barrier_t barrier;
 
 void *doit(void *arg) {
     int tid = *(int *) arg;
-    int wait_sec = 1 + rand() % 5;
+    unsigned int seed = (unsigned int) time(NULL) + tid;  /* private */
+    int wait_sec = 1 + rand_r(&seed) % 5;
 
     printf("thread %d: wait for %d seconds.\n", tid, wait_sec);
     sleep(wait_sec);
@@ -63,12 +70,11 @@ void *doit(void *arg) {
 
 int main(void) {
     pthread_t tid[THREAD_COUNT];
-    int i, status;
+    int i, err;
 
-    srand(time(NULL));
-    status = pthread_barrier_init(&barrier, NULL, THREAD_COUNT + 1);
-    if (status != 0) {
-        perror("pthread_barrier_init failed");
+    err = pthread_barrier_init(&barrier, NULL, THREAD_COUNT + 1);
+    if (err != 0) {
+        fprintf(stderr, "pthread_barrier_init: %s\n", strerror(err));
         exit(EXIT_FAILURE);
     }
 
@@ -79,9 +85,9 @@ int main(void) {
             exit(EXIT_FAILURE);
         }
         *arg = i;
-        status = pthread_create(&tid[i], NULL, doit, arg);
-        if (status != 0) {
-            perror("pthread_create failed");
+        err = pthread_create(&tid[i], NULL, doit, arg);
+        if (err != 0) {
+            fprintf(stderr, "pthread_create: %s\n", strerror(err));
             free(arg);  /* Free the allocated memory in case of failure */
             exit(EXIT_FAILURE);
         }
@@ -94,9 +100,9 @@ int main(void) {
     printf("The main thread passed the barrier!\n");
 
     for (i = 0; i < THREAD_COUNT; i++) {
-        status = pthread_join(tid[i], NULL);
-        if (status != 0) {
-            perror("pthread_join failed");
+        err = pthread_join(tid[i], NULL);
+        if (err != 0) {
+            fprintf(stderr, "pthread_join: %s\n", strerror(err));
             exit(EXIT_FAILURE);
         }
     }

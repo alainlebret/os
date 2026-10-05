@@ -18,59 +18,24 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#ifdef __APPLE__
-#include<mach/mach_host.h>
-#include<mach/vm_map.h>
-#include <mach/mach.h>
-#endif
+#include <unistd.h>
 
 /**
- * @file knowing_cores.c
+ * @file knowing_nbcores.c
  *
- * A simple program used to know how much cores on your Linux system.
+ * A simple program used to know how many cores (online processors) your
+ * system has, using sysconf(_SC_NPROCESSORS_ONLN). This value is not
+ * required by POSIX, but it is provided by Linux and macOS.
  */
 
-static int get_num_cpus(void) {
-    processor_cpu_load_info_t newCPUInfo;
-    kern_return_t kr;
-    unsigned int processor_count;
-    mach_msg_type_number_t load_count;
-
-    kr = host_processor_info(mach_host_self(),
-                             PROCESSOR_CPU_LOAD_INFO,
-                             &processor_count,
-                             (processor_info_array_t * ) & newCPUInfo,
-                             &load_count);
-    if (kr != KERN_SUCCESS) {
-        return 0;
-    } else {
-        vm_deallocate(mach_task_self(),
-                      (vm_address_t) newCPUInfo,
-                      (vm_size_t)(load_count * sizeof(*newCPUInfo)));
-
-        return (int) processor_count;
-    }
-}
-
 int main(void) {
-    int cores;
+    long cores = sysconf(_SC_NPROCESSORS_ONLN);
 
-#ifdef __APPLE__
-    /* SECURITY NOTE: popen() executes through a shell.
-     * In production, avoid shelling out when equivalent system APIs exist. */
-    FILE *f = popen("grep processor /proc/cpuinfo | wc -l", "r");
-    if (!f) {
-        perror("popen");
+    if (cores == -1) {
+        perror("sysconf");
         exit(EXIT_FAILURE);
-    };
-    fscanf(f, "%d", &cores);
-    pclose(f);
-#else
-    cores = get_num_cpus();
-#endif
-
-    printf("Number of cores: %d\n", cores);
+    }
+    printf("Number of cores: %ld\n", cores);
 
     return EXIT_SUCCESS;
 }

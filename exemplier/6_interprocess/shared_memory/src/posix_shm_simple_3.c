@@ -20,7 +20,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
-#include <sys/shm.h>
+#include <sys/wait.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <sys/types.h>
@@ -31,7 +31,8 @@
  * @file posix_shm_simple_3.c
  *
  * Another example using parent and child processes sharing a complex structure memory.
- * Link with \c -lrt.
+ * There is no synchronization: the child may read before the parent writes.
+ * Link with \c -lrt under Linux.
  */
 
 /**
@@ -39,6 +40,10 @@
  */
 void handle_error(const char *message);
 
+/* Hard-coded page size: the offset given to mmap() must be a multiple of the
+ * real page size, so this program fails (EINVAL) where pages are not 4 KiB
+ * (e.g. 16 KiB on Apple Silicon). See posix_shm_two_pages.c, which uses
+ * sysconf(_SC_PAGESIZE). */
 #define PAGESIZE 4096
 
 typedef struct vector {
@@ -63,7 +68,7 @@ typedef struct s1 {
 typedef struct s2 {
     vector_t vec;
     color_t col;
-    char padding[PAGESIZE - sizeof(vector_t) - 20 * sizeof(color_t)];
+    char padding[PAGESIZE - sizeof(vector_t) - sizeof(color_t)];
 } s2_t;
 
 typedef struct s1_et_s2 {
@@ -81,34 +86,34 @@ int main(void) {
     srand(time(NULL));
 
     /* create the shared memory segment as if it was a file */
-    shm_fd = shm_open("/pipeautique3", O_CREAT | O_RDWR, 0644);
+    shm_fd = shm_open("/pipeautique_simple3", O_CREAT | O_RDWR, 0644);
     if (shm_fd == -1) {
-        handle_error("Error [shm_open()]: ");
+        handle_error("Error [shm_open()]");
     }
 
-    ftruncate(shm_fd, sizeof(s1_and_s2_t));
     if (ftruncate(shm_fd, sizeof(s1_and_s2_t)) == -1) {
-        handle_error("Error setting size with ftruncate: ");
+        handle_error("Error setting size with ftruncate");
     }
 
     /* map the shared memory segment for struct s1 to the address space of the process */
     ptr1 = (s1_t *) mmap(NULL, sizeof(s1_t), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
     if (ptr1 == MAP_FAILED) {
-        handle_error("Error [mmap() ptr1]: ");
+        handle_error("Error [mmap() ptr1]");
     }
 
     /* map the shared memory segment for struct s2 to the address space of the process */
     ptr2 = (s2_t *) mmap(NULL, sizeof(s2_t), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, sizeof(s1_t));
     if (ptr2 == MAP_FAILED) {
-        handle_error("Error [mmap() ptr2]: ");
+        handle_error("Error [mmap() ptr2]");
     }
 
     printf("> %p\n", (void *) ptr1);
     printf("> %p\n", (void *) ptr2);
 
+    fflush(stdout);  /* before fork(): do not duplicate the stdio buffer */
     pid = fork();
     if (pid < 0) {
-        handle_error("Error [fork()]: ");
+        handle_error("Error [fork()]");
     }
     if (pid > 0) { /* parent process */
         strncpy(ptr1->name, "Monkeypox", 20);
@@ -120,19 +125,20 @@ int main(void) {
 
     /* remove the mapped memory segments from the address space of the process */
     if (munmap(ptr1, sizeof(s1_t)) == -1) {
-        handle_error("Error [munmap() ptr1]: ");
+        handle_error("Error [munmap() ptr1]");
     }
     if (munmap(ptr2, sizeof(s2_t)) == -1) {
-        handle_error("Error [munmap() ptr2]: ");
+        handle_error("Error [munmap() ptr2]");
     }
 
     /* close the shared memory segment as if it was a file */
     if (close(shm_fd) == -1) {
-        handle_error("Error [close()]: ");
+        handle_error("Error [close()]");
     }
 
     if (pid > 0) {
-        shm_unlink("/pipeautique3");
+        wait(NULL);
+        shm_unlink("/pipeautique_simple3");
     }
 
     return EXIT_SUCCESS;

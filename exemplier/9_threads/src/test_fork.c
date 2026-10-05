@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -24,11 +25,13 @@
 #include <sys/wait.h> /* necessary for wait */
 
 /**
- * @file fork_test.c
+ * @file test_fork.c
  *
- * A simple program to test fork vs threads (see \c thread_test.c).
+ * A simple program to test fork vs threads (see \c test_pthread.c).
+ * The elapsed (wall-clock) time is measured with clock_gettime(): clock()
+ * would only count the CPU time of the parent, not that of its children.
  *
- * Compile using gcc -Wall -Wextra fork_test.c
+ * Compile using gcc -Wall -Wextra test_fork.c -o test_fork
  */
 
 #define NB_FORKS 50000
@@ -51,20 +54,20 @@ void do_little(void) {
 }
 
 int main(void) {
-    int pid;
+    pid_t pid;
     int status;
     int i;
-    clock_t begin_time;
-    clock_t end_time;
+    struct timespec begin_time;
+    struct timespec end_time;
     double duration;
 
     status = 0;
 
-    begin_time = clock();
+    clock_gettime(CLOCK_MONOTONIC, &begin_time);
 
     for (i = 0; i < NB_FORKS; i++) {
-        if ((pid = fork()) < 0) {
-            handle_fatal_error("Error when trying to fork\n");
+        if ((pid = fork()) == -1) {
+            handle_fatal_error("Error when trying to fork");
         } else if (pid == 0) {
             do_little();
         } else {
@@ -72,8 +75,9 @@ int main(void) {
         }
     }
 
-    end_time = clock();
-    duration = (double) (end_time - begin_time) / CLOCKS_PER_SEC;
+    clock_gettime(CLOCK_MONOTONIC, &end_time);
+    duration = (end_time.tv_sec - begin_time.tv_sec)
+               + (end_time.tv_nsec - begin_time.tv_nsec) / 1e9;
     printf("%2.1f seconds\n", duration);
 
     return EXIT_SUCCESS;

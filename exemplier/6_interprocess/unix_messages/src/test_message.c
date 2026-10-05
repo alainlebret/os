@@ -22,11 +22,12 @@
 #include "message.h"
 
 /**
- * @file test_messages.c
+ * @file test_message.c
  * @brief Test message handling functions.
  */
 
 int main(int argc, char *argv[]) {
+    (void) argc;
     message_t message;
     struct timeval time;
     double begin;

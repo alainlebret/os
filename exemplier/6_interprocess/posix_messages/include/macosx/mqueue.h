@@ -3,7 +3,7 @@
  *
  * @author Stanislav Pankevich (https://github.com/stanislaw/posix-macos-addons)
  *
- * A memory queue mechanism for Mac OS X
+ * A message queue mechanism for Mac OS X
  */
 
 #ifndef _POSIX_MACOS_MQUEUE_H_

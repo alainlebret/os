@@ -17,7 +17,7 @@
  */
 
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
+#include <stdlib.h>    /* exit() */
 #include <unistd.h>    /* fork() */
 #include <sys/types.h> /* wait() */
 #include <sys/wait.h>  /* wait() */
@@ -54,7 +54,7 @@ void manage_parent(int pipe[]) {
     int integer;
     char buffer[BUFFER_SIZE];
 
-    printf("Parent process (PID %d)\n", getpid());
+    printf("Parent process (PID %ld)\n", (long) getpid());
     close(pipe[PIPE_OUTPUT]);
 
     while (1) {
@@ -85,9 +85,10 @@ void manage_parent(int pipe[]) {
  * @param pipe The anonymous pipe descriptors
  */
 void manage_child(int pipe[]) {
-    int integer, bytesRead;
+    int integer;
+    ssize_t bytesRead;
 
-    printf("Child process (PID %d)\n", getpid());
+    printf("Child process (PID %ld)\n", (long) getpid());
     close(pipe[PIPE_INPUT]);
 
     while (1) {
@@ -113,12 +114,12 @@ int main(void) {
     int anonymous_pipe[2]; /* pipe descriptors */
 
     if (pipe(anonymous_pipe) == -1) {
-        handle_fatal_error("Error [pipe()]: ");
+        handle_fatal_error("Error [pipe()]");
     }
 
     pid = fork();
     if (pid == -1) {
-        handle_fatal_error("Error [fork()]: ");
+        handle_fatal_error("Error [fork()]");
     }
     if (pid > 0) {
         manage_parent(anonymous_pipe);

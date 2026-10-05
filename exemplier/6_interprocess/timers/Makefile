@@ -5,12 +5,21 @@ BIN_DIR = bin
 
 # Automatic source file discovery
 src = $(wildcard $(SRC_DIR)/*.c)
+# timer_create() and SIGRTMIN do not exist on macOS: Linux-only examples
+ifeq ($(shell uname -s),Darwin)
+src := $(filter-out $(SRC_DIR)/linux_clock.c $(SRC_DIR)/posix_timer_tic.c, $(src))
+endif
 # List of executables
 bins = $(patsubst $(SRC_DIR)/%.c, $(BIN_DIR)/%, $(src))
 
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic -std=c11 -O2
+# -std=c11 hides the POSIX API (sigaction()...) on Linux: _DEFAULT_SOURCE restores it
+CFLAGS = -Wall -Wextra -pedantic -std=c11 -O2 -D_DEFAULT_SOURCE
 LDFLAGS =
+# glibc < 2.34: timer_create() is in librt
+ifneq ($(shell uname -s),Darwin)
+LDFLAGS += -lrt
+endif
 
 all: directories $(bins)
 

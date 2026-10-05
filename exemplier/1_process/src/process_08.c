@@ -17,82 +17,81 @@
  */
 
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
-#include <unistd.h>    /* getpid() and getpgrp() */
+#include <stdlib.h>    /* exit() */
+#include <unistd.h>    /* fork(), execv() and _exit() */
 #include <sys/types.h> /* pid_t */
-#include <sys/wait.h>  /* wait(), WIFEXITED and WEXITSTATUS */
+#include <sys/wait.h>  /* waitpid() */
 
 /**
  * @file process_08.c
  *
- * A simple program about a process that executes Gtk windows through his childs.
+ * A simple program about a process that executes Gtk windows through its children.
  */
 
-static char *path = "./moving_window";
+/* Built by the Makefile in bin/; run this program from 1_process/ */
+static char *path = "./bin/moving_window";
 
 /*
- * This block will be executed by the first son
+ * This block will be executed by the first child
  */
-void manage_son1(void) {
+void manage_child1(void) {
     /* Arguments for the GTK application */
     char *args[] = {"moving_window", "100", "100", "#5bccc9", NULL};
 
-    /* Execute the GTK application */
-    execvp(path, args);
+    /* Execute the GTK application: path is given, no PATH search, so execv() */
+    execv(path, args);
 
-    /* If execvp() fails */
-    perror("execvp failed for son 1");
-    exit(EXIT_FAILURE);
+    /* If execv() fails */
+    perror("execv failed for child 1");
+    _exit(127);
 }
 
 /*
- * This block will be executed by the second son
+ * This block will be executed by the second child
  */
-void manage_son2(void) {
+void manage_child2(void) {
     /* Arguments for the GTK application */
     char *args[] = {"moving_window", "350", "100", "#bca850", NULL};
 
     /* Execute the GTK application */
-    execvp(path, args);
+    execv(path, args);
 
-    /* If execvp() fails */
-    perror("execvp failed for son 2");
-    exit(EXIT_FAILURE);
+    /* If execv() fails */
+    perror("execv failed for child 2");
+    _exit(127);
 }
 
 int main(void) {
     pid_t pid1, pid2;
 
-    /* First fork to create the first son */
+    /* First fork to create the first child */
     pid1 = fork();
 
-    if (pid1 < 0) {
+    if (pid1 == -1) {
         perror("Fork failed");
         exit(EXIT_FAILURE);
     }
 
     if (pid1 == 0) {
-        manage_son1();
+        manage_child1(); /* never returns: exec or _exit() */
     }
 
-    /* Second fork to create the second son */
-    if (pid1 > 0) {
-        pid2 = fork();
-
-            if (pid2 < 0) {
-                perror("Fork failed");
-                exit(EXIT_FAILURE);
-            }
-
-            if (pid2 == 0) {
-                manage_son2();
-            }
+    /* Second fork to create the second child (only the parent gets here) */
+    pid2 = fork();
+    if (pid2 == -1) {
+        perror("Fork failed");
+        exit(EXIT_FAILURE);
+    }
+    if (pid2 == 0) {
+        manage_child2(); /* never returns */
     }
 
-    /* Parent process waits for both sons to finish */
-    if (pid1 > 0 && pid2 > 0) {
-        waitpid(pid1, NULL, 0);
-        waitpid(pid2, NULL, 0);
+    /* Parent process waits for both children to finish */
+    if (waitpid(pid1, NULL, 0) == -1) {
+        perror("waitpid");
+    }
+    if (waitpid(pid2, NULL, 0) == -1) {
+        perror("waitpid");
     }
 
     return EXIT_SUCCESS;

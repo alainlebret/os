@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
-#include <unistd.h>    /* fork(), ...  */
+#include <stdlib.h>    /* exit() */
+#include <unistd.h>    /* alarm(), write(), _exit() */
 #include <signal.h>    /* sigaction() */
 #include <string.h>    /* memset() */
 
@@ -31,12 +31,17 @@
 
 /**
  * @brief Signal handler for SIGALRM signal.
+ *
+ * Only async-signal-safe functions: write() and _exit() (printf() and
+ * exit() are forbidden in a handler).
  * @param signal Number of the signal
  */
 void handle_alarm(int signal) {
+    const char msg[] = "\nToo late!\n";
+
     if (signal == SIGALRM) {
-        printf("\nToo late!\n");
-        exit(EXIT_FAILURE);
+        write(STDOUT_FILENO, msg, sizeof(msg) - 1);
+        _exit(EXIT_FAILURE);
     }
 }
 
@@ -51,11 +56,16 @@ int main(void) {
 
     /* Set the new handler */
     action.sa_handler = &handle_alarm;
+    sigemptyset(&action.sa_mask);
 
     /* Install the new handler of the SIGALRM signal */
-    sigaction(SIGALRM, &action, NULL);
+    if (sigaction(SIGALRM, &action, NULL) == -1) {
+        perror("sigaction");
+        exit(EXIT_FAILURE);
+    }
 
     printf("You have %d seconds to enter a number: ", DURATION);
+    fflush(stdout); /* _exit() in the handler does not flush stdio buffers */
     /* The OS will send an alarm signal to the process in 'DURATION' sec. */
     alarm(DURATION);
 

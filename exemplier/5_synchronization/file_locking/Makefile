@@ -8,7 +8,8 @@ src = $(wildcard $(SRC_DIR)/*.c)
 obj = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(src))
 
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic -std=c11 -O2
+# -std=c11 hides the POSIX API under Linux: _DEFAULT_SOURCE restores it
+CFLAGS = -Wall -Wextra -pedantic -std=c11 -O2 -D_DEFAULT_SOURCE
 LDFLAGS =
 
 BIN = lock_file

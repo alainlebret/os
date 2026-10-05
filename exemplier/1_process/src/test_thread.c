@@ -28,6 +28,7 @@
  */
 
 int main(void) {
-    printf("%d / %ld\n", getpid(), pthread_self());
+    /* pthread_t is an opaque type: the cast is only for display purposes */
+    printf("%ld / %lu\n", (long) getpid(), (unsigned long) pthread_self());
     return EXIT_SUCCESS;
 }

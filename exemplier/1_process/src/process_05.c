@@ -51,11 +51,14 @@ void manage_parent(void) {
     pid_t child;
     int status;
 
-    printf("Parent process (PID %d) is waiting for the child to finish.\n", getpid());
+    printf("Parent process (PID %ld) is waiting for the child to finish.\n", (long) getpid());
     child = wait(&status);
+    if (child == -1) {
+        handle_fatal_error_and_exit("Error [wait()]");
+    }
     if (WIFEXITED(status)) {
-        printf("Parent (PID %d): Child (PID %d) has finished with exit code: %d\n",
-               getpid(), child, WEXITSTATUS(status));
+        printf("Parent (PID %ld): Child (PID %ld) has finished with exit code: %d\n",
+               (long) getpid(), (long) child, WEXITSTATUS(status));
     }
 }
 
@@ -63,9 +66,9 @@ void manage_parent(void) {
  * @brief Manages the child process, simulating work by sleeping.
  */
 void manage_child(void) {
-    printf("Child process (PID %d) starts and will be blocked for %d seconds.\n", getpid(), DURATION);
+    printf("Child process (PID %ld) starts and will be blocked for %d seconds.\n", (long) getpid(), DURATION);
     sleep(DURATION);
-    printf("Child (PID %d) has finished sleeping. My parent's PID is %d.\n", getpid(), getppid());
+    printf("Child (PID %ld) has finished sleeping. My parent's PID is %ld.\n", (long) getpid(), (long) getppid());
 }
 
 int main(void) {
@@ -73,7 +76,7 @@ int main(void) {
 
     pid = fork();
     if (pid == -1) {
-        handle_fatal_error_and_exit("Error [fork()]: ");
+        handle_fatal_error_and_exit("Error [fork()]");
     }
 
     if (pid > 0) {

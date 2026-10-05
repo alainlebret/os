@@ -16,12 +16,9 @@
  * limitations under the License.
  */
 #include <gtk/gtk.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <sys/mman.h>
-#include <fcntl.h>
-
-#include <gtk/gtk.h>
-#include <stdlib.h>
+#include <unistd.h>    /* close() */
 #include <sys/mman.h>
 #include <fcntl.h>
 
@@ -30,6 +27,8 @@
  *
  * This program displays color data from a shared memory segment using GTK+ 3.
  * It continuously updates the displayed colors based on the shared memory content.
+ *
+ * No synchronization: the reader may see data that is only partly updated. See the course, chapter « Synchronisation ».
  */
 
 typedef struct {
@@ -57,6 +56,7 @@ gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
     double green;
     double blue;
 
+    (void) widget;
     data = (SharedData *) user_data;
     for (i = 0; i < data->matrix_size; i++) {
         for (j = 0; j < data->matrix_size; j++) {
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
     }
 
     data.matrix_size = atoi(argv[1]);
-    shm_fd = shm_open("/matrix", O_RDONLY, S_IRUSR | S_IWUSR);
+    shm_fd = shm_open("/matrix", O_RDONLY, 0);
     if (shm_fd == -1) {
         perror("shm_open");
         return EXIT_FAILURE;

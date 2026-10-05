@@ -38,6 +38,7 @@
 volatile sig_atomic_t keep_running = 1;
 
 void handle_sigint(int sig) {
+    (void) sig;
     keep_running = 0;
 }
 
@@ -51,9 +52,13 @@ int main(int argc, char *argv[]) {
 
     /* Set the new handler */
     action.sa_handler = &handle_sigint;
+    sigemptyset(&action.sa_mask);
 
     /* Install the new handler of the SIGINT signal */
-    sigaction(SIGINT, &action, NULL);
+    if (sigaction(SIGINT, &action, NULL) == -1) {
+        perror("sigaction");
+        exit(EXIT_FAILURE);
+    }
 
     if (argc != 2) {
         fprintf(stderr, "Usage: %s mqueue_name\n", argv[0]);
@@ -75,4 +80,7 @@ int main(int argc, char *argv[]) {
     }
 
     mq_close(mq);
+    mq_unlink(argv[1]); /* the sender created the queue: it removes it */
+
+    return EXIT_SUCCESS;
 }

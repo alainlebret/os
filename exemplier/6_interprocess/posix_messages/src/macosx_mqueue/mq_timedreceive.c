@@ -1,7 +1,6 @@
 #include "macosx/logger.h"
 #include "macosx/mqueue.h"
 
-#include <assert.h>
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
@@ -31,7 +30,7 @@ ssize_t mq_timedreceive(mqd_t mqd, char *ptr, size_t maxlen, unsigned *priop,
         return (-1);
     }
 
-    if (maxlen < attr->mq_msgsize) {
+    if (maxlen < (size_t) attr->mq_msgsize) {
         errno = EMSGSIZE;
         goto err;
     }
@@ -46,11 +45,15 @@ ssize_t mq_timedreceive(mqd_t mqd, char *ptr, size_t maxlen, unsigned *priop,
             int wait_result = pthread_cond_timedwait(&mqhdr->mqh_wait,
                                                      &mqhdr->mqh_lock,
                                                      abs_timeout);
+            /* Only ETIMEDOUT ends the wait. On macOS, a process-shared
+             * condition variable waited on from two processes that map the
+             * queue at different addresses returns EINVAL at once: the wait
+             * then degrades into active polling, but remains correct. */
             if (wait_result == ETIMEDOUT) {
+                mqhdr->mqh_nwait--; /* no longer waiting */
                 errno = ETIMEDOUT;
                 goto err;
             }
-            assert(wait_result == 0);
         }
         mqhdr->mqh_nwait--;
     }
@@ -70,13 +73,13 @@ ssize_t mq_timedreceive(mqd_t mqd, char *ptr, size_t maxlen, unsigned *priop,
     msghdr->msg_next = mqhdr->mqh_free;
     mqhdr->mqh_free = index;
 
-    /* wake up anyone blocked in mq_send waiting for room */
-    if (attr->mq_curmsgs == attr->mq_maxmsg) {
-        assert(pthread_cond_signal(&mqhdr->mqh_wait) == 0);
-    }
+    /* wake up everyone blocked in mq_send waiting for room: signaling only
+     * when the queue was full loses wake-ups with several blocked senders.
+     * (no assert() around these calls: compiled out with NDEBUG) */
+    pthread_cond_broadcast(&mqhdr->mqh_wait);
     attr->mq_curmsgs--;
 
-    assert(pthread_mutex_unlock(&mqhdr->mqh_lock) == 0);
+    pthread_mutex_unlock(&mqhdr->mqh_lock);
     return (len);
 
     err:

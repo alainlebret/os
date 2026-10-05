@@ -21,27 +21,26 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <sys/wait.h>
 
 /**
  * @file lock_file.c
  *
- * This program demonstrates file locking by attempting to lock a file named 
- * test_lock. If the file is already locked by another process, it waits and
- * retries until it can acquire the lock. Once locked, it holds the lock for
- * 10 seconds before unlocking and exiting.
+ * This program demonstrates file locking by attempting to lock the file
+ * /tmp/test_lock. If the file is already locked by another process, it waits
+ * one second and retries until it can acquire the lock. Once locked, it holds
+ * the lock for 3 seconds (simulated work) before unlocking and exiting.
+ * Same program as the slides « lockf() – exemple » and « lockf() – exécution ».
  *
- * Example using file locking.
  * \code{.bash}
- *   $ touch test_lock
- *   $ lock_file & lock_file
- *   19357 has locked the file
- *   19358 found the file already locked, try again...
- *   19358 found the file already locked, try again...
- *   19358 found the file already locked, try again...
- *   19357 has unlocked the file
- *   19358 has locked the file
- *   19358 has unlocked the file
+ *   $ touch /tmp/test_lock
+ *   $ ./lock_file & ./lock_file
+ *   19357 : verrouillé
+ *   19358 : déjà verrouillé
+ *   19358 : déjà verrouillé
+ *   19358 : déjà verrouillé
+ *   19357 : déverrouillé
+ *   19358 : verrouillé
+ *   19358 : déverrouillé
  * \endcode
  */
 
@@ -62,25 +61,25 @@ int open_lockfile(const char *name) {
 }
 
 int main(void) {
-    int fd = open_lockfile("test_lock");
+    int fd = open_lockfile("/tmp/test_lock");
     pid_t pid = getpid();
 
     while (1) {
         if (lockf(fd, F_TLOCK, 0) == -1) {
             if (errno == EACCES || errno == EAGAIN) {
-                printf("%d found the file already locked, try again...\n", pid);
-                sleep(2);
+                printf("%ld : déjà verrouillé\n", (long) pid);
+                sleep(1);
             } else {
                 handle_fatal_error("Error locking file");
             }
         } else {
-            printf("%d has locked the file\n", pid);
-            sleep(10);  /* Hold the lock for 10 seconds */
+            printf("%ld : verrouillé\n", (long) pid);
+            sleep(3);   /* simulated work, lock held */
 
             if (lockf(fd, F_ULOCK, 0) == -1) {
                 handle_fatal_error("Error unlocking file");
             }
-            printf("%d has unlocked the file\n", pid);
+            printf("%ld : déverrouillé\n", (long) pid);
             break;  /* Exit after unlocking the file */
         }
     }

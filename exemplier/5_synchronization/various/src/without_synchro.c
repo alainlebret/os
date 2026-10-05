@@ -24,8 +24,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <errno.h>
-#include <string.h>
+#include <sys/wait.h>
 
 /**
  * @file without_synchro.c
@@ -34,6 +33,12 @@
  * in a Unix-like environment. It creates a shared integer variable and 
  * decrements this value in a critical section until it reaches zero, with
  * both parent and child processes participating in the decrement operation.
+ *
+ * WARNING: synchronization is deliberately missing. The test and the
+ * decrement of the shared value are not atomic, so both processes may read
+ * the same value (lost update, the same value displayed twice) or both
+ * decrement it when it is 1 (the value becomes negative).
+ * See ../../semaphores/src to protect such a critical section.
  */
 
 #define SHM_SIZE sizeof(int)
@@ -41,21 +46,21 @@
 int ended = 0;
 
 void critical_section(int *value) {
-    if (*value == 0) {
+    if (*value <= 0) {      /* <= : the race may make it negative */
         ended = 1;
     } else {
         *value = *value - 1;
-        fprintf(stdout, "%d has decremented value to: %d\n", getpid(), *value);
+        fprintf(stdout, "%ld has decremented value to: %d\n",
+                (long) getpid(), *value);
     }
 }
 
-void random_delay(int at_least_microsecs, int at_most_microsecs) {
-    long choice;
-    int range;
+void random_delay(int at_least_ms, int at_most_ms) {
+    int range = at_most_ms - at_least_ms;
+    long ms = at_least_ms + rand() % range;
+    struct timespec delay = { ms / 1000, (ms % 1000) * 1000000L };
 
-    range = at_most_microsecs - at_least_microsecs;
-    choice = random();
-    sleep(at_least_microsecs + choice % range);
+    nanosleep(&delay, NULL);
 }
 
 int main(void) {
@@ -63,10 +68,11 @@ int main(void) {
     int *ptr;
     pid_t pid;
 
-    srand(time(NULL));
-
     fd = shm_open("/blabla", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-    printf("shm_open() returned %d (errno: %d / %s)\n", fd, errno, strerror(errno));
+    if (fd == -1) {
+        perror("shm_open error");
+        exit(EXIT_FAILURE);
+    }
 
     if (ftruncate(fd, SHM_SIZE) == -1) {
         perror("ftruncate error");
@@ -74,11 +80,20 @@ int main(void) {
     }
 
     ptr = (int *) mmap(NULL, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-    printf("mmap') returned %p (errno: %d / %s)\n", (void *) ptr, errno, strerror(errno));
+    if (ptr == MAP_FAILED) {
+        perror("mmap error");
+        exit(EXIT_FAILURE);
+    }
+    close(fd);
 
     *ptr = 20;
 
     pid = fork();
+    if (pid == -1) {
+        perror("fork error");
+        exit(EXIT_FAILURE);
+    }
+    srand((unsigned int) getpid());  /* different delays in each process */
 
     while (!ended) {
         critical_section(ptr);
@@ -87,6 +102,7 @@ int main(void) {
 
     munmap(ptr, SHM_SIZE);
     if (pid > 0) {
+        wait(NULL);         /* collects the child */
         shm_unlink("/blabla");
     }
 

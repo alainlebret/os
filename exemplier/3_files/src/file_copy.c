@@ -20,8 +20,6 @@
 #include <stdio.h>   /* perror() */
 #include <fcntl.h>   /* open, O_CREAT, O_WRONLY */
 #include <stdlib.h>  /* exit */
-#include <string.h>  /* strerror */
-#include <errno.h>   /* errno */
 
 /**
  * @file file_copy.c
@@ -31,30 +29,32 @@
  */
 
 #define SIZE            80
-#define STANDARD_ERROR   2
-#define STANDARD_OUTPUT  1
 
 int main(void) {
     int fd;
     ssize_t nbcar;
     char buffer[SIZE] = {0};
 
-    fd = open("file.out", O_CREAT | O_WRONLY, 0644);
+    fd = open("file.out", O_CREAT | O_WRONLY | O_TRUNC, 0644);
     if (fd == -1) {
-        write(STANDARD_ERROR, strerror(errno), strlen(strerror(errno)));
-        write(STANDARD_ERROR, "\n", 1);
+        perror("Error opening file.out");
         exit(EXIT_FAILURE);
     }
 
-    write(STDOUT_FILENO, "Type your input (Ctrl+D to end):\n", 33);
+    const char prompt[] = "Type your input (Ctrl+D to end):\n";
+    write(STDOUT_FILENO, prompt, sizeof(prompt) - 1); /* without the final '\0' */
 
     while ((nbcar = read(STDIN_FILENO, buffer, SIZE)) > 0) {
         if (write(fd, buffer, (size_t) nbcar) == -1) {
-            write(STANDARD_ERROR, strerror(errno), strlen(strerror(errno)));
-            write(STANDARD_ERROR, "\n", 1);
+            perror("Error writing file.out");
             close(fd);
             exit(EXIT_FAILURE);
         }
+    }
+    if (nbcar == -1) {
+        perror("Error reading standard input");
+        close(fd);
+        exit(EXIT_FAILURE);
     }
 
     if (close(fd) == -1) {

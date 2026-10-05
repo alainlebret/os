@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
+#include <stdlib.h>    /* exit() */
 #include <unistd.h>    /* fork() and pause() */
 #include <sys/types.h> /* pid_t */
 #include <signal.h>    /* sigaction */
@@ -33,7 +33,6 @@
 int signals[NBR_SIGNALS] = {SIGINT, SIGTERM};
 
 /** An array to store the old signal handlers */
-struct sigaction old_handlers[NBR_SIGNALS];
 
 int main(void) {
     int i;
@@ -52,26 +51,34 @@ int main(void) {
     /*
      * Exchange old and new masks
      */
-    sigprocmask(SIG_SETMASK, &new_mask, &old_mask);
+    if (sigprocmask(SIG_SETMASK, &new_mask, &old_mask) == -1) {
+        perror("sigprocmask");
+        exit(EXIT_FAILURE);
+    }
 
     /*
-     * Sleep for 20 seconds (maybe enough to try sending CTRL-C and SIGTERM and
-     * SIGHUP signals)...
+     * Sleep for 20 seconds (maybe enough to try sending CTRL-C and SIGTERM
+     * signals)...
      */
-    printf("20 seconds to send <CTRL>-C and kill -15 %d to this process\n", getpid());
+    printf("20 seconds to send <CTRL>-C and kill -15 %ld to this process\n", (long) getpid());
     sleep(20);
 
     /* Get the list of pending signals */
     sigpending(&pending_signals);
 
-    /* Decode pending signals */
-    for (i = 1; i < NSIG; i++) {
-        if (sigismember(&pending_signals, i)) {
-            printf("Pending signal %d has been blocked.\n", i);
+    /* Decode pending signals (NSIG is not POSIX: test the blocked ones) */
+    for (i = 0; i < NBR_SIGNALS; i++) {
+        if (sigismember(&pending_signals, signals[i])) {
+            printf("Pending signal %d has been blocked.\n", signals[i]);
         }
     }
 
-    /* Unblocking signals */
+    /*
+     * Unblocking signals: a pending SIGINT or SIGTERM is delivered now and
+     * its default action terminates the process before the next message
+     * (without flushing stdio buffers: hence the fflush()).
+     */
+    fflush(stdout);
     sigprocmask(SIG_SETMASK, &old_mask, NULL);
     printf("\nSignals unblocked. Normal operation resumed.\n");
 

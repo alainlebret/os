@@ -16,19 +16,21 @@
  * limitations under the License.
  */
 #include <stdio.h>  /* printf() */
-#include <stdlib.h> /* exit() and execl()*/
+#include <stdlib.h> /* exit() */
 #include <unistd.h> /* fork() */
-#include <sys/types.h> /* pid_t and mkfifo() */
+#include <sys/types.h> /* pid_t */
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <errno.h>
 #include <signal.h>
 
 /**
- * @file shm_producer.c
+ * @file unix_shm_producer.c
  *
  * Producer using an IPC/System V shared memory. The program reads a serie of
  * integers and stores their sum in a shared memory.
+ *
+ * No synchronization: the reader may see data that is only partly updated. See the course, chapter « Synchronisation ».
  */
 
 /**
@@ -55,25 +57,31 @@ int main(void) {
     key_t key;
     struct data *shared_memory;
 
-    key = ftok(getenv("HOME"), 'A');
+    const char *home = getenv("HOME");
+    if (home == NULL) {
+        fprintf(stderr, "HOME is not defined: ftok() needs an existing path.\n");
+        exit(EXIT_FAILURE);
+    }
+    key = ftok(home, 'A');
     if (key == -1) {
-        handle_fatal_error("Error using ftok()! ");
+        handle_fatal_error("Error using ftok()!");
     }
 
-    id = shmget(key, sizeof(data_t), IPC_CREAT | IPC_EXCL | 0666);
+    id = shmget(key, sizeof(data_t), IPC_CREAT | IPC_EXCL | 0600);
     if (id == -1) {
         switch (errno) {
             case EEXIST:
-                handle_fatal_error("Segment already exists. ");
+                /* left by a previous run: list it with "ipcs -m", remove it with "ipcrm -m <id>" */
+                handle_fatal_error("Segment already exists (ipcs -m, then ipcrm -m <id>)");
                 break;
             default:
-                handle_fatal_error("Error using shmget()! ");
+                handle_fatal_error("Error using shmget()!");
         }
     }
 
-    shared_memory = (data_t *) shmat(id, NULL, SHM_R | SHM_W);
+    shared_memory = (data_t *) shmat(id, NULL, 0);  /* 0: read-write attachment */
     if (shared_memory == (void *) -1) {
-        handle_fatal_error("Error using shmat()! ");
+        handle_fatal_error("Error using shmat()!");
     }
 
     shared_memory->nb = 0;
@@ -92,12 +100,12 @@ int main(void) {
     printf("---\n");
 
     if (shmdt((char *) shared_memory) == -1) {
-        handle_fatal_error("Error using shmdt()! ");
+        handle_fatal_error("Error using shmdt()!");
     }
 
     /* remove the memory segment */
     if (shmctl(id, IPC_RMID, NULL) == -1) {
-        handle_fatal_error("Error using shmctl()/remove! ");
+        handle_fatal_error("Error using shmctl()/remove!");
     }
 
     return EXIT_SUCCESS;

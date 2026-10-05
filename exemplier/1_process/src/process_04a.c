@@ -44,14 +44,15 @@ void handle_fatal_error_and_exit(const char *msg) {
 /**
  * @brief Manages the parent process. 
  *
- * The parent process do not wait for his child and it dies.
+ * The parent process does not wait for its child: once the child has
+ * terminated, it stays a zombie until the parent itself terminates.
  */
 void manage_parent(void) {
-    printf("Parent process (PID %d)\n", getpid());
-    printf("Parent does not wait for the child and will terminate shortly.\n");
+    printf("Parent process (PID %ld)\n", (long) getpid());
+    printf("Parent does not wait for the child (observe it with: ps -o pid,ppid,stat,comm).\n");
     /* Allow time to observe the zombie state */
     sleep(15);
-    printf("Parent terminating, child may remain as a zombie until system reboot or manual intervention.\n");
+    printf("Parent terminating: the zombie child is adopted by init (or a subreaper), which reaps it.\n");
 }
 
 /**
@@ -60,7 +61,7 @@ void manage_parent(void) {
  * The child process is blocked during \em DURATION seconds.
  */
 void manage_child(void) {
-    printf("Child process (PID %d)\n", getpid());
+    printf("Child process (PID %ld)\n", (long) getpid());
     printf("Child will be blocked during %d seconds...\n", DURATION);
     sleep(DURATION);
     printf("Child has finished to sleep.\n");
@@ -71,7 +72,7 @@ int main(void) {
 
     pid = fork();
     if (pid == -1) {
-        handle_fatal_error_and_exit("Error [fork()]: ");
+        handle_fatal_error_and_exit("Error [fork()]");
     }
 
     if (pid > 0) {

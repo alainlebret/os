@@ -17,7 +17,7 @@
  */
 
 #include <stdio.h>  /* printf() */
-#include <stdlib.h> /* exit() and execl()*/
+#include <stdlib.h> /* exit() */
 #include <unistd.h> /* fork() */
 #include <sys/types.h> /* wait() */
 #include <sys/wait.h> /* wait() */
@@ -43,16 +43,15 @@ void handle_fatal_error(const char *msg) {
 }
 
 /**
- * Manages the parent process. It reads characters from keyboard ans writes
+ * Manages the parent process. It reads characters from keyboard and writes
  * them in the pipe.
  * @param pipe The anonymous pipe descriptors.
- * @param pid_child The PID of the child to send values.
  */
 void manage_parent(int pipe[]) {
     char byte;
     ssize_t ret;
 
-    printf("Parent process (PID %d)\n", getpid());
+    printf("Parent process (PID %ld)\n", (long) getpid());
     close(pipe[PIPE_OUTPUT]);
 
     do {
@@ -61,7 +60,7 @@ void manage_parent(int pipe[]) {
             perror("Error reading from keyboard");
             break;
         } else if (ret != 0) {
-            if (isalnum(byte)) {
+            if (isalnum((unsigned char) byte)) {
                 if (write(pipe[PIPE_INPUT], &byte, BYTE_SIZE) == -1) {
                     perror("Error writing to pipe");
                     break;
@@ -85,14 +84,14 @@ void manage_child(int pipe[]) {
     int letters = 0, digits = 0;
     ssize_t ret;
 
-    printf("Child process (PID %d)\n", getpid());
+    printf("Child process (PID %ld)\n", (long) getpid());
     printf("Enter Ctrl-D (EOF) to end.\n");
     close(pipe[PIPE_INPUT]);
 
     while ((ret = read(pipe[PIPE_OUTPUT], &byte, BYTE_SIZE)) > 0) {
-        if (isdigit(byte)) {
+        if (isdigit((unsigned char) byte)) {
             digits++;
-        } else if (isalpha(byte)) {
+        } else if (isalpha((unsigned char) byte)) {
             letters++;
         }
     }
@@ -109,12 +108,12 @@ int main(void) {
     int anonymous_pipe[2]; /* pipe descriptors */
 
     if (pipe(anonymous_pipe) == -1) {
-        handle_fatal_error("Error [pipe()]: ");
+        handle_fatal_error("Error [pipe()]");
     }
 
     pid = fork();
     if (pid == -1) {
-        handle_fatal_error("Error [fork()]: ");
+        handle_fatal_error("Error [fork()]");
     }
     if (pid > 0) {
         manage_parent(anonymous_pipe);

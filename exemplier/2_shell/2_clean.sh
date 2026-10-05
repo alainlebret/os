@@ -8,7 +8,7 @@
 # Unix System Programming Examples / Exemplier de programmation système Unix
 # "Shell bash" / "Interpréteur de commandes bash"
 #
-# Copyright (C) 1995-2023 Alain Lebret (alain.lebret@ensicaen.fr)
+# Copyright (C) 1995-2026 Alain Lebret (alain.lebret@ensicaen.fr)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,8 +23,9 @@
 # limitations under the License.
 #
 
-# This scripts removes temporary files using a temporary trash directory
-mkdir .trash
-mv *~ .trash
-rm -rf .trash
-echo "Temporary files are removed!"
+# This script removes the backup files (*~) of the current directory.
+# rm -f does not fail when there is no such file; -- protects names that
+# begin with a dash.
+if rm -f -- ./*~; then
+    echo "Temporary files are removed!"
+fi

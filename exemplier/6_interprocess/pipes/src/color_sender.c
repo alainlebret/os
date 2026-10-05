@@ -33,7 +33,8 @@
  * another program (color_changer.c) reads these color values from the pipe
  * and changes its background color accordingly.
  *
- * To use the Color Sender program, run it from the command line. It will 
+ * To use the Color Sender program, first run color_changer (which creates
+ * the named pipe), then run it from the command line. It will 
  * prompt the user to enter color values. Once a color value is entered, it 
  * will be sent to the named pipe for the Color Changer program to read and 
  * act upon. The word "FIN" will send a termination order to the Color Changer
@@ -41,16 +42,16 @@
  *
  * Example usage:
  * ./color_sender
- * Entrez une couleur en anglais (ex. : red, green, blue) : red
- * Entrez une couleur en anglais (ex. : red, green, blue) : green
- * Entrez une couleur en anglais (ex. : red, green, blue) : FIN
+ * Enter a color name (e.g., red, green, blue): red
+ * Enter a color name (e.g., red, green, blue): green
+ * Enter a color name (e.g., red, green, blue): FIN
  */
 
 #define COLORPIPE "colorpipe"
 #define COLOR_NAME_SIZE 50
 
 void trim_newline(char *str) {
-    int len = strlen(str);
+    size_t len = strlen(str);
     if (len > 0 && str[len - 1] == '\n') {
         str[len - 1] = '\0';
     }
@@ -68,7 +69,9 @@ int main(void) {
 
     while(1) {
         printf("Enter a color name (e.g., red, green, blue): ");
-        fgets(color_name, sizeof(color_name), stdin);
+        if (fgets(color_name, sizeof(color_name), stdin) == NULL) {
+            snprintf(color_name, sizeof(color_name), "FIN"); /* EOF (Ctrl-D): also stop color_changer */
+        }
         trim_newline(color_name); /* Suppression du caractère de fin de ligne */
 
         /* Ecriture de la couleur vers le tube */

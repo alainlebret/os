@@ -82,9 +82,23 @@
 
 #define SHOW_ADDRESS(ID, I) printf("The id %s \t\t is at:%8lX\n", ID, (unsigned long int)&I);
 
-int etext;
-int edata;
-int end;
+/*
+ * etext, edata and end are not variables of the program: they are symbols
+ * defined by the linker (see man 3 end). Their ADDRESS is the end of the
+ * text segment, of the initialized data and of the BSS. macOS does not
+ * provide them, but offers get_etext(), get_edata() and get_end().
+ */
+#ifdef __APPLE__
+#include <mach-o/getsect.h>
+#define ADDR_ETEXT get_etext()
+#define ADDR_EDATA get_edata()
+#define ADDR_END   get_end()
+#else
+extern char etext, edata, end;
+#define ADDR_ETEXT ((unsigned long int) &etext)
+#define ADDR_EDATA ((unsigned long int) &edata)
+#define ADDR_END   ((unsigned long int) &end)
+#endif
 
 char *g_pointer = "A string in C"; /* initialized global */
 char g_buff[100];                  /* uninitialized global */
@@ -100,10 +114,10 @@ void pointer_function(int local_non_init) {
     }
 }
 
-int main(int argc, char *argv[], char *envp[]) {
-    int i = 3;                  /* local intialized --> stack segment */
-    static int diff;            /* static local uninitialized --> data segment */
-    static int stack_calls = 5; /* static local intialized --> data segment */
+int main(int argc, char *argv[]) {
+    int i = 3;                  /* local initialized --> stack segment */
+    static long diff;           /* static local uninitialized --> BSS segment */
+    static int stack_calls = 5; /* static local initialized --> data segment */
 
     int *int_ptr1 = (int *) malloc(10 * sizeof(int));  /* heap */
     if (!int_ptr1) {
@@ -119,34 +133,33 @@ int main(int argc, char *argv[], char *envp[]) {
 
     snprintf(g_buff, sizeof(g_buff), " Layout of virtual memory \n ");
 
-    if (write(1, g_buff, strlen(g_buff) + 1) == -1) {
-        perror("Error [write()]: ");
+    if (write(1, g_buff, strlen(g_buff)) == -1) {
+        perror("Error [write()]");
     }
 
     printf("Adr etext : %8lX \t\t Adr edata : %8lX \t\t Adr end : %8lX \n",
-           (unsigned long int) &etext, (unsigned long int) &edata, (
-                   unsigned long int) &end);
+           ADDR_ETEXT, ADDR_EDATA, ADDR_END);
 
     printf(" Variable \t\t HEX_ADDR\n ");
 
     SHOW_ADDRESS(" main function", main);
     SHOW_ADDRESS(" pointer_function() ", pointer_function);
-    SHOW_ADDRESS(" etext ", etext);
-    diff = (unsigned long int) &pointer_function - (unsigned long int) &main;
-    printf(" pointer_function() is  %d bytes above main\n", diff);
+    printf("The id  etext  \t\t is at:%8lX\n", ADDR_ETEXT);
+    diff = (long) ((unsigned long int) &pointer_function - (unsigned long int) &main);
+    printf(" pointer_function() is  %ld bytes above main\n", diff);
 
 
     SHOW_ADDRESS(" Global pointer ", g_pointer);
-    diff = (unsigned long int) &g_pointer - (unsigned long int) &pointer_function;
-    printf(" g_pointer is %d bytes above pointer_function()\n", diff);
+    diff = (long) ((unsigned long int) &g_pointer - (unsigned long int) &pointer_function);
+    printf(" g_pointer is %ld bytes above pointer_function()\n", diff);
 
     SHOW_ADDRESS(" Global Buff", g_buff);
     printf(" int_ptr1 %8lX\n", (unsigned long int) int_ptr1);
     printf(" int_ptr2 %8lX\n", (unsigned long int) int_ptr2);
     SHOW_ADDRESS(" diff ", diff);
     SHOW_ADDRESS(" stack calls", stack_calls);
-    SHOW_ADDRESS(" edata ", edata);
-    SHOW_ADDRESS(" end ", end);
+    printf("The id  edata  \t\t is at:%8lX\n", ADDR_EDATA);
+    printf("The id  end  \t\t is at:%8lX\n", ADDR_END);
     SHOW_ADDRESS(" argc ", argc);
     SHOW_ADDRESS(" argv ", argv);
     SHOW_ADDRESS(" i ", i);

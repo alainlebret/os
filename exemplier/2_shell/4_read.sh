@@ -8,7 +8,7 @@
 # Unix System Programming Examples / Exemplier de programmation système Unix
 # "Shell bash" / "Interpréteur de commandes bash"
 #
-# Copyright (C) 1995-2023 Alain Lebret (alain.lebret@ensicaen.fr)
+# Copyright (C) 1995-2026 Alain Lebret (alain.lebret@ensicaen.fr)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,8 +26,13 @@
 # A simple script to read some input.
 
 echo -n "Enter the name of the file to remove: "
-read filename
-if rm -i "${filename}"; then
+read -r filename      # -r: a backslash in the name is kept as is
+if [ ! -e "${filename}" ]; then
+    echo "${filename}: no such file." >&2
+    exit 1
+fi
+if rm -i -- "${filename}"; then
     echo "File have been removed."
 else
     echo "File removal was cancelled or failed."
+fi

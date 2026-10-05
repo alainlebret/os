@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>   /* O_CREAT, O_WRONLY */
 
 #ifdef __APPLE__
 #include "macosx/mqueue.h"
@@ -43,8 +44,10 @@ int main(void) {
     mqd_t mq;
     struct mq_attr attr;
     Message msg;
+    int c;
 
-    mq_unlink(QUEUE_NAME); /* Evaluate if this is necessary */
+    mq_unlink(QUEUE_NAME); /* Removes a queue left by a previous run, so that it
+                            * is recreated with the attributes below */
 
     /* Open the message queue */
     memset(&attr, '\0', sizeof(attr));
@@ -61,7 +64,9 @@ int main(void) {
 
     while (1) {
         printf("Enter a sentence (or 'exit' to quit): ");
-        fgets(msg.sentence, MAX_MSG_SIZE, stdin);
+        if (fgets(msg.sentence, MAX_MSG_SIZE, stdin) == NULL) {
+            break; /* EOF (Ctrl-D): otherwise the loop would never end */
+        }
 
         if (strcmp(msg.sentence, "exit\n") == 0) {
             break;
@@ -70,7 +75,9 @@ int main(void) {
         printf("Enter priority (0-9): ");
         if (scanf("%d", &msg.priority) != 1 || msg.priority < 0 || msg.priority > 9) {
             fprintf(stderr, "Invalid priority. Please enter a number between 0 and 9.\n");
-            getchar(); /* Consume invalid input */
+            while ((c = getchar()) != '\n' && c != EOF) {
+                ; /* Consume the rest of the invalid line */
+            }
             continue;
         }
         getchar(); /* Consume newline */

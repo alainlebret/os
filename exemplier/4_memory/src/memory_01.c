@@ -27,6 +27,9 @@
  * Knowing the page size can be critical for performance tuning and memory
  * management tasks, as it influences how memory is allocated and managed
  * at the system level.
+ *
+ * Note: getpagesize() is an old BSD function, removed from POSIX; a portable
+ * program uses sysconf(_SC_PAGESIZE) instead (see page_size.c).
  */
 
 int main(void) {

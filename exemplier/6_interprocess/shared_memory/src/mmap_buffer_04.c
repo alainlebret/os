@@ -40,7 +40,7 @@
  */
 
 #define NBR_CONSUMERS 5  /* number of consumer processes to be spawned */
-#define NBR_PRODUCTERS 6  /* number of producer processes to be spawned */
+#define NBR_PRODUCERS 6  /* number of producer processes to be spawned */
 
 #define INTEGER_SIZE sizeof(int)
 #define BUFFER_SIZE 5
@@ -55,10 +55,11 @@
 #define NBR_SEMAPHORES 3     /* number of semaphores */
 
 /**
-* Handles a fatal error. It displays a message, then exits.
-*/
+ * Handles a fatal error. It displays the message followed by the reason
+ * given by errno (perror()), then exits.
+ */
 void handle_fatal_error(const char *message) {
-    fprintf(stderr, "%s", message);
+    perror(message);
     exit(EXIT_FAILURE);
 }
 
@@ -73,7 +74,7 @@ int create_semaphores(int nbr_semaphores) {
     /* permission 0600 = lecture/modification by user */
     if ((semid = semget(IPC_PRIVATE, nbr_semaphores, IPC_CREAT | 0600))
         < 0) {
-        handle_fatal_error("Error when creating semaphores! ");
+        handle_fatal_error("Error when creating semaphores");
     }
 
     return semid;
@@ -83,17 +84,21 @@ int create_semaphores(int nbr_semaphores) {
  * Initializes a specific semaphore.
  */
 void initialize_semaphore(int semid, int index, int valeur) {
+    /* POSIX passes the 4th argument of semctl(SETVAL) as a union semun
+       (field val), which the program must define itself on Linux; passing
+       an int works on the usual ABIs (Linux, macOS), as here. */
     if (semctl(semid, index, SETVAL, valeur) < 0) {
-        handle_fatal_error("Error when initializing semaphore. ");
+        handle_fatal_error("Error when initializing semaphore");
     }
 }
 
 /**
- * Performs a P() operation ("wait") on a semaphore.
+ * Performs a P() operation ("wait") on a System V semaphore.
+ * Not named sem_wait(): that name belongs to POSIX semaphores (<semaphore.h>).
  * @param semid Identifier of the group of semaphores.
  * @param index Index of the semaphore in the group.
  */
-void sem_wait(int semid, int index) {
+void P(int semid, int index) {
     struct sembuf sops[1];
 
     sops[0].sem_num = index;
@@ -101,7 +106,7 @@ void sem_wait(int semid, int index) {
     sops[0].sem_flg = 0;
 
     if (semop(semid, sops, 1) < 0) {
-        handle_fatal_error("Error using P(). ");
+        handle_fatal_error("Error using P()");
     }
 }
 
@@ -110,7 +115,7 @@ void sem_wait(int semid, int index) {
  * @param semid Identifier of the group of semaphores.
  * @param index Index of the semaphore in the group.
  */
-void sem_signal(int semid, int index) {
+void V(int semid, int index) {
     struct sembuf sops[1];
 
     sops[0].sem_num = index;
@@ -118,7 +123,7 @@ void sem_signal(int semid, int index) {
     sops[0].sem_flg = 0;
 
     if (semop(semid, sops, 1) < 0) {
-        handle_fatal_error("Error using V(). ");
+        handle_fatal_error("Error using V()");
     }
 }
 
@@ -129,14 +134,15 @@ void write_memory(int id, int *buffer, int *in, int *out, int semid) {
     int value;
     int i;
 
+    (void) out;  /* only used by the consumers */
     for (i = 0; i < ITERATIONS_PRODUCER; i++) {
         value = 100 * id + i;
-        sem_wait(semid, BUFFER_SPACE);  /* P() -- wait */
-        sem_wait(semid, MUTEX);    /* Waiting to access buffer */
+        P(semid, BUFFER_SPACE);  /* P() -- wait */
+        P(semid, MUTEX);    /* Waiting to access buffer */
         buffer[*in] = value;
         *in = (*in + 1) % BUFFER_SIZE;
-        sem_signal(semid, MUTEX);  /* End of access */
-        sem_signal(semid, BUFFER_USED);  /* V() -- signal */
+        V(semid, MUTEX);  /* End of access */
+        V(semid, BUFFER_USED);  /* V() -- signal */
     }
 }
 
@@ -156,16 +162,16 @@ void consume(int id, int *buffer, int *in, int *out, int semid) {
     int i;
     int value;
 
+    (void) in;  /* only used by the producers */
     printf("Consumer of ID %d begins.\n", id);
 
     for (i = 0; i < ITERATIONS_CONSUMER; i++) {
-        sem_wait(semid, BUFFER_USED);  /* wait semaphore for something used */
-        sem_wait(semid, MUTEX);     /* wait semaphore for buffer access */
-        value = buffer[*in];  /* take data from buffer */
-        *in = (*in + 1) % BUFFER_SIZE;
-        sem_signal(semid, MUTEX);     /* signal semaphore for buffer access */
-        sem_signal(semid,
-                   BUFFER_SPACE); /* signal semaphore for space available */
+        P(semid, BUFFER_USED);  /* wait semaphore for something used */
+        P(semid, MUTEX);     /* wait semaphore for buffer access */
+        value = buffer[*out];  /* take data from buffer */
+        *out = (*out + 1) % BUFFER_SIZE;
+        V(semid, MUTEX);     /* signal semaphore for buffer access */
+        V(semid, BUFFER_SPACE); /* signal semaphore for space available */
 
         printf("Consumer of ID %d : element %2d == %2d\n", id, i, value);
 
@@ -188,8 +194,8 @@ void *create_shared_memory(void) {
                                -1, /* the shared memory do not use a file */
                                0);  /* ignored: set when using a file */
 
-    if (shared_memory == (void *) -1) {
-        handle_fatal_error("Error allocating shared memory using mmap!\n");
+    if (shared_memory == MAP_FAILED) {
+        handle_fatal_error("Error allocating shared memory using mmap");
     }
     return shared_memory;
 }
@@ -216,8 +222,8 @@ int main(void) {
      */
 
     buffer = (int *) shared_memory;
-    in = (int *) shared_memory + BUFFER_SIZE * INTEGER_SIZE;
-    out = (int *) shared_memory + (BUFFER_SIZE + 1) * INTEGER_SIZE;
+    in = buffer + BUFFER_SIZE;       /* pointer arithmetic counts in ints, */
+    out = buffer + BUFFER_SIZE + 1;  /* not in bytes */
 
     *in = *out = 0;          /* starting index */
 
@@ -228,10 +234,10 @@ int main(void) {
     initialize_semaphore(semid, MUTEX, 1);
 
     /* Creation of producers */
-    for (i = 1; i <= NBR_PRODUCTERS; i++) {
+    for (i = 1; i <= NBR_PRODUCERS; i++) {
         pid = fork();
         if (pid == -1) {
-            handle_fatal_error("Error when trying to fork producers. ");
+            handle_fatal_error("Error when trying to fork producers");
         }
         if (pid == 0) {
             produce(i, buffer, in, out, semid);
@@ -243,7 +249,7 @@ int main(void) {
     for (i = 1; i <= NBR_CONSUMERS; i++) {
         pid = fork();
         if (pid == -1) {
-            handle_fatal_error("Error when trying to fork consumers. ");
+            handle_fatal_error("Error when trying to fork consumers");
         }
 
         if (pid == 0) {
@@ -257,7 +263,7 @@ int main(void) {
     printf("Parent process is waiting for them to end...\n");
 
     /* Waiting for all child processes to complete */
-    for (i = 0; i < NBR_PRODUCTERS + NBR_CONSUMERS; i++) {
+    for (i = 0; i < NBR_PRODUCERS + NBR_CONSUMERS; i++) {
         wait(NULL);
     }
 
@@ -270,8 +276,7 @@ int main(void) {
     /* Remove the semaphore from the system and destroy the set of
      *  semaphores and data structure associated with it. */
     if (semctl(semid, 0, IPC_RMID) < 0) {
-        handle_fatal_error("Error removing semaphores. ");
-        exit(EXIT_FAILURE);
+        handle_fatal_error("Error removing semaphores");
     }
     printf("Semaphores removed.\n");
 

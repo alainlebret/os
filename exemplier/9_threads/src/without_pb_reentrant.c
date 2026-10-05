@@ -20,51 +20,51 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include <string.h>  /* strerror() */
 
 /**
  * @file without_pb_reentrant.c
  * @see pb_reentrant.c
  *
  * A simple program to show the importance of using "reentrant" functions.
+ *
+ * f_r() is the reentrant version of f() (as rand_r() is for rand()): the
+ * caller provides the state, so there is no hidden static variable any
+ * more. Each thread has its own seed: no shared data, no mutex needed.
+ * Same seed in every thread: each one displays the first value (16838).
  */
 
 #define THREADS 4
 
-static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
-int f_reentrant(void) {
-    static unsigned int next;
-
-    pthread_mutex_lock(&mutex);
-    /* Beginning of critical section */
-    next = 1;
-    next = next * 1103515245 + 12345;
-    next = (unsigned int) (next / 65536) % 32768;
-    /* End of critical section */
-    pthread_mutex_unlock(&mutex);
-
-    usleep(10);
-
-    return next;
+int f_r(unsigned int *next) {
+    *next = *next * 1103515245 + 12345;
+    return (int) ((*next / 65536) % 32768);
 }
 
 void *doit(void *vargp) {
     (void) vargp;  /* Mark it as unused */
-    printf("[%lu]: val = %d\n", (uintptr_t) pthread_self(), f_reentrant());
+    unsigned int seed = 1;  /* private state, in the stack of the thread */
+    printf("[%lu]: val = %d\n", (unsigned long) pthread_self(), f_r(&seed));
     return NULL;
 }
 
 int main(void) {
     int i;
-    pthread_t tid[4];
+    int err;
+    pthread_t tid[THREADS];
 
     for (i = 0; i < THREADS; i++) {
-        pthread_create(&tid[i], NULL, doit, NULL);
+        if ((err = pthread_create(&tid[i], NULL, doit, NULL)) != 0) {
+            fprintf(stderr, "pthread_create : %s\n", strerror(err));
+            exit(EXIT_FAILURE);
+        }
     }
 
     for (i = 0; i < THREADS; i++) {
-        pthread_join(tid[i], NULL);
+        if ((err = pthread_join(tid[i], NULL)) != 0) {
+            fprintf(stderr, "pthread_join : %s\n", strerror(err));
+            exit(EXIT_FAILURE);
+        }
     }
 
     return EXIT_SUCCESS;

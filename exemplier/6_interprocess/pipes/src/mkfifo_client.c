@@ -70,15 +70,14 @@ int main(void) {
 }
 
 void manage_client(int fdr, int fdq) {
-    char response[11];
+    char response[12]; /* the server sends up to 11 bytes: 10 chars + '\0' */
     char query[11];
     ssize_t bytes_written, bytes_read;
 
     while (1) {
         printf("Enter expression (a <op> b): ");
         if (fgets(query, 11, stdin) == NULL) {
-            perror("Error reading from stdin");
-            exit(EXIT_FAILURE);
+            break; /* EOF (Ctrl-D): closing the pipes also stops the server */
         }
         bytes_written = write(fdq, query, strlen(query));
         if (bytes_written == -1) {
@@ -86,9 +85,14 @@ void manage_client(int fdr, int fdq) {
             break;
         }
 
-        bytes_read = read(fdr, response, 10);
+        /* One read() = one response: true here because the server answers each
+           short request before the next one (a pipe is a byte stream) */
+        bytes_read = read(fdr, response, sizeof(response) - 1);
         if (bytes_read == -1) {
             perror("Error reading from pipe");
+            break;
+        }
+        if (bytes_read == 0) { /* EOF: the server has closed the pipe */
             break;
         }
         response[bytes_read] = '\0'; /* Null-terminate the response */

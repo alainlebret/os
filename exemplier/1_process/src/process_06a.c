@@ -17,8 +17,8 @@
  */
 
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
-#include <unistd.h>    /* fork() */
+#include <stdlib.h>    /* exit() */
+#include <unistd.h>    /* fork(), execl() and _exit() */
 #include <sys/types.h> /* pid_t */
 #include <sys/wait.h>  /* wait() */
 
@@ -45,10 +45,13 @@ void manage_parent(void) {
     pid_t child;
     int status;
 
-    printf("Parent process (PID %d) waiting for the child.\n", getpid());
+    printf("Parent process (PID %ld) waiting for the child.\n", (long) getpid());
     child = wait(&status);
+    if (child == -1) {
+        handle_fatal_error_and_exit("Error [wait()]");
+    }
     if (WIFEXITED(status)) {
-        printf("Parent (PID %d): Child (PID %d) finished with exit code: %d\n", getpid(), child, WEXITSTATUS(status));
+        printf("Parent (PID %ld): Child (PID %ld) finished with exit code: %d\n", (long) getpid(), (long) child, WEXITSTATUS(status));
     }
 }
 
@@ -60,12 +63,13 @@ void manage_child(void) {
     const char *command = "ls";
     const char *arguments = "-al";
 
-    printf("Child process (PID %d) will execute ls command.\n", getpid());
-    execl(path, command, arguments, NULL);
+    printf("Child process (PID %ld) will execute ls command.\n", (long) getpid());
+    fflush(stdout); /* the stdio buffer would be lost by execl() */
+    execl(path, command, arguments, (char *) NULL);
 
     /* If execl() returns, there was an error */
     perror("Error executing execl");
-    exit(EXIT_FAILURE);
+    _exit(127); /* not exit(): do not flush the stdio buffers inherited from the parent */
 }
 
 int main(void) {
@@ -73,7 +77,7 @@ int main(void) {
     
     pid = fork();
     if (pid == -1) {
-        handle_fatal_error_and_exit("Error [fork()]: ");
+        handle_fatal_error_and_exit("Error [fork()]");
     }
 
     if (pid > 0) {

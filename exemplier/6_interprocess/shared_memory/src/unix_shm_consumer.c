@@ -17,9 +17,9 @@
  */
 
 #include <stdio.h>  /* printf() */
-#include <stdlib.h> /* exit() and execl()*/
+#include <stdlib.h> /* exit() */
 #include <unistd.h> /* fork() */
-#include <sys/types.h> /* pid_t and mkfifo() */
+#include <sys/types.h> /* pid_t */
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <errno.h>
@@ -30,10 +30,12 @@
 #define STOP 0
 
 /**
- * @file shm_consumer.c
+ * @file unix_shm_consumer.c
  *
  * Consumer using an IPC/System V shared memory. The program displays content
  * on the shared memory. It can be stopped using Ctrl-C.
+ *
+ * No synchronization: the reader may see data that is only partly updated. See the course, chapter « Synchronisation ».
  */
 
 /**
@@ -46,7 +48,7 @@ struct data {
 
 typedef struct data data_t;
 
-volatile int loop = CONTINUE;
+volatile sig_atomic_t loop = CONTINUE;
 
 /**
  * Handles a fatal error. It displays a message, then exits.
@@ -57,6 +59,7 @@ void handle_fatal_error(const char *message) {
 }
 
 void stop_loop(int signal) {
+    (void) signal;
     loop = STOP;
 }
 
@@ -66,25 +69,30 @@ int main(void) {
     data_t *shared_memory;
     struct sigaction action;
 
-    key = ftok(getenv("HOME"), 'A');
+    const char *home = getenv("HOME");
+    if (home == NULL) {
+        fprintf(stderr, "HOME is not defined: ftok() needs an existing path.\n");
+        exit(EXIT_FAILURE);
+    }
+    key = ftok(home, 'A');
     if (key == -1) {
-        handle_fatal_error("Error [ftok()]: ");
+        handle_fatal_error("Error [ftok()]");
     }
 
     id = shmget(key, sizeof(data_t), 0);
     if (id == -1) {
         switch (errno) {
             case ENOENT:
-                handle_fatal_error("No existing segment! ");
+                handle_fatal_error("No existing segment!");
                 break;
             default:
-                handle_fatal_error("Error using shmget()! ");
+                handle_fatal_error("Error using shmget()!");
         }
     }
 
-    shared_memory = (data_t *) shmat(id, NULL, SHM_R);
+    shared_memory = (data_t *) shmat(id, NULL, SHM_RDONLY);
     if (shared_memory == (void *) -1) {
-        handle_fatal_error("Error using shmat()! ");
+        handle_fatal_error("Error using shmat()!");
     }
 
     loop = CONTINUE;
@@ -92,7 +100,10 @@ int main(void) {
     action.sa_handler = stop_loop;
     sigemptyset(&action.sa_mask);
     action.sa_flags = 0;
-    sigaction(SIGINT, &action, NULL);
+    if (sigaction(SIGINT, &action, NULL) == -1) {
+        perror("sigaction");
+        exit(EXIT_FAILURE);
+    }
 
     while (loop) {
         sleep(DURATION);
@@ -102,7 +113,7 @@ int main(void) {
 
     printf("---\n");
     if (shmdt((char *) shared_memory) == -1) {
-        handle_fatal_error("Error using shmdt()! ");
+        handle_fatal_error("Error using shmdt()!");
     }
 
     return EXIT_SUCCESS;

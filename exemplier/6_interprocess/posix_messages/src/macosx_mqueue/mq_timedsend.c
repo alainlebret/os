@@ -33,7 +33,7 @@ int mq_timedsend(mqd_t mqd, const char *ptr, size_t len, unsigned prio,
         return -1;
     }
 
-    if (len > attr->mq_msgsize) {
+    if (len > (size_t) attr->mq_msgsize) {
         errno = EMSGSIZE;
         goto err;
     }
@@ -63,6 +63,10 @@ int mq_timedsend(mqd_t mqd, const char *ptr, size_t len, unsigned prio,
                                                      &mqhdr->mqh_lock,
                                                      abs_timeout);
 
+            /* Only ETIMEDOUT ends the wait. On macOS, a process-shared
+             * condition variable waited on from two processes that map the
+             * queue at different addresses returns EINVAL at once: the wait
+             * then degrades into active polling, but remains correct. */
             if (wait_result == ETIMEDOUT) {
                 errno = ETIMEDOUT;
                 goto err;
@@ -98,10 +102,9 @@ int mq_timedsend(mqd_t mqd, const char *ptr, size_t len, unsigned prio,
         pmsghdr->msg_next = freeindex;
         nmsghdr->msg_next = 0;
     }
-    /* wake up anyone blocked in mq_receive waiting for a message */
-    if (attr->mq_curmsgs == 0) {
-        pthread_cond_signal(&mqhdr->mqh_wait);
-    }
+    /* wake up everyone blocked in mq_receive waiting for a message: signaling
+     * only when the queue was empty loses wake-ups with several receivers */
+    pthread_cond_broadcast(&mqhdr->mqh_wait);
     attr->mq_curmsgs++;
 
     pthread_mutex_unlock(&mqhdr->mqh_lock);

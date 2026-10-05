@@ -21,20 +21,22 @@
 #include <sys/sem.h>
 #include <sys/shm.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
 /**
- * @file prod_cons.c
+ * @file unix_prod_cons.c
  *
- * #brief Producer-consumer program using a set of two System V IPC semaphores.
+ * @brief Producer-consumer program using a set of two System V IPC semaphores.
  *
  * This program demonstrates the producer-consumer problem solution using 
  * System V IPC semaphores for synchronization and shared memory for 
  * communication. It creates two processes, one for producing data and the
  * other for consuming it, with a shared buffer protected by a set of two 
- * semaphores.
+ * semaphores. Stop it with Ctrl-C: the children are killed, and the parent,
+ * which ignores SIGINT, collects them and removes the IPC objects.
  *
  * @author Alain Lebret (2011)
  * @author Janet Davis (2006)
@@ -71,7 +73,7 @@ void modify_semaphore_value(semaphore_t sem, int sem_num, int new_value) {
     sb[0].sem_flg = 0;
 
     if (semop(sem, sb, 1) != 0) {
-        handle_fatal_error("Error [semop()]: ");
+        handle_fatal_error("Error [semop()]");
     }
 }
 
@@ -148,42 +150,74 @@ void consume(int *buffer, int id_semaphores) {
     /* Unreachable */
 }
 
-void handler(int signal) {
-    if (signal == SIGINT) {
-        exit(EXIT_SUCCESS);
-    }
-}
-
 int main(void) {
     int *buffer;
     int id_semaphore;
     int id_memory;
 
     /* creation of the set of 2 IPC semaphores */
-    id_semaphore = semget(IPC_PRIVATE, 2, 0644 | IPC_CREAT | IPC_EXCL);
+    id_semaphore = semget(IPC_PRIVATE, 2, 0600 | IPC_CREAT | IPC_EXCL);
     if (id_semaphore == -1) {
-        handle_fatal_error("Error [segmet()]: ");
+        handle_fatal_error("Error [semget()]");
     }
 
     /* initialization of the two semaphores */
-    semctl(id_semaphore, BUFFER_USED, SETVAL, 0);
-    semctl(id_semaphore, BUFFER_SPACE, SETVAL, BUFFER_SIZE);
+    /* POSIX passes the 4th argument of semctl(SETVAL) as a union semun
+       (field val), which the program must define itself on Linux; passing
+       an int works on the usual ABIs (Linux, macOS), as here. */
+    if (semctl(id_semaphore, BUFFER_USED, SETVAL, 0) == -1
+        || semctl(id_semaphore, BUFFER_SPACE, SETVAL, BUFFER_SIZE) == -1) {
+        semctl(id_semaphore, 0, IPC_RMID);
+        handle_fatal_error("Error [semctl(SETVAL)]");
+    }
 
     /* creation and attachment of a shared memory */
     id_memory = shmget(IPC_PRIVATE, BUFFER_SIZE * sizeof(int),
-                       0644 | IPC_CREAT | IPC_EXCL);
+                       0600 | IPC_CREAT | IPC_EXCL);
     if (id_memory == -1) {
         semctl(id_semaphore, 0, IPC_RMID);
-        handle_fatal_error("Error [semctl()]: ");
+        handle_fatal_error("Error [shmget()]");
     }
     buffer = shmat(id_memory, NULL, 0);
+    if (buffer == (void *) -1) {
+        semctl(id_semaphore, 0, IPC_RMID);
+        shmctl(id_memory, IPC_RMID, NULL);
+        handle_fatal_error("Error [shmat()]");
+    }
 
-    if (fork() == 0) produce(buffer, id_semaphore);
-    if (fork() == 0) consume(buffer, id_semaphore);
+    /* Ctrl-C kills the children; the parent ignores it to clean up. SIGINT is
+       ignored before fork(): an early Ctrl-C cannot leave the IPC objects. */
+    struct sigaction sa;
+    sa.sa_handler = SIG_IGN;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    if (sigaction(SIGINT, &sa, NULL) == -1) {
+        handle_fatal_error("Error [sigaction()]");
+    }
 
-    /* remove IPC semaphores */
-    signal(SIGINT, handler);
-    pause();
+    for (int k = 0; k < 2; k++) {
+        pid_t pid = fork();
+        if (pid == -1) {
+            handle_fatal_error("Error [fork()]");
+        }
+        if (pid == 0) {
+            sa.sa_handler = SIG_DFL; /* children: Ctrl-C stops them again */
+            sigaction(SIGINT, &sa, NULL);
+            if (k == 0) {
+                produce(buffer, id_semaphore);
+            } else {
+                consume(buffer, id_semaphore);
+            }
+            exit(EXIT_SUCCESS);     /* unreachable */
+        }
+    }
+
+    while (wait(NULL) > 0) {
+        ;
+    }
+
+    /* remove IPC objects */
+    shmdt(buffer);
     semctl(id_semaphore, 0, IPC_RMID);
     shmctl(id_memory, IPC_RMID, NULL);
 

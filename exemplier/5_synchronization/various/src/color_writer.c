@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+#define _POSIX_C_SOURCE 200809L /* sigaction() */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,6 +27,7 @@
 #include <unistd.h>
 #include <semaphore.h>
 #include <time.h>
+#include <signal.h>
 
 /**
  * @file color_writer.c
@@ -38,6 +41,14 @@
 #define SHM_NAME "/my_shared_memory"
 #define SHM_SIZE 1024
 #define SEM_NAME "/my_semaphore"
+
+/* Set by the SIGINT handler (Ctrl-C): the main loop stops and cleans up */
+static volatile sig_atomic_t keep_running = 1;
+
+void handle_sigint(int signum) {
+    (void) signum;
+    keep_running = 0;
+}
 
 /* Generate a random integer between min and max */
 int random_int(int min, int max) {
@@ -61,7 +72,10 @@ int main(void) {
     }
 
     /* Set the size of the shared memory segment */
-    ftruncate(shm_fd, SHM_SIZE);
+    if (ftruncate(shm_fd, SHM_SIZE) == -1) {
+        perror("ftruncate");
+        exit(1);
+    }
 
     /* Map the shared memory into the address space */
     shm_ptr = mmap(0, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
@@ -74,29 +88,42 @@ int main(void) {
     color_data = (char *) shm_ptr;
 
     /* Create or open the semaphore */
-    semaphore = sem_open(SEM_NAME, O_CREAT, 0666, 1); /* Initial value is 1 */
+    semaphore = sem_open(SEM_NAME, O_CREAT, 0600, 1); /* Initial value is 1 */
     if (semaphore == SEM_FAILED) {
         perror("sem_open");
+        exit(1);
+    }
+
+    /* Ctrl-C ends the loop instead of killing the program, so that the
+       shared memory and the semaphore are removed below */
+    struct sigaction action;
+    memset(&action, 0, sizeof(action));
+    action.sa_handler = handle_sigint;
+    sigemptyset(&action.sa_mask);
+    if (sigaction(SIGINT, &action, NULL) == -1) {
+        perror("sigaction");
         exit(1);
     }
 
     /* Seed the random number generator with the current time */
     srand(time(NULL));
 
-    while (1) {
+    while (keep_running) {
         /* Generate random RGB color values */
         red = random_int(0, 255);
         green = random_int(0, 255);
         blue = random_int(0, 255);
 
         /* Format the color data as a string (e.g., "255,0,0" for red) */
+        sem_wait(semaphore);   /* Enter the critical section */
         snprintf(color_data, SHM_SIZE, "%d,%d,%d", red, green, blue);
+        sem_post(semaphore);   /* Leave the critical section */
 
         /* Print the generated color for debugging */
-        printf("Generated Color: %s\n", color_data);
+        printf("Generated Color: %d,%d,%d\n", red, green, blue);
 
         /* Sleep or do some work */
-        usleep(1000000); /* Sleep for 1 second */
+        sleep(1); /* Sleep for 1 second */
     }
 
     /* Unmap and close the shared memory segment when done */

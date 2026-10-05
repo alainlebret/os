@@ -15,6 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define _POSIX_C_SOURCE 200809L
+
 #include <unistd.h>  /* read(), STDIN_FILENO */
 #include <stdio.h>   /* printf(), fflush() */
 #include <stdlib.h>  /* exit() */
@@ -87,6 +89,8 @@ int main(void) {
         }
         buffer[n] = '\0';
         printf("You typed: %s", buffer);
+    } else if (fds[0].revents & (POLLHUP | POLLERR | POLLNVAL)) {
+        printf("Standard input is closed or invalid: nothing to read.\n");
     }
 
     return EXIT_SUCCESS;

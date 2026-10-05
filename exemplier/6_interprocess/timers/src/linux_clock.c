@@ -20,9 +20,10 @@
  * @file linux_clock.c
  *
  * A simple program that uses POSIX timers and handles SIGRTMIN to create a clock.
+ * Linux only: macOS has neither timer_create() nor SIGRTMIN (see macosx_clock.c).
  */
 
-#define _POSIX_C_SOURCE 199309L
+#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -34,6 +35,8 @@
 volatile sig_atomic_t h = 0; /* Hours */
 volatile sig_atomic_t m = 0; /* Minutes */
 volatile sig_atomic_t s = 0; /* Seconds */
+volatile sig_atomic_t ticked = 0; /* set by tick() */
+volatile sig_atomic_t stop = 0;   /* set by handle_sigint() */
 
 /** 
  * @brief Signal handler for SIGINT signal.
@@ -41,11 +44,9 @@ volatile sig_atomic_t s = 0; /* Seconds */
  */
 void handle_sigint(int signal) 
 {
-    /* SECURITY NOTE: signal handlers should use only async-signal-safe operations.
-     * In production, set a sig_atomic_t flag and do I/O/cleanup in normal flow. */
+    /* Only a flag: printf() and exit() are not async-signal-safe */
     if (signal == SIGINT) {
-        printf("Terminating...\n");
-        exit(EXIT_SUCCESS);
+        stop = 1;
     }
 }
 
@@ -67,8 +68,7 @@ void tick(int signal)
                     h = 0;
             }
         }
-        printf("%d:%d:%d\n", h, m, s);
-        fflush(stdout);
+        ticked = 1;   /* the time is displayed by main() */
         /* No need to re-arm manually */
     }
 }
@@ -77,13 +77,15 @@ int main(void)
 {
     struct sigaction action;
     struct sigaction sigint_action;
+    sigset_t mask, old_mask;
 
     /* Initialize the structure to zero before use. */
     memset(&action, 0, sizeof(action));
     /* Set the new handler */
     action.sa_handler = &tick;
+    sigemptyset(&action.sa_mask);
     action.sa_flags = SA_RESTART;
-    /* Install the new handler of the SIGALRM signal */
+    /* Install the new handler of the SIGRTMIN signal */
     if (sigaction(SIGRTMIN, &action, NULL) == -1) {
         perror("sigaction SIGRTMIN");
         exit(EXIT_FAILURE);
@@ -92,9 +94,19 @@ int main(void)
     /* Repeat the same setup for SIGINT. */
     memset(&sigint_action, 0, sizeof(sigint_action));
     sigint_action.sa_handler = &handle_sigint;
+    sigemptyset(&sigint_action.sa_mask);
     sigint_action.sa_flags = SA_RESTART;
     if (sigaction(SIGINT, &sigint_action, NULL) == -1) {
         perror("sigaction SIGINT");
+        exit(EXIT_FAILURE);
+    }
+
+    /* Block SIGRTMIN and SIGINT: they are only received inside sigsuspend() */
+    sigemptyset(&mask);
+    sigaddset(&mask, SIGRTMIN);
+    sigaddset(&mask, SIGINT);
+    if (sigprocmask(SIG_BLOCK, &mask, &old_mask) == -1) {
+        perror("sigprocmask");
         exit(EXIT_FAILURE);
     }
 
@@ -124,12 +136,16 @@ int main(void)
 
     printf("Timer is armed (Linux, SIGRTMIN). Press Ctrl-C to quit.\n");
 
-    /* Waiting for SIGRTMIN signal */
-    while (1) {
-        pause();
+    /* Waiting for signals (blocked outside sigsuspend(): no lost wake-up) */
+    while (!stop) {
+        sigsuspend(&old_mask);
+        if (ticked) {
+            ticked = 0;
+            printf("%d:%d:%d\n", (int) h, (int) m, (int) s);
+        }
     }
-
-    /* Unreachable: use <Ctrl-C> to exit */
+    sigprocmask(SIG_SETMASK, &old_mask, NULL);
+    printf("Terminating...\n");
 
     return EXIT_SUCCESS;
 }

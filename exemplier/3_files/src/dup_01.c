@@ -15,8 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <unistd.h>    /* dup(), close(), STDOUT_FILENO, dprintf() */
-#include <stdio.h>     /* printf() */
+#define _POSIX_C_SOURCE 200809L /* dprintf() */
+#include <unistd.h>    /* dup(), close(), STDOUT_FILENO */
+#include <stdio.h>     /* printf(), dprintf() */
 #include <stdlib.h>    /* exit() */
 
 /**
@@ -56,6 +57,7 @@ int main(void) {
     }
 
     printf("Duplicate fd       : %d\n", dup_fd);
+    fflush(stdout); /* empty the stdio buffer before writing directly to the descriptors */
 
     /* Both point to the same open file description: both write to the terminal */
     dprintf(STDOUT_FILENO, "Written via fd %d: hello from stdout\n", STDOUT_FILENO);

@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
+#include <stdlib.h>    /* exit() */
 #include <unistd.h>    /* fork() */
-#include <signal.h>    /* sigaction() */
+#include <signal.h>    /* sigaction(), sigprocmask(), sigsuspend() */
 
 #ifdef __APPLE__
 #include <sys/types.h> /* pid_t */
@@ -47,22 +47,39 @@ void handle_sigint(int signal) {
 
 int main(void) {
     struct sigaction action;
+    sigset_t mask, old_mask;
 
     /* Initialize the structure to zero before use. */
     memset(&action, '\0', sizeof(action));
 
     /* Set the new handler */
     action.sa_handler = &handle_sigint;
+    sigemptyset(&action.sa_mask);
 
     /* Install the new handler of the SIGINT signal */
-    sigaction(SIGINT, &action, NULL);
+    if (sigaction(SIGINT, &action, NULL) == -1) {
+        perror("sigaction");
+        exit(EXIT_FAILURE);
+    }
+
+    /*
+     * Block SIGINT while testing the flag: with "while (!got_sigint) pause();"
+     * a signal arriving between the test and pause() would be lost.
+     */
+    sigemptyset(&mask);
+    sigaddset(&mask, SIGINT);
+    if (sigprocmask(SIG_BLOCK, &mask, &old_mask) == -1) {
+        perror("sigprocmask");
+        exit(EXIT_FAILURE);
+    }
 
     printf("Program started. Press Ctrl-C to send SIGINT.\n");
 
     /* Wait for SIGINT and handle it in normal flow. */
     while (!got_sigint) {
-        pause();
+        sigsuspend(&old_mask); /* unblocks SIGINT and waits, atomically */
     }
+    sigprocmask(SIG_SETMASK, &old_mask, NULL);
     printf("SIGINT signal received!\n");
 
     return EXIT_SUCCESS;

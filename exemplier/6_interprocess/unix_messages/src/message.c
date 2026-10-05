@@ -40,7 +40,8 @@ void msg_display(message_t *message) {
     }
 
     printf("\tType: %ld\n", message->type);
-    printf("\tContent: %s\n", message->content.buffer);
+    /* The buffer is not always null-terminated (see msg_fill()): bounded print */
+    printf("\tContent: %.*s\n", MESSAGE_SIZE, message->content.buffer);
 }
 
 /**

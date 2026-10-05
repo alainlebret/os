@@ -52,15 +52,17 @@ void handle_fatal_error_and_exit(const char *msg) {
 void manage_parent(pid_t child_pid) {
     int status;
 
-    printf("Parent process (PID %d)\n", getpid());
+    printf("Parent process (PID %ld)\n", (long) getpid());
     printf("Parent will be blocked during %d seconds...\n", DURATION);
 
     sleep(DURATION);
 
     printf("Parent has finished to sleep.\n");
-    waitpid(child_pid, &status, 0);
+    if (waitpid(child_pid, &status, 0) == -1) {
+        handle_fatal_error_and_exit("Error [waitpid()]");
+    }
     if (WIFEXITED(status)) {
-        printf("Child process exited with status %d\n", WEXITSTATUS(status));
+        printf("Child process exited with code %d\n", WEXITSTATUS(status));
     }
 }
 
@@ -70,7 +72,7 @@ void manage_parent(pid_t child_pid) {
  * The child process is blocked during \em DURATION seconds.
  */
 void manage_child(void) {
-    printf("Child process (PID %d)\n", getpid());
+    printf("Child process (PID %ld)\n", (long) getpid());
     printf("Child will be blocked during %d seconds...\n", DURATION);
     sleep(DURATION);
     printf("Child has finished to sleep.\n");
@@ -81,7 +83,7 @@ int main(void) {
 
     pid = fork();
     if (pid == -1) {
-        handle_fatal_error_and_exit("Error [fork()]: ");
+        handle_fatal_error_and_exit("Error [fork()]");
     }
 
     if (pid > 0) {

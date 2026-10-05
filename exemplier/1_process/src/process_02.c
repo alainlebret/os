@@ -45,30 +45,32 @@ void handle_fatal_error_and_exit(const char *msg) {
  * @brief Manages the parent process by modifying value of the given parameter.
  * @param parameter Pointer to the integer to modify.
  */
-void manage_parent(int32_t *parameter) {
-    printf("Parent process (PID %d) begins...\n", getpid());
+void manage_parent(int *parameter) {
+    printf("Parent process (PID %ld) begins...\n", (long) getpid());
     *parameter = 10;
-    wait(NULL);  /* Wait for the child process to exit */
-    printf("Parent process (PID %d) ends with variable: %d\n", getpid(), *parameter);
+    if (wait(NULL) == -1) {  /* Wait for the child process to exit */
+        perror("wait");
+    }
+    printf("Parent process (PID %ld) ends with variable: %d\n", (long) getpid(), *parameter);
 }
 
 /**
  * @brief Manages the child process by modifying value of the given parameter.
  * @param parameter Pointer to the integer to modify.
  */
-void manage_child(int32_t *parameter) {
-    printf("Child process (PID %d) begins...\n", getpid());
+void manage_child(int *parameter) {
+    printf("Child process (PID %ld) begins...\n", (long) getpid());
     *parameter = 20;
-    printf("Child process (PID %d) ends with variable: %d\n", getpid(), *parameter);
+    printf("Child process (PID %ld) ends with variable: %d\n", (long) getpid(), *parameter);
 }
 
 int main(void) {
     pid_t pid;
-    int32_t own_variable = 0;
+    int own_variable = 0;
 
     pid = fork();
     if (pid == -1) {
-        handle_fatal_error_and_exit("Error [fork()]: ");
+        handle_fatal_error_and_exit("Error [fork()]");
     }
 
     if (pid > 0) {

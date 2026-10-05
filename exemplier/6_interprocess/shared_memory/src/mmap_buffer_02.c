@@ -26,7 +26,10 @@
  * @file mmap_buffer_02.c
  *
  * Producer-consumer program using a shared memory that stores a buffer of
- * integers. This code is based on the example presented by:  Janet Davis (2006)
+ * integers. The busy waiting on shared indices only illustrates the problem
+ * (volatile prevents the compiler from caching them, but it is neither
+ * atomic nor efficient): see mmap_buffer_03.c for semaphores.
+ * This code is based on the example presented by:  Janet Davis (2006)
  * and Henry Walker (2004).
  *
  * @author Alain Lebret (2011)
@@ -42,10 +45,11 @@
 #define ITERATIONS 10
 
 /**
- * Handles a fatal error. It displays a message, then exits.
+ * Handles a fatal error. It displays the message followed by the reason
+ * given by errno (perror()), then exits.
  */
 void handle_fatal_error(const char *message) {
-    fprintf(stderr, "%s", message);
+    perror(message);
     exit(EXIT_FAILURE);
 }
 
@@ -54,7 +58,7 @@ void handle_fatal_error(const char *message) {
  * This function implements a simple busy-waiting mechanism to ensure
  * synchronization between producer and consumer.
  */
-void write_memory(int *buffer, int *begin, int *end) {
+void write_memory(volatile int *buffer, volatile int *begin, volatile int *end) {
     int i;
 
     for (i = 0; i < ITERATIONS; i++) {
@@ -71,17 +75,17 @@ void write_memory(int *buffer, int *begin, int *end) {
  * Manages the parent process. It writes data to the shared memory and waits
  * for his child to finish.
  */
-void manage_parent(int *buffer, int *begin, int *end) {
+void manage_parent(volatile int *buffer, volatile int *begin, volatile int *end) {
     pid_t child;
     int status;
 
-    printf("Parent process (PID %d)\n", getpid());
+    printf("Parent process (PID %ld)\n", (long) getpid());
     write_memory(buffer, begin, end);
     printf("Parent: end of production.\n");
 
     child = wait(&status);
     if (WIFEXITED(status)) {
-        printf("Parent: child %d has finished (code %d)\n", child,
+        printf("Parent: child %ld has finished (code %d)\n", (long) child,
                WEXITSTATUS(status));
     }
 }
@@ -90,14 +94,14 @@ void manage_parent(int *buffer, int *begin, int *end) {
  * Reads a series of integers from the shared memory and displays them.
  * This function implements a simple busy-waiting mechanism for synchronization.
  */
-void read_memory(int *buffer, int *in, int *out) {
+void read_memory(volatile int *buffer, volatile int *in, volatile int *out) {
     int i;
     int value;
 
     for (i = 0; i < ITERATIONS; i++) {
-        sleep(1);  /* waiting for the memory update (not as good as semaphore) */
+        sleep(1);  /* slows the reader down, so that the buffer fills up */
 
-        while (*in == *out) {}
+        while (*in == *out) {}  /* active wait: buffer empty (a semaphore avoids this) */
 
         value = buffer[*out];
         *out = (*out + 1) % BUFFER_SIZE;
@@ -108,8 +112,8 @@ void read_memory(int *buffer, int *in, int *out) {
 /**
  * Manages the child process that reads all data from shared memory.
  */
-void manage_child(int *buffer, int *in, int *out) {
-    printf("Child process (PID %d)\n", getpid());
+void manage_child(volatile int *buffer, volatile int *in, volatile int *out) {
+    printf("Child process (PID %ld)\n", (long) getpid());
     read_memory(buffer, in, out);
     printf("Child: memory has been consumed.\n");
 }
@@ -127,17 +131,17 @@ void *create_shared_memory(void) {
                                -1, /* the shared memory do not use a file */
                                0);  /* ignored: set when using a file */
 
-    if (shared_memory == (void *) -1) {
-        handle_fatal_error("Error allocating shared memory using mmap!\n");
+    if (shared_memory == MAP_FAILED) {
+        handle_fatal_error("Error allocating shared memory using mmap");
     }
     return shared_memory;
 }
 
 int main(void) {
     pid_t pid;
-    int *buffer;         /* logical base address for buffer */
-    int *in;             /* pointer to logical 'in' address for producer */
-    int *out;            /* pointer to logical 'out' address for consumer */
+    volatile int *buffer; /* logical base address for buffer */
+    volatile int *in;     /* pointer to logical 'in' address for producer */
+    volatile int *out;    /* pointer to logical 'out' address for consumer */
     void *shared_memory; /* shared memory base address */
 
     shared_memory = create_shared_memory();
@@ -151,15 +155,15 @@ int main(void) {
      *  buffer                                               in   out
      */
 
-    buffer = (int *) shared_memory;
-    in = (int *) shared_memory + BUFFER_SIZE * INTEGER_SIZE;
-    out = (int *) shared_memory + (BUFFER_SIZE + 1) * INTEGER_SIZE;
+    buffer = (volatile int *) shared_memory;
+    in = buffer + BUFFER_SIZE;       /* pointer arithmetic counts in ints, */
+    out = buffer + BUFFER_SIZE + 1;  /* not in bytes */
 
     *in = *out = 0;          /* starting index */
 
     pid = fork();
     if (pid == -1) {
-        handle_fatal_error("Error [fork()]: ");
+        handle_fatal_error("Error [fork()]");
     }
     if (pid == 0) {
         manage_child(buffer, in, out);

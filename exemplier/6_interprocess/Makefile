@@ -1,4 +1,4 @@
-SUBDIRS = pipes posix_messages shared_memory signal unix_messages
+SUBDIRS = pipes posix_messages shared_memory signal timers unix_messages
 
 all:
 	for dir in $(SUBDIRS) ; do \

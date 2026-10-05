@@ -11,14 +11,10 @@ bins = $(patsubst $(SRC_DIR)/%.c, $(BIN_DIR)/%, $(src))
 
 CC = gcc
 CPPFLAGS = -I $(INC_DIR)
-CFLAGS = -Wall -Wextra -pedantic -std=c11 -O2
-LDFLAGS = -lpthread
-
-ifeq ($(shell uname -s),Darwin)
-LDFLAGS+=
-else
-LDFLAGS+=-lrt
-endif
+# -std=c11 hides the POSIX API under Linux: _DEFAULT_SOURCE restores it
+CFLAGS = -Wall -Wextra -pedantic -std=c11 -O2 -D_DEFAULT_SOURCE -pthread
+# -pthread (compile and link) rather than -lpthread alone
+LDFLAGS = -pthread
 
 # Add the barrier executable
 all_bins = $(bins) $(BIN_DIR)/barrier
@@ -31,10 +27,9 @@ directories:
 
 BARRIER_OBJ=$(OBJ_DIR)/barrier.o
 
+# macOS has no pthread_barrier_t: link our own implementation
 ifeq ($(shell uname -s),Darwin)
 BARRIER_OBJ+=$(OBJ_DIR)/pthread_barrier.o
-else
-BARRIER_OBJ=
 endif
 
 # Special rule for the barrier executable

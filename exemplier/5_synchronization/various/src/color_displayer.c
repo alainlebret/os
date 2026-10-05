@@ -31,7 +31,8 @@
  *
  * This GTK application is designed to display colors that are updated 
  * periodically. The color data is intended to be read from a shared 
- * memory segment and displayed in a GTK window.
+ * memory segment and displayed in a GTK window. The string is copied
+ * under the protection of the named semaphore created by color_writer.c.
  */
 
 #define SHM_NAME "/my_shared_memory"
@@ -39,7 +40,9 @@
 #define SEM_NAME "/my_semaphore"
 
 typedef struct {
-    char color_data[SHM_SIZE];
+    GtkWidget *label;          /* Displays the "R,G,B" string */
+    GtkCssProvider *css;       /* Background color of the window */
+    const char *shared_memory; /* Color data written by color_writer */
     sem_t *semaphore;
 } shared_data;
 
@@ -52,41 +55,30 @@ void handle_fatal_error(const char *msg) {
 }
 
 /**
- * Updates colors within the given shared memory.
+ * Updates colors from the shared memory. Called every second by the GTK
+ * main loop (GSourceFunc: a single gpointer argument, returns a gboolean).
  */
-void update_colors(GtkWidget *widget, shared_data *data) {
-    GdkRGBA color;
-    char *token;
+gboolean update_colors(gpointer user_data) {
+    shared_data *data = user_data;
+    char color_data[32];
+    char css[80];
     int red;
     int green;
     int blue;
 
-    sem_wait(data->semaphore);  /* Wait for semaphore */
+    sem_wait(data->semaphore);  /* Enter the critical section */
+    snprintf(color_data, sizeof(color_data), "%.31s", data->shared_memory);
+    sem_post(data->semaphore);  /* Leave the critical section */
 
-    /* Split the color_data string into R, G, and B components */
-    token = strtok(data->color_data, ",");
-    if (token != NULL) {
-        red = atoi(token);
-        token = strtok(NULL, ",");
-        if (token != NULL) {
-            green = atoi(token);
-            token = strtok(NULL, ",");
-            if (token != NULL) {
-                blue = atoi(token);
-
-                /* Set the RGB color values */
-                color.red = (double) red / 255.0;
-                color.green = (double) green / 255.0;
-                color.blue = (double) blue / 255.0;
-                color.alpha = 1.0; /* Alpha channel (opacity) */
-
-                /* Set the background color of the widget */
-                gtk_widget_override_background_color(widget, GTK_STATE_NORMAL, &color);
-            }
-        }
+    /* Split the local copy into R, G, and B components */
+    if (sscanf(color_data, "%d,%d,%d", &red, &green, &blue) == 3) {
+        snprintf(css, sizeof(css), "* { background-color: rgb(%d,%d,%d); }",
+                 red, green, blue);
+        gtk_css_provider_load_from_data(data->css, css, -1, NULL);
+        gtk_label_set_text(GTK_LABEL(data->label), color_data);
     }
 
-    sem_post(data->semaphore);  /* Release semaphore */
+    return G_SOURCE_CONTINUE;   /* Keep the timer */
 }
 
 int main(int argc, char *argv[]) {
@@ -100,9 +92,14 @@ int main(int argc, char *argv[]) {
     /* Initialize GTK */
     gtk_init(&argc, &argv);
 
-    /* Create a GTK window */
+    /* Create a GTK window whose background color is set by a CSS provider */
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_default_size(GTK_WINDOW(window), 300, 200);
     g_signal_connect(window, "delete-event", G_CALLBACK(gtk_main_quit), NULL);
+    data.css = gtk_css_provider_new();
+    gtk_style_context_add_provider(gtk_widget_get_style_context(window),
+                                   GTK_STYLE_PROVIDER(data.css),
+                                   GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
     /* Create other GTK widgets to display colors */
     colorDisplay = gtk_label_new(NULL);
@@ -111,26 +108,27 @@ int main(int argc, char *argv[]) {
     /* Open the shared memory */
     shm_fd = shm_open(SHM_NAME, O_RDONLY, S_IRUSR | S_IWUSR);
     if (shm_fd == -1) {
-        handle_fatal_error("Error [shm_open()]: ");
+        handle_fatal_error("Error [shm_open()]");
     }
 
     /* Map the shared memory */
     shared_memory = (char *) mmap(NULL, SHM_SIZE, PROT_READ, MAP_SHARED, shm_fd, 0);
     if (shared_memory == MAP_FAILED) {
-        handle_fatal_error("Error [mmap()]: ");
+        handle_fatal_error("Error [mmap()]");
     }
 
     /* Open the semaphore */
-    sem = sem_open(SEM_NAME, O_RDWR);
+    sem = sem_open(SEM_NAME, 0);
     if (sem == SEM_FAILED) {
-        handle_fatal_error("Error [sem_open()]: ");
+        handle_fatal_error("Error [sem_open()]");
     }
 
-    memcpy(data.color_data, shared_memory, SHM_SIZE);
+    data.label = colorDisplay;
+    data.shared_memory = shared_memory;
     data.semaphore = sem;
 
     /* Create a timer to update colors periodically */
-    g_timeout_add(1000, (GSourceFunc) update_colors, &data);
+    g_timeout_add(1000, update_colors, &data);
 
     /* Show the window and start the GTK main loop */
     gtk_widget_show_all(window);
@@ -140,6 +138,7 @@ int main(int argc, char *argv[]) {
     munmap(shared_memory, SHM_SIZE);
     close(shm_fd);
     sem_close(sem);
+    g_object_unref(data.css);
 
     return EXIT_SUCCESS;
 }

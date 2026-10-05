@@ -18,8 +18,8 @@
 #include <stdio.h>    /* printf() */
 #include <stdlib.h>   /* exit() */
 #include <string.h>   /* memset() */
-#include <signal.h>   /* sigaction() */
-#include <unistd.h>   /* pause() */
+#include <signal.h>   /* sigaction(), sigprocmask(), sigsuspend() */
+#include <unistd.h>
 
 /**
  * @file signal_05.c
@@ -28,14 +28,16 @@
  */
 
 volatile sig_atomic_t exit_flag = 0;
+volatile sig_atomic_t received = 0; /* number of the last received signal */
 
 /**
- * @brief Defines a naive handler to display the received signal number.
+ * @brief Records the received signal number; main() displays it.
+ *
+ * printf() is not async-signal-safe: the handler only sets flags.
  * @param signal Number of the signal.
  */
 void handle(int signal) {
-    printf("Signal number %d has been received.\n", signal);
-    fflush(stdout);
+    received = signal;
 
     if (signal == SIGINT || signal == SIGTERM) {
         exit_flag = 1;
@@ -44,6 +46,7 @@ void handle(int signal) {
 
 int main(void) {
     struct sigaction action;
+    sigset_t mask, old_mask;
 
     /* Initialize the structure to zero before use. */
     memset(&action, '\0', sizeof(action));
@@ -53,13 +56,34 @@ int main(void) {
     sigemptyset(&action.sa_mask);
 
     /* Three signals will be handled by the process */
-    sigaction(SIGINT, &action, 0);
-    sigaction(SIGQUIT, &action, 0);
-    sigaction(SIGTERM, &action, 0);
+    if (sigaction(SIGINT, &action, 0) == -1) {
+        perror("sigaction");
+        exit(EXIT_FAILURE);
+    }
+    if (sigaction(SIGQUIT, &action, 0) == -1) {
+        perror("sigaction");
+        exit(EXIT_FAILURE);
+    }
+    if (sigaction(SIGTERM, &action, 0) == -1) {
+        perror("sigaction");
+        exit(EXIT_FAILURE);
+    }
+
+    /* Block the three signals outside sigsuspend() (no lost wake-up) */
+    sigemptyset(&mask);
+    sigaddset(&mask, SIGINT);
+    sigaddset(&mask, SIGQUIT);
+    sigaddset(&mask, SIGTERM);
+    if (sigprocmask(SIG_BLOCK, &mask, &old_mask) == -1) {
+        perror("sigprocmask");
+        exit(EXIT_FAILURE);
+    }
 
     while (!exit_flag) {
-        pause(); /* Wait for a signal */
+        sigsuspend(&old_mask); /* Wait for a signal */
+        printf("Signal number %d has been received.\n", (int) received);
     }
+    sigprocmask(SIG_SETMASK, &old_mask, NULL);
 
     printf("Exiting more gracefully.\n");
 

@@ -49,7 +49,7 @@ void msg_display(message_t *message);
 /**
  * Fills the given message with the specified character.
  * @param message Pointer to the message to fill.
- * @param value The character used to fill the message.
+ * @param val The character used to fill the message (no final '\0').
  */
 void msg_fill(message_t *message, char val);
 

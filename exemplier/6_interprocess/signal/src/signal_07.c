@@ -19,6 +19,7 @@
 #include <stdlib.h>    /* exit() */
 #include <unistd.h>    /* fork() */
 #include <sys/types.h> /* pid_t */
+#include <sys/wait.h>  /* waitpid() */
 #include <signal.h>    /* sigaction */
 #include <string.h>    /* memset() */
 
@@ -31,13 +32,14 @@
 volatile sig_atomic_t nb_calls = 7;
 
 /**
- * @brief Handles the signal SIGUSR1 by decrementing \em nbCalls.
+ * @brief Handles the signal SIGUSR1 by decrementing \em nb_calls.
+ *
+ * No printf() here (not async-signal-safe): the child displays the value.
  * @param signal Number of the received signal.
  */
-void handle_seven_lifes(int signal) {
+void handle_seven_lives(int signal) {
     if (signal == SIGUSR1) {
         nb_calls--;
-        printf("Still have %d lifes....\n", (int) nb_calls);
     }
 }
 
@@ -55,20 +57,21 @@ void handle_fatal_error_and_exit(const char *msg) {
 /**
  * @brief Manages the parent process. 
  *
- * It decrements the number of lifes before sending the signal SIGUSR1 to 
+ * It decrements the number of lives before sending the signal SIGUSR1 to 
  * his child and waiting for his death.
  */
 void manage_parent(pid_t child) {
-    printf("Parent process (PID %d)\n", getpid());
+    int lives = 7; /* the parent's own counter (nb_calls belongs to the child's handler) */
 
-    while (nb_calls-- != 0) {
+    printf("Parent process (PID %ld)\n", (long) getpid());
+
+    while (lives-- != 0) {
         sleep(2);
-        printf("Parent: sending SIGUSR1 to the child %d...\n", child);
+        printf("Parent: sending SIGUSR1 to the child %ld...\n", (long) child);
         kill(child, SIGUSR1);
     }
 
-    int status;
-    waitpid(child, &status, 0); /* Wait for the child to exit */
+    waitpid(child, NULL, 0); /* Wait for the child to exit */
     printf("Parent: Child exited. Parent exiting.\n");
 
     exit(EXIT_SUCCESS);
@@ -78,39 +81,58 @@ void manage_parent(pid_t child) {
  * @brief Manages the child process. 
  *
  * It configures the handler to react to the signal SIGUSR1. The child process
- * exits when \em nbCalls reaches 0.
+ * exits when \em nb_calls reaches 0. SIGUSR1 has been blocked before fork():
+ * a signal sent before the handler is installed stays pending instead of
+ * killing the child, and sigsuspend() waits without active loop nor race.
+ * @param old_mask The signal mask before SIGUSR1 was blocked.
  */
-void manage_child(void) {
-    struct sigaction managing_lifes;
+void manage_child(const sigset_t *old_mask) {
+    struct sigaction managing_lives;
 
-    printf("Child process (PID %d)\n", getpid());
+    printf("Child process (PID %ld)\n", (long) getpid());
 
     /* Initialize the structure to zero before use. */
-    memset(&managing_lifes, '\0', sizeof(managing_lifes));
+    memset(&managing_lives, '\0', sizeof(managing_lives));
 
     /* Set the new handler */
-    managing_lifes.sa_handler = &handle_seven_lifes;
+    managing_lives.sa_handler = &handle_seven_lives;
+    sigemptyset(&managing_lives.sa_mask);
 
     /* Install the new handler of the SIGUSR1 signal */
-    sigaction(SIGUSR1, &managing_lifes, NULL);
+    if (sigaction(SIGUSR1, &managing_lives, NULL) == -1) {
+        perror("sigaction");
+        exit(EXIT_FAILURE);
+    }
 
-    while (nb_calls != 0) {}
+    while (nb_calls != 0) {
+        sigsuspend(old_mask); /* unblocks SIGUSR1 and waits, atomically */
+        printf("Still have %d lives....\n", (int) nb_calls);
+    }
 
     exit(EXIT_SUCCESS);
 }
 
 int main(void) {
     pid_t pid;
+    sigset_t mask, old_mask;
+
+    /* Block SIGUSR1 before fork(): the child inherits this mask */
+    sigemptyset(&mask);
+    sigaddset(&mask, SIGUSR1);
+    if (sigprocmask(SIG_BLOCK, &mask, &old_mask) == -1) {
+        perror("sigprocmask");
+        exit(EXIT_FAILURE);
+    }
 
     pid = fork();
     if (pid == -1) {
-        handle_fatal_error_and_exit("Error [fork()]: ");
+        handle_fatal_error_and_exit("Error [fork()]");
     }
 
     if (pid > 0) {
         manage_parent(pid);
     } else {
-        manage_child();
+        manage_child(&old_mask);
     }
 
     return EXIT_SUCCESS;

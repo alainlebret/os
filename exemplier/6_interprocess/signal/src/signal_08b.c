@@ -54,7 +54,10 @@ int main(void) {
     /* Remove SIGUSR1 from the_new_mask */
     sigdelset(&the_new_mask, SIGUSR1);
     /* Change the signal mask with the_new_mask */
-    sigprocmask(SIG_SETMASK, &the_new_mask, NULL);
+    if (sigprocmask(SIG_SETMASK, &the_new_mask, NULL) == -1) {
+        perror("sigprocmask");
+        exit(EXIT_FAILURE);
+    }
 
 
     /* Set the new handler */
@@ -70,7 +73,7 @@ int main(void) {
     }
 
     while (!got_usr1) {
-        printf("PID %d: working hard...\n", getpid());
+        printf("PID %ld: working hard...\n", (long) getpid());
         sleep(1);
     }
 

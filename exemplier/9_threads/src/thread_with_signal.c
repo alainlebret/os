@@ -23,14 +23,16 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <string.h>
+#include <errno.h>
 
 /**
  * @file thread_with_signal.c
  *
- * A simple program using threads and signal.
+ * A simple program using threads and signal: after 10 seconds, main()
+ * sends SIGINT to the secondary thread with pthread_kill(); the handler
+ * (async-signal-safe: write() only) sets a flag that stops the thread.
  *
- * On Mac OS X, compile with gcc -Wall -Wextra -pedantic thread_with_signal.c
- * On Linux, compile with gcc -Wall -Wextra -pedantic thread_with_signal.c -pthread
+ * Compile with gcc -Wall -Wextra -pedantic -std=c11 -pthread thread_with_signal.c
  */
 
 typedef struct data {
@@ -40,9 +42,22 @@ typedef struct data {
 
 static volatile sig_atomic_t stop_requested = 0;
 
+/**
+ * Stops the program if a pthread_*() call failed: these functions return an
+ * error number (0 on success) and do not set errno.
+ */
+static void check(int err, const char *what) {
+    if (err != 0) {
+        fprintf(stderr, "%s : %s\n", what, strerror(err));
+        exit(EXIT_FAILURE);
+    }
+}
+
 void handle_signal(int sig) {
     (void) sig;  /* Mark sig as unused */
-    write(1, "Caught signal SIGINT\n", 21);
+    int saved_errno = errno;   /* write() may modify errno */
+    write(STDOUT_FILENO, "Caught signal SIGINT\n", 21);
+    errno = saved_errno;
     stop_requested = 1;
 }
 
@@ -66,14 +81,20 @@ int main(void) {
     struct sigaction action;
 
     action.sa_handler = &handle_signal;
-    sigaction(SIGINT, &action, NULL);
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = 0;
+    if (sigaction(SIGINT, &action, NULL) == -1) {
+        perror("sigaction");
+        exit(EXIT_FAILURE);
+    }
 
     pthread_attr_init(&attr);
-    pthread_create(&tid, &attr, func, ptr);
+    check(pthread_create(&tid, &attr, func, ptr), "pthread_create");
     sleep(10);
     pthread_kill(tid, SIGINT);
 
-    pthread_join(tid, NULL);
+    check(pthread_join(tid, NULL), "pthread_join");
+    pthread_attr_destroy(&attr);
     fprintf(stderr, "Name: %s\n", ptr->name);
     fprintf(stderr, "Age: %d\n", ptr->age);
 

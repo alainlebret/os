@@ -27,9 +27,11 @@
  * This is exactly how a shell implements "cmd1 | cmd2":
  *   1. Create a pipe.
  *   2. Child  (cmd1): dup2 the write-end over stdout, then write.
- *   3. Parent (cmd2): dup2 the read-end  over stdin,  then read.
+ *   3. Parent (cmd2): read from the read-end (a shell would also dup2 it
+ *      over stdin before exec-ing cmd2).
  *
- * Closing the unused pipe end before dup2 is essential to avoid blocking.
+ * Closing the unused pipe ends is essential: the reader only gets EOF once
+ * every write-end is closed.
  *
  * \code{.bash}
  *   $ ./dup_03
@@ -75,19 +77,26 @@ void manage_child(int pipefd[2]) {
  */
 void manage_parent(int pipefd[2]) {
     char buffer[BUFFER_SIZE];
-    ssize_t n;
+    size_t total = 0;
+    ssize_t n = 0;
 
     close(pipefd[1]); /* Parent does not write to the pipe */
 
-    n = read(pipefd[0], buffer, sizeof(buffer) - 1);
+    /* Read until EOF (read() returns 0): the message may come in pieces */
+    while (total < sizeof(buffer) - 1
+           && (n = read(pipefd[0], buffer + total, sizeof(buffer) - 1 - total)) > 0) {
+        total += (size_t) n;
+    }
     if (n == -1) {
         handle_fatal_error_and_exit("read");
     }
-    buffer[n] = '\0';
+    buffer[total] = '\0';
     close(pipefd[0]);
 
     printf("Parent received: %s", buffer);
-    wait(NULL);
+    if (wait(NULL) == -1) {
+        perror("wait");
+    }
 }
 
 int main(void) {

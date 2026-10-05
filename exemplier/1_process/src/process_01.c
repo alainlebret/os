@@ -48,18 +48,20 @@ void handle_fatal_error_and_exit(const char *msg) {
  * @param child_pid The PID of the child process.
  */
 void manage_parent(pid_t child_pid) {
-    printf("Parent process (PID %d)\n", getpid());
-    printf("My child's PID is %d\n", child_pid);
+    printf("Parent process (PID %ld)\n", (long) getpid());
+    printf("My child's PID is %ld\n", (long) child_pid);
     printf("Instructions of parent process...\n");
-    wait(NULL); /* Wait for child to exit to prevent zombie process */
+    if (wait(NULL) == -1) { /* Wait for child to exit to prevent zombie process */
+        perror("wait");
+    }
 }
 
 /**
  * @brief Manages the child process.
  */
 void manage_child(void) {
-    printf("Child process (PID %d)\n", getpid());
-    printf("My parent's PID is %d\n", getppid());
+    printf("Child process (PID %ld)\n", (long) getpid());
+    printf("My parent's PID is %ld\n", (long) getppid());
     printf("Instructions of child process...\n");
 }
 
@@ -67,8 +69,8 @@ int main(void) {
     pid_t pid;
 
     pid = fork();
-    if (pid < 0) {
-        handle_fatal_error_and_exit("Error [fork()]: ");
+    if (pid == -1) {
+        handle_fatal_error_and_exit("Error [fork()]");
     }
     if (pid > 0) {
         manage_parent(pid);

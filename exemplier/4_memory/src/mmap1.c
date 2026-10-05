@@ -17,8 +17,8 @@
  */
 
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
-#include <unistd.h>    /* fork(), close() */
+#include <stdlib.h>    /* exit() */
+#include <unistd.h>    /* write(), close() */
 #include <fcntl.h>     /* open() opening flags and file modes */
 #include <sys/mman.h>  /* mmap() */
 #include <sys/stat.h>  /* stat() */
@@ -37,12 +37,13 @@
 #define TERMINAL STDOUT_FILENO
 
 /**
- * Get the size of the file by its filename using stat().
+ * Get the size of an open file using fstat(): open() first, then fstat() on
+ * the descriptor, so that the size is that of the file actually opened.
  */
-long get_file_size(const char *filename) {
+long get_file_size(int fd) {
     struct stat st;
-    if (stat(filename, &st) == -1) {
-        perror("Error using stat()");
+    if (fstat(fd, &st) == -1) {
+        perror("Error using fstat()");
         exit(EXIT_FAILURE);
     }
     return st.st_size;
@@ -58,13 +59,13 @@ int main(int argc, char *argv[]) {
     long file_size;
     char *projection;
 
-    file_size = get_file_size(argv[1]);
-
     fd = open(argv[1], O_RDONLY);
     if (fd == -1) {
         perror("Error opening file");
         exit(EXIT_FAILURE);
     }
+
+    file_size = get_file_size(fd);
 
     projection = mmap(NULL, file_size, PROT_READ, MAP_SHARED, fd, 0);
     if (projection == MAP_FAILED) {
@@ -80,11 +81,13 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    /* Example processing loop - for demonstration only */
+    /* The projection is read like an array: here, only the characters that
+       are neither letters nor spaces (digits, punctuation) are displayed */
     for (long i = 0; i < file_size; i++) {
-        if (projection[i] % 80 == 79) {
+        if (i % 80 == 79) {
             putchar('\n');
-        } else if (!isalpha(projection[i]) && !isspace(projection[i])) {
+        } else if (!isalpha((unsigned char) projection[i]) &&
+                   !isspace((unsigned char) projection[i])) {
             putchar(projection[i]);
         }
     }

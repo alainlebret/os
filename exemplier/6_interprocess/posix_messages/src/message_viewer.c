@@ -67,30 +67,51 @@ void display_message(Message msg) {
     gtk_widget_show_all(window);
 }
 
-void read_queue(void) {
+/*
+ * GTK is not thread-safe: the widgets are only modified by the main thread.
+ * The reading thread hands each message over with g_idle_add(), and this
+ * function is then called by the main loop.
+ */
+gboolean show_message(gpointer data) {
+    Message *msg = data;
+
+    display_message(*msg);
+    g_free(msg);
+    return G_SOURCE_REMOVE; /* called only once */
+}
+
+gpointer read_queue(gpointer data) {
     mqd_t mq;
     struct mq_attr attr;
     Message msg;
 
-    attr.mq_flags = 0;
-    attr.mq_maxmsg = 10;
-    attr.mq_msgsize = sizeof(Message);
-    attr.mq_curmsgs = 0;
-
-    mq = mq_open(QUEUE_NAME, O_RDONLY, 0600, &attr);
+    (void) data;
+    /* The queue is created by message_sender */
+    mq = mq_open(QUEUE_NAME, O_RDONLY);
     if (mq == (mqd_t) - 1) {
         perror("mq_open");
+        exit(EXIT_FAILURE);
+    }
+
+    /* The reception buffer must be at least mq_msgsize bytes long */
+    if (mq_getattr(mq, &attr) == -1 || attr.mq_msgsize > (long) sizeof(Message)) {
+        fprintf(stderr, "Unexpected message size in %s\n", QUEUE_NAME);
         exit(EXIT_FAILURE);
     }
 
     while (1) {
         if (mq_receive(mq, (char *) &msg, sizeof(Message), NULL) == -1) {
             perror("mq_receive");
-            continue;
+            break;
         }
+        msg.sentence[sizeof(msg.sentence) - 1] = '\0'; /* in case */
 
-        display_message(msg);
+        Message *copy = g_new(Message, 1);
+        *copy = msg;
+        g_idle_add(show_message, copy); /* displayed by the main thread */
     }
+    mq_close(mq);
+    return NULL;
 }
 
 int main(int argc, char *argv[]) {
@@ -105,8 +126,8 @@ int main(int argc, char *argv[]) {
     gtk_grid_set_row_homogeneous(GTK_GRID(grid), FALSE);
     gtk_container_add(GTK_CONTAINER(window), grid);
 
-    /* Start reading messages from the memory queue */
-    g_thread_new(NULL, (GThreadFunc) read_queue, NULL);
+    /* Start reading messages from the message queue */
+    g_thread_new(NULL, read_queue, NULL);
 
     gtk_widget_show_all(window);
     gtk_main();

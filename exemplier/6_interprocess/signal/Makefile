@@ -9,7 +9,8 @@ src = $(wildcard $(SRC_DIR)/*.c)
 bins = $(patsubst $(SRC_DIR)/%.c, $(BIN_DIR)/%, $(src))
 
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic -std=c11 -O2
+# -std=c11 hides the POSIX API (sigaction()...) on Linux: _DEFAULT_SOURCE restores it
+CFLAGS = -Wall -Wextra -pedantic -std=c11 -O2 -D_DEFAULT_SOURCE
 LDFLAGS =
 
 all: directories $(bins)

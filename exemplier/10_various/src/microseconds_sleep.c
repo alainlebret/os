@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define _POSIX_C_SOURCE 200809L /* select(), clock_gettime() */
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -25,28 +26,36 @@
  * @file microseconds_sleep.c
  *
  * A simple program to provide microsecond sleeping.
+ *
+ * The elapsed time is measured with clock_gettime(CLOCK_MONOTONIC): clock()
+ * would measure the CPU time, which stays close to 0 while the process sleeps.
  */
 
 /**
- * Sleeps for a number of microseconds.
+ * Sleeps for a number of microseconds: select() with no descriptor only
+ * waits for its timeout. The unit is the microsecond, but the real delay
+ * depends on the scheduler (nanosleep() is the standard alternative).
  */
 void us_sleep(int nb_usec) {
     struct timeval waiting;
 
     waiting.tv_sec = nb_usec / 1000000;
     waiting.tv_usec = nb_usec % 1000000;
-    select(0, NULL, NULL, NULL, &waiting);
+    if (select(0, NULL, NULL, NULL, &waiting) == -1) {
+        perror("select"); /* e.g. EINTR: interrupted by a signal */
+    }
 }
 
-int main(int argc, char *argv[]) {
-    clock_t begin_time;
-    clock_t end_time;
+int main(void) {
+    struct timespec begin_time;
+    struct timespec end_time;
     double duration;
 
-    begin_time = clock();
+    clock_gettime(CLOCK_MONOTONIC, &begin_time);
     us_sleep(2000000);
-    end_time = clock();
-    duration = (double) (end_time - begin_time) / CLOCKS_PER_SEC;
+    clock_gettime(CLOCK_MONOTONIC, &end_time);
+    duration = (double) (end_time.tv_sec - begin_time.tv_sec)
+               + (double) (end_time.tv_nsec - begin_time.tv_nsec) / 1e9;
     printf("%2.1f seconds\n", duration);
 
     return EXIT_SUCCESS;

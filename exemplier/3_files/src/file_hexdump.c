@@ -51,19 +51,22 @@ int main(int argc, char *argv[]) {
     int i;
 
     if (argc != 2) {
-        printf("Usage: %s <filename> - Display the hexadecimal dump of a file\n", argv[0]);
+        fprintf(stderr, "Usage: %s <filename> - Display the hexadecimal dump of a file\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
     fd = open(argv[1], O_RDONLY);
     if (fd == -1) {
-        handle_fatal_error_and_exit("Error opening file: ");
+        handle_fatal_error_and_exit("Error opening file");
     }
 
     while ((bytes_read = read(fd, buffer, BUFFER_SIZE)) > 0) {
         printf("0x%06zx : ", offset);
         for (i = 0; i < bytes_read; ++i) {
             printf("%02x ", buffer[i]);
+        }
+        for (i = bytes_read; i < BUFFER_SIZE; ++i) {
+            printf("   "); /* last line: keep the ASCII column aligned */
         }
         printf(" | ");
         for (i = 0; i < bytes_read; ++i) {
@@ -74,8 +77,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (bytes_read == -1) {
-        close(fd);
-        handle_fatal_error_and_exit("Error reading file: ");
+        handle_fatal_error_and_exit("Error reading file"); /* before close(): errno */
     }
 
     if (close(fd) == -1) {

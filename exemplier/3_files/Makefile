@@ -16,7 +16,7 @@ all: directories $(bins)
 
 # Rule to create directories
 directories:
-	@mkdir -p $(BIN_DIR) $(INC_DIR)
+	@mkdir -p $(BIN_DIR)
 
 # General rule to create object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c

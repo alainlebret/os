@@ -34,16 +34,16 @@
 /**
  * Launches the given program with its given arguments.
  *
- * @param path The path of the program to launch.
- * @param args The arguments to pass to the program.
+ * @param args The program name (args[0], searched in PATH) followed by its
+ *             arguments, terminated by NULL.
  */
-void launch_process(const char *path, char *const args[]) {
+void launch_process(char *const args[]) {
     pid_t pid = fork();
     if (pid == 0) {
-        execvp(path, args);
+        execvp(args[0], args); /* args[0] is searched in PATH */
         perror("execvp failed");
-        exit(EXIT_FAILURE);
-    } else if (pid < 0) {
+        _exit(127);
+    } else if (pid == -1) {
         perror("fork failed");
         exit(EXIT_FAILURE);
     }
@@ -57,17 +57,17 @@ int main(void) {
     char *vlc_args[] = {"vlc", "resources/mister_trololo.mp4", NULL};
 
     /* child 1 executes firefox with firefox_args1 */
-    launch_process("/usr/bin/firefox", firefox_args1);
+    launch_process(firefox_args1);
     /* child 2 executes firefox with firefox_args2 */
-    launch_process("/usr/bin/firefox", firefox_args2);
+    launch_process(firefox_args2);
     /* child 3 executes gedit with gedit_args */
-    launch_process("/usr/bin/gedit", gedit_args);
+    launch_process(gedit_args);
     /* child 4 executes VLC with vlc_args */
-    launch_process("/usr/bin/vlc", vlc_args);
+    launch_process(vlc_args);
 
-    // Wait for all children to exit
-    for (int i = 0; i < 4; i++) {
-        wait(NULL);
+    /* Wait for all children: wait() returns -1 (errno ECHILD) when none is left */
+    while (wait(NULL) > 0) {
+        ;
     }
 
     return EXIT_SUCCESS;

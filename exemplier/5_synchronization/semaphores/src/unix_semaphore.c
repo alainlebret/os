@@ -25,13 +25,15 @@
 #include <ctype.h>
 
 /**
- * @file ipc_semaphore.c
+ * @file unix_semaphore.c
  *
  * Example using a System V semaphore.
  *
  * This program is an interactive demonstration of System V semaphore usage. 
  * It allows the user to perform semaphore operations like wait (P), signal
  * (V), destroy the semaphore (X), or quit the program (Q).
+ * Run it in two terminals with the same key: the first one creates the
+ * semaphore with the value 0, the second one opens it without resetting it.
  *
  * @author Alain Lebret
  * @author Michel Billaud <michel.billaud@labri.fr>
@@ -53,32 +55,39 @@ void handle_fatal_error(const char *message) {
 }
 
 /**
- * Creates a System V semaphore and returns its identifier.
- * @return The created POSIX semaphore.
+ * Creates (or opens) a System V semaphore and returns its identifier.
+ * @return The identifier of the System V semaphore.
  */
 semaphore_t create_semaphore(key_t key) {
     semaphore_t sem;
     int r;
 
-    sem = semget(key, 1, IPC_CREAT | 0666);
-    if (sem < 0) {
-        handle_fatal_error("Error [semget()]: ");
+    sem = semget(key, 1, IPC_CREAT | IPC_EXCL | 0600);
+    if (sem < 0) {                      /* already created: just open it */
+        sem = semget(key, 1, 0600);
+        if (sem < 0) {
+            handle_fatal_error("Error [semget()]");
+        }
+        return sem;
     }
+    /* POSIX passes the 4th argument of semctl(SETVAL) as a union semun
+       (field val), which the program must define itself on Linux; passing
+       an int works on the usual ABIs (Linux, macOS), as here. */
     r = semctl(sem, 0, SETVAL, 0);      /* initial value = 0 */
     if (r < 0) {
-        handle_fatal_error("Error [semctl()]: ");
+        handle_fatal_error("Error [semctl()]");
     }
 
     return sem;
 }
 
 /**
- * Destroy the specifier System V semaphore.
+ * Destroys the specified System V semaphore.
  * @param sem The identifier of the semaphore to destroy
  */
 void destroy_semaphore(semaphore_t sem) {
     if (semctl(sem, 0, IPC_RMID, 0) != 0)
-        handle_fatal_error("Error [semctl()]: ");
+        handle_fatal_error("Error [semctl()]");
 }
 
 /**
@@ -94,7 +103,7 @@ void modify_semaphore_value(semaphore_t sem, int new_value) {
     sb[0].sem_flg = 0;
 
     if (semop(sem, sb, 1) != 0)
-        handle_fatal_error("Error [semop()]: ");
+        handle_fatal_error("Error [semop()]");
 }
 
 /**
@@ -119,20 +128,19 @@ int main(int argc, char *argv[]) {
     char choice;
 
     if (argc != 2) {
-        fprintf(stderr, "Usage: %s cle\n", argv[0]);
-        handle_fatal_error("Error :");
+        fprintf(stderr, "Usage: %s key\n", argv[0]);
+        exit(EXIT_FAILURE);
     }
     key = atoi(argv[1]);
     sem = create_semaphore(key);
 
     while (1) {
         printf("p, v, x, q ? ");
-        choice = getchar(); /* Read a single character */
-        getchar();          /* Read and ignore the newline */
-        if (scanf("%c", &choice) != 1)
+        fflush(stdout);
+        if (scanf(" %c", &choice) != 1) /* " %c" skips spaces and newlines */
             break;
 
-        switch (toupper(choice)) {
+        switch (toupper((unsigned char) choice)) {
             case 'P':
                 P(sem);
                 printf("P() -- Access granted to critical section\n");

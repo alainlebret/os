@@ -49,14 +49,16 @@ void sigint_handler(int signal) {
     }
 }
 
-int main(int argc, char *argv[]) {
+int main(void) {
     struct sigaction action;
     struct sigaction sigint_action;
+    sigset_t mask, old_mask;
 
     /* Initialize the structure to zero before use. */
     memset(&action, '\0', sizeof(action));
     /* Use the sa_sigaction field because the handler has two additional parameters */
     action.sa_sigaction = &hdl;
+    sigemptyset(&action.sa_mask);
     /* The SA_SIGINFO flag tells sigaction() to use the sa_sigaction field, not sa_handler. */
     action.sa_flags = SA_SIGINFO;
 
@@ -68,18 +70,32 @@ int main(int argc, char *argv[]) {
     /* Normal signal handler installation for SIGINT */
     memset(&sigint_action, '\0', sizeof(sigint_action));
     sigint_action.sa_handler = sigint_handler;
+    sigemptyset(&sigint_action.sa_mask);
     if (sigaction(SIGINT, &sigint_action, NULL) < 0) {
         perror("Error using sigaction for SIGINT");
         exit(EXIT_FAILURE);
     }
 
+    /* Block SIGTERM and SIGINT outside sigsuspend() (no lost wake-up) */
+    sigemptyset(&mask);
+    sigaddset(&mask, SIGTERM);
+    sigaddset(&mask, SIGINT);
+    if (sigprocmask(SIG_BLOCK, &mask, &old_mask) == -1) {
+        perror("sigprocmask");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("PID %ld: send SIGTERM (kill %ld), then SIGINT (Ctrl-C) to exit\n",
+           (long) getpid(), (long) getpid());
+
     while (!got_sigint) {
-        pause();
+        sigsuspend(&old_mask);
         if (got_sigterm) {
             printf("Sending PID: %ld, UID: %ld\n", (long) sender_pid, (long) sender_uid);
             got_sigterm = 0;
         }
     }
+    sigprocmask(SIG_SETMASK, &old_mask, NULL);
     printf("SIGINT received, exiting.\n");
 
     return EXIT_SUCCESS;

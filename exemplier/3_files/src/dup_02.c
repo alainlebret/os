@@ -28,12 +28,12 @@
  * to the same file as oldfd. This is the mechanism shells use to implement
  * output redirection: "cmd > file.txt".
  *
- * After the dup2() call, every printf() writes to output.txt instead of
+ * After the dup2() call, every printf() writes to sortie.txt instead of
  * the terminal.
  *
  * \code{.bash}
  *   $ ./dup_02
- *   $ cat output.txt
+ *   $ cat sortie.txt
  *   This line goes to the file, not the terminal.
  * \endcode
  */
@@ -50,18 +50,18 @@ void handle_fatal_error_and_exit(const char *msg) {
 int main(void) {
     int file_fd;
 
-    file_fd = open("output.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    file_fd = open("sortie.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (file_fd == -1) {
         handle_fatal_error_and_exit("open");
     }
 
-    /* Redirect stdout (fd 1) to output.txt */
+    /* Redirect stdout (fd 1) to sortie.txt */
     if (dup2(file_fd, STDOUT_FILENO) == -1) {
         handle_fatal_error_and_exit("dup2");
     }
     close(file_fd); /* No longer needed directly */
 
-    /* printf now writes into output.txt */
+    /* printf now writes into sortie.txt */
     printf("This line goes to the file, not the terminal.\n");
 
     return EXIT_SUCCESS;

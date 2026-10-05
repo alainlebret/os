@@ -23,7 +23,7 @@
 #include <sys/types.h> /* pid_t */
 
 /**
- * @file memory_05b.c
+ * @file memory_05a.c
  *
  * This program allocates memory for an array of 10 integers and then pauses, 
  * creating an intentional memory leak for analysis with memory profiling tools
@@ -31,8 +31,11 @@
  */
 
 void handle_signal(int sig) {
-    printf("Signal %d received. Exiting and cleaning up...\n", sig);
-    exit(EXIT_SUCCESS);
+    /* Only async-signal-safe functions here: write() and _exit() */
+    const char msg[] = "\nSignal received, exiting now...\n";
+    (void) sig;
+    write(STDOUT_FILENO, msg, sizeof(msg) - 1);
+    _exit(EXIT_SUCCESS);
 }
 
 int main(void) {
@@ -58,12 +61,13 @@ int main(void) {
     }
 
     /* Inform user about how to proceed */
-    printf("Program paused. PID: %d. Use Ctrl-C to exit.\n", getpid());
+    printf("Program paused. PID: %ld. Use Ctrl-C to exit.\n", (long) getpid());
 
     /* Pause the program, waiting for signal */
     pause();
 
-    /* Free allocated memory if reached (not in this code as pause() is indefinite) */
+    /* Never reached: the handler terminates the process with _exit(), so the
+     * memory is never freed (compare with memory_05b.c) */
     free(p);
 
     return EXIT_SUCCESS;

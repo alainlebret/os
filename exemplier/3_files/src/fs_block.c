@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
     int result;
 
     if (argc != 2) {
-        printf("Usage: %s <path to any directory or file on the target filesystem>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <path to any directory or file on the target filesystem>\n", argv[0]);
         printf("This program returns the block size of the filesystem containing the given path.\n");
         exit(EXIT_FAILURE);
     }
@@ -45,9 +45,11 @@ int main(int argc, char *argv[]) {
     }
 
     printf("Filesystem block size: %lu bytes\n", fs_stats.f_bsize);
-    printf("Total blocks: %lu\n", fs_stats.f_blocks);
-    printf("Free blocks: %lu\n", fs_stats.f_bfree);
-    printf("Available blocks (non-superuser): %lu\n", fs_stats.f_bavail);
+    /* The block counts below are expressed in f_frsize units, not f_bsize */
+    printf("Fragment size (unit of the counts below): %lu bytes\n", fs_stats.f_frsize);
+    printf("Total blocks: %llu\n", (unsigned long long) fs_stats.f_blocks);
+    printf("Free blocks: %llu\n", (unsigned long long) fs_stats.f_bfree);
+    printf("Available blocks (non-superuser): %llu\n", (unsigned long long) fs_stats.f_bavail);
 
     return EXIT_SUCCESS;
 }

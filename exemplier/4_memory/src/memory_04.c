@@ -20,22 +20,29 @@
 #include <stdlib.h>    /* random(), exit(), malloc(), free() */
 #include <unistd.h>    /* fork(), sleep() */
 #include <signal.h>    /* sigaction */
-#include <sys/types.h> /* pid_t, mkfifo() */
+#include <sys/types.h> /* pid_t */
 
 /**
  * @file memory_04.c
  *
- * Demonstrates memory mapping of a process using a heap and highlights potential
- * memory leak problems. Run the program and verify its memory mapping using:
+ * Demonstrates memory mapping of a process using a heap. Run the program and
+ * verify its memory mapping using:
  * \code{bash}
- * cat /proc/<PID>/maps
+ * cat /proc/<PID>/maps     (Linux; on macOS: vmmap <PID>)
  * \endcode
- * Also, compile with -g and check for memory leaks using valgrind.
+ * The process is stopped by Ctrl-C before free(): this is not a real leak, the
+ * kernel takes back all the memory of a process when it ends. For a leak
+ * detected by valgrind, see memory_05a.c.
  */
 
 void handle_signal(int sig) {
-    printf("\nSignal %d received, cleaning up and exiting now...\n", sig);
-    exit(EXIT_SUCCESS);
+    /* Only async-signal-safe functions here: write() and _exit(). The handler
+       ends the process at once, so the "flag only" rule of the course is not
+       needed: nothing is left half-done in main(). */
+    const char msg[] = "\nSignal received, exiting now...\n";
+    (void) sig;
+    write(STDOUT_FILENO, msg, sizeof(msg) - 1);
+    _exit(EXIT_SUCCESS);
 }
 
 int main(void) {
@@ -61,13 +68,13 @@ int main(void) {
         exit(EXIT_FAILURE);
     }
 
-    printf("Process with PID %d is running. Check memory mapping with `cat /proc/%d/maps`\n", getpid(), getpid());
+    printf("Process with PID %ld is running. Check memory mapping with `cat /proc/%ld/maps`\n", (long) getpid(), (long) getpid());
 
     /* Continuously write random values to allocated memory */
     while (1) {
         value = random();
         *pointer = value;
-        printf("Stored value: %d at address %p\n", *pointer, pointer);
+        printf("Stored value: %d at address %p\n", *pointer, (void *) pointer);
         sleep(5);
     }
 

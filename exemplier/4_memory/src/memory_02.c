@@ -27,15 +27,20 @@
  * @file memory_02.c
  *
  * This program runs for approximately 4 minutes, during which its memory 
- * mapping can be inspected using system tools (e.g., `cat /proc/<PID>/maps`). 
+ * mapping can be inspected using system tools (e.g., `cat /proc/<PID>/maps` under Linux, `vmmap <PID>` under macOS). 
  * It is designed to aid in understanding the memory layout of a process. 
  * Useful for educational purposes to see how memory is allocated and modified
  * over time.
  */
 
 void handle_signal(int sig) {
-    printf("Signal %d received, exiting now...\n", sig);
-    exit(EXIT_SUCCESS);
+    /* Only async-signal-safe functions here: write() and _exit(). The handler
+       ends the process at once, so the "flag only" rule of the course is not
+       needed: nothing is left half-done in main(). */
+    const char msg[] = "\nSignal received, exiting now...\n";
+    (void) sig;
+    write(STDOUT_FILENO, msg, sizeof(msg) - 1);
+    _exit(EXIT_SUCCESS);
 }
 
 int main(void) {
@@ -53,7 +58,7 @@ int main(void) {
         exit(EXIT_FAILURE);
     }
 
-    printf("Process with PID %d is running. Use `cat /proc/%d/maps` to inspect memory layout.\n", getpid(), getpid());
+    printf("Process with PID %ld is running. Use `cat /proc/%ld/maps` to inspect memory layout.\n", (long) getpid(), (long) getpid());
 
     while (1) {
         if (time(NULL) >= end) {

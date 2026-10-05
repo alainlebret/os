@@ -15,10 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define _POSIX_C_SOURCE 200809L
 #include <unistd.h>  /* pipe(), fork(), read(), close(), write(), sleep() */
 #include <stdio.h>   /* printf(), dprintf() */
 #include <stdlib.h>  /* exit() */
-#include <poll.h>    /* poll(), struct pollfd, POLLIN */
+#include <poll.h>    /* poll(), struct pollfd, POLLIN, POLLHUP, POLLERR */
 #include <sys/wait.h> /* wait() */
 
 /**
@@ -100,7 +101,20 @@ int main(void) {
         }
 
         for (i = 0; i < NUM_PIPES; i++) {
-            if (fds[i].fd == -1 || !(fds[i].revents & POLLIN)) {
+            if (fds[i].fd == -1) {
+                continue;
+            }
+            /* Error on the descriptor: removed without reading */
+            if (fds[i].revents & (POLLERR | POLLNVAL)) {
+                close(fds[i].fd);
+                fds[i].fd = -1;
+                done++;
+                continue;
+            }
+            /* POLLHUP (child gone) may be set without POLLIN: read() then
+             * returns 0 (EOF) and the pipe is removed as well, otherwise
+             * poll() would return at once forever */
+            if (!(fds[i].revents & (POLLIN | POLLHUP))) {
                 continue;
             }
             n = read(fds[i].fd, buffer, sizeof(buffer) - 1);

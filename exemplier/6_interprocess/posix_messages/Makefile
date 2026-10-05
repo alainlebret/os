@@ -17,11 +17,20 @@ else
   LDFLAGS=-lrt -lpthread
 endif
 
-all: directories message_viewer message_sender posix_msg_receiver posix_msg_sender
+# GTK programs are built only when GTK 3 is installed (pkg-config gtk+-3.0)
+HAVE_GTK := $(shell pkg-config --exists gtk+-3.0 && echo yes)
+PROGS = message_sender posix_msg_receiver posix_msg_sender mq_news_receiver mq_news_sender
+ifeq ($(HAVE_GTK), yes)
+PROGS += message_viewer
+else
+$(info GTK 3 not found: message_viewer is skipped)
+endif
+
+all: directories $(PROGS)
 
 # Rule to create directories
 directories:
-	@mkdir -p $(BIN_DIR) $(INC_DIR) $(OBJ_DIR)
+	@mkdir -p $(BIN_DIR) $(OBJ_DIR)
 
 # ----------------- MESSAGE_VIEWER UNDER GTK 3.0 ----------------------
 ifeq ($(UNAME_S),Darwin)
@@ -69,6 +78,30 @@ posix_msg_sender: .tmp/posix_msg_sender.o
 endif
 
 .tmp/posix_msg_sender.o: $(SRC_DIR)/posix_msg_sender.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@ -c
+
+# ----------------- MQ_NEWS_RECEIVER (course, chapter « Files de messages ») -----------------
+ifeq ($(UNAME_S),Darwin)
+mq_news_receiver: .tmp/mq_news_receiver.o .tmp/mq_close.o .tmp/mq_getattr.o .tmp/mq_internal_fs.o .tmp/mq_notify.o .tmp/mq_open.o .tmp/mq_receive.o .tmp/mq_send.o .tmp/mq_setattr.o .tmp/mq_timedreceive.o .tmp/mq_timedsend.o .tmp/mq_unlink.o .tmp/logger.o
+	$(CC) $^ -o $(BIN_DIR)/$@ $(LDFLAGS)
+else
+mq_news_receiver: .tmp/mq_news_receiver.o
+	$(CC) $^ -o $(BIN_DIR)/$@ $(LDFLAGS)
+endif
+
+.tmp/mq_news_receiver.o: $(SRC_DIR)/mq_news_receiver.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@ -c
+
+# ----------------- MQ_NEWS_SENDER (course, chapter « Files de messages ») -----------------
+ifeq ($(UNAME_S),Darwin)
+mq_news_sender: .tmp/mq_news_sender.o .tmp/mq_close.o .tmp/mq_getattr.o .tmp/mq_internal_fs.o .tmp/mq_notify.o .tmp/mq_open.o .tmp/mq_receive.o .tmp/mq_send.o .tmp/mq_setattr.o .tmp/mq_timedreceive.o .tmp/mq_timedsend.o .tmp/mq_unlink.o .tmp/logger.o
+	$(CC) $^ -o $(BIN_DIR)/$@ $(LDFLAGS)
+else
+mq_news_sender: .tmp/mq_news_sender.o
+	$(CC) $^ -o $(BIN_DIR)/$@ $(LDFLAGS)
+endif
+
+.tmp/mq_news_sender.o: $(SRC_DIR)/mq_news_sender.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@ -c
 
 # ----------------------- MQUEUE FOR MACOSX ---------------------------

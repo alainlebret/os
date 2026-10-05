@@ -16,15 +16,13 @@
  * limitations under the License.
  */
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
-#include <unistd.h>    /* fork(), close() */
+#include <stdlib.h>    /* exit() */
+#include <unistd.h>    /* lseek(), write(), close() */
 #include <fcntl.h>     /* open() opening flags and file modes */
 #include <sys/mman.h>  /* mmap() */
 #include <sys/stat.h>  /* stat() */
 #include <sys/types.h>
-#include <ctype.h>     /* isalpha(), isspace() */
 #include <string.h>    /* memcpy() */
-#include <assert.h>
 
 /**
  * @file mmap2.c
@@ -41,8 +39,10 @@
 long get_file_size(const char *filename) {
     struct stat st;
 
-    stat(filename, &st);
-    printf("%lld\n", st.st_size);
+    if (stat(filename, &st) == -1) {
+        perror("Error using stat()");
+        exit(EXIT_FAILURE);
+    }
 
     return (long) st.st_size;
 }
@@ -61,27 +61,51 @@ int main(int argc, char *argv[]) {
 
     file_size = get_file_size(argv[1]);
 
-    fdin = open(argv[1], O_RDONLY, 0);
-    fdout = open(argv[2], O_RDWR | O_CREAT | O_TRUNC, 0666);
+    if (file_size == 0) {  /* an empty file cannot be projected (EINVAL) */
+        fprintf(stderr, "%s: empty file\n", argv[1]);
+        exit(EXIT_FAILURE);
+    }
 
-    /* Look for the last byte in the destination file */
-    lseek(fdout, file_size - 1, SEEK_SET);
+    fdin = open(argv[1], O_RDONLY);
+    if (fdin == -1) {
+        perror("Error opening source file");
+        exit(EXIT_FAILURE);
+    }
+    fdout = open(argv[2], O_RDWR | O_CREAT | O_TRUNC, 0644);
+    if (fdout == -1) {
+        perror("Error opening destination file");
+        exit(EXIT_FAILURE);
+    }
 
-    /* Write an empty char */
-    if (write(fdout, "", 1) == -1) {
-        perror("Error using write(): ");
+    /* Give the destination file its size: go to the last byte and write
+     * one char there (ftruncate(fdout, file_size) would do the same) */
+    if (lseek(fdout, file_size - 1, SEEK_SET) == -1 ||
+        write(fdout, "", 1) == -1) {
+        perror("Error sizing destination file");
+        exit(EXIT_FAILURE);
     }
 
     /* Project the input file in memory */
     src = mmap(NULL, file_size, PROT_READ, MAP_SHARED, fdin, 0);
-    assert(src != MAP_FAILED);
+    if (src == MAP_FAILED) {
+        perror("Error using mmap() on source");
+        exit(EXIT_FAILURE);
+    }
 
     /* Same for the output one */
     dst = mmap(NULL, file_size, PROT_READ | PROT_WRITE, MAP_SHARED, fdout, 0);
-    assert(dst != MAP_FAILED);
+    if (dst == MAP_FAILED) {
+        perror("Error using mmap() on destination");
+        exit(EXIT_FAILURE);
+    }
 
     /* Performs a memory copy from src to dst */
     memcpy(dst, src, file_size);
+
+    munmap(src, file_size);
+    munmap(dst, file_size);   /* the copy is carried over to the file */
+    close(fdin);
+    close(fdout);
 
     return EXIT_SUCCESS;
 }

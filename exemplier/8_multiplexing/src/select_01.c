@@ -15,6 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define _POSIX_C_SOURCE 200809L
+
 #include <unistd.h>     /* read(), STDIN_FILENO */
 #include <stdio.h>      /* printf(), fflush() */
 #include <stdlib.h>     /* exit() */

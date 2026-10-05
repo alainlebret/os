@@ -10,6 +10,8 @@ This section contains examples demonstrating I/O multiplexing with `select()` an
 |----------------|-------------|------|
 | `select_01.c`  | Monitors stdin with a 5-second timeout: echoes input or reports timeout if no data arrives | [View](https://github.com/alainlebret/os/blob/master/exemplier/8_multiplexing/src/select_01.c) |
 | `select_02.c`  | Monitors two anonymous pipes simultaneously: reads from whichever child writes first, without blocking on the other | [View](https://github.com/alainlebret/os/blob/master/exemplier/8_multiplexing/src/select_02.c) |
+| `pipes_terminal_sequential.c` | Running example, version 1: reads two pipes and the terminal one after the other; a blocking `read()` delays the other sources (course, chapter « Multiplexage des entrées/sorties ») | [View](https://github.com/alainlebret/os/blob/master/exemplier/8_multiplexing/src/pipes_terminal_sequential.c) |
+| `pipes_terminal_select.c` | Running example, version 2: reads two pipes and the terminal with `select()`, rebuilding the `fd_set` each turn and removing sources at EOF (course, chapter « Multiplexage des entrées/sorties ») | [View](https://github.com/alainlebret/os/blob/master/exemplier/8_multiplexing/src/pipes_terminal_select.c) |
 
 ## poll()
 
@@ -19,3 +21,4 @@ This section contains examples demonstrating I/O multiplexing with `select()` an
 |--------------|-------------|------|
 | `poll_01.c`  | Same behaviour as `select_01.c` but using `poll()`: compare both APIs side by side | [View](https://github.com/alainlebret/os/blob/master/exemplier/8_multiplexing/src/poll_01.c) |
 | `poll_02.c`  | Same behaviour as `select_02.c` but using `poll()`: shows the stable `pollfd` array and `.fd = -1` removal idiom | [View](https://github.com/alainlebret/os/blob/master/exemplier/8_multiplexing/src/poll_02.c) |
+| `pipes_terminal_poll.c` | Running example, version 3: same as `pipes_terminal_select.c` with `poll()`; `POLLERR`/`POLLNVAL` handling and `.fd = -1` removal (course, chapter « Multiplexage des entrées/sorties ») | [View](https://github.com/alainlebret/os/blob/master/exemplier/8_multiplexing/src/pipes_terminal_poll.c) |

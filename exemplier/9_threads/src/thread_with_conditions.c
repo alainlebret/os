@@ -20,6 +20,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>  /* strerror() */
 
 /**
  * @file thread_with_conditions.c
@@ -32,7 +33,7 @@
  * modifies count. The program continues until the incrementing threads reach
  * TOTAL_COUNT. The main program prints the final value of count.
  * This example is adapted from the code at:
- * https://computing.llnl.gov/tutorials/pthreads/
+ * https://hpc-tutorials.llnl.gov/posix/
  *
  * @author Blaise Barney -- Lawrence Livermore National Laboratory (03/07/2017)
  * @author Alain Lebret (06/08/2017)
@@ -47,6 +48,17 @@
 int count = 0;
 pthread_mutex_t count_mutex;
 pthread_cond_t count_threshold_cv;
+
+/**
+ * Stops the program if a pthread_*() call failed: these functions return an
+ * error number (0 on success) and do not set errno.
+ */
+static void check(int err, const char *what) {
+    if (err != 0) {
+        fprintf(stderr, "%s : %s\n", what, strerror(err));
+        exit(EXIT_FAILURE);
+    }
+}
 
 void *inc_count(void *t) {
     int i;
@@ -103,7 +115,7 @@ void *watch_count(void *t) {
     pthread_exit(NULL);
 }
 
-int main(int argc, char *argv[]) {
+int main(void) {
     int i;
     long t1;
     long t2;
@@ -124,14 +136,14 @@ int main(int argc, char *argv[]) {
     /* For portability, explicitly create threads in a joinable state */
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-    pthread_create(&threads[0], &attr, watch_count, (void *) t1);
-    pthread_create(&threads[1], &attr, inc_count, (void *) t2);
-    pthread_create(&threads[2], &attr, inc_count, (void *) t3);
-    pthread_create(&threads[3], &attr, inc_count, (void *) t4);
+    check(pthread_create(&threads[0], &attr, watch_count, (void *) t1), "pthread_create");
+    check(pthread_create(&threads[1], &attr, inc_count, (void *) t2), "pthread_create");
+    check(pthread_create(&threads[2], &attr, inc_count, (void *) t3), "pthread_create");
+    check(pthread_create(&threads[3], &attr, inc_count, (void *) t4), "pthread_create");
 
     /* Wait for all threads to complete */
     for (i = 0; i < NUM_THREADS; i++) {
-        pthread_join(threads[i], NULL);
+        check(pthread_join(threads[i], NULL), "pthread_join");
     }
     printf("main(): waited and joined with %d threads. Final value of count = %d. Done.\n",
            NUM_THREADS, count);

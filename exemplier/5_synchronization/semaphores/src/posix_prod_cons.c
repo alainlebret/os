@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <signal.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -29,12 +28,20 @@
 /**
  * @file posix_prod_cons.c
  *
- * Producer-consumer program using a POSIX semaphore.
+ * Producer-consumer program between two child processes, using a circular
+ * buffer in a POSIX shared memory and three named POSIX semaphores:
+ *   - empty (BUFFER_SIZE): free slots, blocks the producer when full;
+ *   - full (0): occupied slots, blocks the consumer when empty;
+ *   - mutex (1): protects the buffer.
+ * The names are removed right after creation: the children inherit the
+ * semaphores and the mapping, and nothing is left behind after Ctrl-C.
  */
 
 #define BUFFER_SIZE  5
 #define MEM_PATH     "/theshm"
-#define SEM_PATH     "/thesemaphore"
+#define SEM_EMPTY    "/theempty"
+#define SEM_FULL     "/thefull"
+#define SEM_MUTEX    "/themutex"
 
 typedef sem_t semaphore_t;
 
@@ -51,11 +58,13 @@ void display_buffer(int *buffer) {
     printf("]\n");
 }
 
-semaphore_t *setup_semaphore(const char *name, int value) {
+semaphore_t *setup_semaphore(const char *name, unsigned int value) {
+    sem_unlink(name);  /* removes a semaphore left by a crash */
     semaphore_t *sem = sem_open(name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, value);
     if (sem == SEM_FAILED) {
         handle_fatal_error("sem_open failed");
     }
+    sem_unlink(name);  /* still usable until sem_close() or exit */
     return sem;
 }
 
@@ -72,64 +81,69 @@ int *setup_shared_memory(const char *name, size_t size) {
         handle_fatal_error("mmap failed");
     }
     close(fd);  /* Close file descriptor as it's no longer needed */
+    shm_unlink(name);  /* the mapping remains valid */
     return addr;
 }
 
-void clean_up(int signum) {
-    sem_unlink(SEM_PATH);
-    shm_unlink(MEM_PATH);
-    exit(EXIT_SUCCESS);
-}
-
-void produce(int *buffer, semaphore_t *sem) {
+void produce(int *buffer, semaphore_t *empty, semaphore_t *full,
+             semaphore_t *mutex) {
     int in_index = 0;
     srand((unsigned int)getpid());
     while (1) {
         sleep(1 + rand() % 5);
         int value = rand() % 100;
-        sem_wait(sem);
+        sem_wait(empty);   /* a free slot */
+        sem_wait(mutex);
         buffer[in_index] = value;
         printf("Produced: %d at %d\n", value, in_index);
         display_buffer(buffer);
         in_index = (in_index + 1) % BUFFER_SIZE;
-        sem_post(sem);
+        sem_post(mutex);
+        sem_post(full);    /* one more occupied slot */
     }
 }
 
-void consume(int *buffer, semaphore_t *sem) {
+void consume(int *buffer, semaphore_t *empty, semaphore_t *full,
+             semaphore_t *mutex) {
     int out_index = 0;
     srand((unsigned int)getpid());
     while (1) {
-        sem_wait(sem);
+        sem_wait(full);    /* an occupied slot */
+        sem_wait(mutex);
         int value = buffer[out_index];
         printf("Consumed: %d from %d\n", value, out_index);
         display_buffer(buffer);
         out_index = (out_index + 1) % BUFFER_SIZE;
-        sem_post(sem);
+        sem_post(mutex);
+        sem_post(empty);   /* one more free slot */
         sleep(2 + rand() % 5);
     }
 }
 
 int main(void) {
-    struct sigaction sa;
-    sa.sa_handler = clean_up;
-    sigaction(SIGINT, &sa, NULL);
-
-    semaphore_t *sem = setup_semaphore(SEM_PATH, 1);
+    semaphore_t *empty = setup_semaphore(SEM_EMPTY, BUFFER_SIZE);
+    semaphore_t *full = setup_semaphore(SEM_FULL, 0);
+    semaphore_t *mutex = setup_semaphore(SEM_MUTEX, 1);
     int *buffer = setup_shared_memory(MEM_PATH, BUFFER_SIZE * sizeof(int));
 
     pid_t pid = fork();
+    if (pid == -1) {
+        handle_fatal_error("fork failed");
+    }
     if (pid == 0) {
-        produce(buffer, sem);
+        produce(buffer, empty, full, mutex);
         exit(EXIT_SUCCESS);
-    } else {
-        pid = fork();
-        if (pid == 0) {
-            consume(buffer, sem);
-            exit(EXIT_SUCCESS);
-        }
+    }
+    pid = fork();
+    if (pid == -1) {
+        handle_fatal_error("fork failed");
+    }
+    if (pid == 0) {
+        consume(buffer, empty, full, mutex);
+        exit(EXIT_SUCCESS);
     }
 
+    /* Ctrl-C stops the three processes (nothing left: names removed) */
     wait(NULL);
     wait(NULL);
 

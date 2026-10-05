@@ -16,9 +16,12 @@
  * limitations under the License.
  */
 
+#define _POSIX_C_SOURCE 200809L /* kill(), setpgid() with -std=c11 */
+
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
-#include <unistd.h>    /* getpid() and getpgrp() */
+#include <stdlib.h>    /* exit() */
+#include <unistd.h>    /* getpid(), getpgrp(), setpgid() and pause() */
+#include <signal.h>    /* kill() and SIGTERM */
 #include <sys/types.h> /* pid_t */
 #include <sys/wait.h>  /* wait(), WIFEXITED and WEXITSTATUS */
 
@@ -26,6 +29,14 @@
  * @file process_07.c
  *
  * @brief A simple program about a process and its group.
+ *
+ * The child leaves the group of its parent with setpgid(0, 0): it becomes the
+ * leader of a new group whose PGID is its PID. The parent makes the same call
+ * (setpgid(pid, pid)), so that the group exists whoever runs first, then sends
+ * SIGTERM to the whole group with kill(-pgid, SIGTERM) (killpg(pgid, SIGTERM)
+ * does the same, but is an XSI extension).
+ *
+ * Course "Operating Systems", chapter « Signaux », slide « Groupes de processus ».
  */
 
 /**
@@ -38,28 +49,55 @@ void handle_fatal_error_and_exit(const char *msg) {
 }
 
 /**
- * @brief Manages the parent process by waiting for the child to exit and
- * displaying its PID and group ID.
+ * @brief Manages the parent process: displays its group, sends SIGTERM to
+ * the group of the child, then waits for it.
  */
-void manage_parent(void) {
+void manage_parent(pid_t pid) {
     pid_t child;
     int status;
 
-    printf("Parent process: PID=%d, Group ID=%d\n", getpid(), getpgrp());
+    printf("Parent process: PID=%ld, Group ID=%ld\n", (long) getpid(), (long) getpgrp());
+
+    /* Same call as in the child: no race on who runs first.
+       EACCES: the child has already called exec (not the case here). */
+    if (setpgid(pid, pid) == -1) {
+        perror("setpgid (parent)");
+    }
+    sleep(1); /* let the child display its new group */
+
+    printf("Parent: SIGTERM to the group %ld\n", (long) pid);
+    if (kill(-pid, SIGTERM) == -1) { /* -pid: the whole group of PGID pid */
+        handle_fatal_error_and_exit("kill");
+    }
 
     child = wait(&status);
+    if (child == -1) {
+        handle_fatal_error_and_exit("wait");
+    }
 
     if (WIFEXITED(status)) {
-        printf("Parent (PID %d): Child (PID %d) exited with status %d\n",
-                getpid(), child, WEXITSTATUS(status));
+        printf("Parent (PID %ld): Child (PID %ld) exited with code %d\n",
+                (long) getpid(), (long) child, WEXITSTATUS(status));
+    } else if (WIFSIGNALED(status)) {
+        printf("Parent (PID %ld): Child (PID %ld) killed by signal %d\n",
+                (long) getpid(), (long) child, WTERMSIG(status));
     }
 }
 
 /**
- * @brief Manages the child process by displaying its PID and group ID.
+ * @brief Manages the child process: creates its own group, then waits.
  */
 void manage_child(void) {
-    printf("Child process: PID=%d, Group ID=%d\n", getpid(), getpgrp());
+    printf("Child process: PID=%ld, Group ID=%ld\n", (long) getpid(), (long) getpgrp());
+
+    /* New group, led by the child: PGID = PID of the child */
+    if (setpgid(0, 0) == -1) {
+        handle_fatal_error_and_exit("setpgid (child)");
+    }
+    printf("Child process: PID=%ld, new Group ID=%ld\n", (long) getpid(), (long) getpgrp());
+
+    fflush(stdout); /* killed by SIGTERM: an unflushed stdio buffer would be lost */
+    pause();        /* waits for the SIGTERM of its parent */
 }
 
 int main(void) {
@@ -67,11 +105,11 @@ int main(void) {
 
     pid = fork();
     if (pid == -1) {
-        handle_fatal_error_and_exit("Fork failed: Unable to create child process.\n");
+        handle_fatal_error_and_exit("Fork failed: unable to create child process");
     }
 
     if (pid > 0) {
-        manage_parent();
+        manage_parent(pid);
     } else {
         manage_child();
     }

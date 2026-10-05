@@ -8,6 +8,13 @@ src = $(wildcard $(SRC_DIR)/*.c)
 # List of executables
 bins = $(patsubst $(SRC_DIR)/%.c, $(BIN_DIR)/%, $(src))
 
+# GTK programs are built only when GTK 3 is installed (pkg-config gtk+-3.0)
+HAVE_GTK := $(shell pkg-config --exists gtk+-3.0 && echo yes)
+ifneq ($(HAVE_GTK), yes)
+bins := $(filter-out $(BIN_DIR)/moving_window, $(bins))
+$(info GTK 3 not found: moving_window is skipped)
+endif
+
 CC = gcc
 CFLAGS = -Wall -Wextra -pedantic -std=c11 -O2
 LDFLAGS =
@@ -25,25 +32,15 @@ $(BIN_DIR)/moving_window: $(SRC_DIR)/moving_window.c
 	$(CC) $(CFLAGS) $(COLOR_PROGS_CFLAGS) -c $< -o $(OBJ_DIR)/moving_window.o
 	$(CC) $(OBJ_DIR)/moving_window.o -o $@ $(LDFLAGS) $(COLOR_PROGS_LDFLAGS)
 
-# General rule to create object files (excluding moving_window.c)
+# General rules (moving_window has its own explicit rule above, which wins)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-ifeq ($<, $(SRC_DIR)/moving_window.c)
-	@echo "Skipping moving_window.c for general rule"
-else
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
-endif
 
-# Pattern rule for other executables (excluding moving_window.c)
 $(BIN_DIR)/%: $(OBJ_DIR)/%.o
-ifeq ($<, $(OBJ_DIR)/moving_window.o)
-	@echo "Skipping moving_window.o for general pattern rule"
-else 
-ifeq ($<, $(OBJ_DIR)/moving_window.o)
-	@echo "Skipping moving_window.o for general pattern rule"
-else
 	$(CC) $< -o $@ $(LDFLAGS)
-endif
-endif
+
+# Programs that include attendre.h are rebuilt when it changes
+$(patsubst %.c,%.o,$(shell grep -l '"attendre.h"' $(SRC_DIR)/*.c)): $(SRC_DIR)/attendre.h
 
 clean:
 	rm -f $(OBJ_DIR)/*.o

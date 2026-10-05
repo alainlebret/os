@@ -30,7 +30,10 @@
  * @file posix_shm_server.c
  *
  * Example using a server and a client sharing memory.
- * Link with \c -lrt under Linux.
+ * Link with \c -lrt -lm under Linux.
+ *
+ * No synchronization: the reader may see a value and a result coming from two
+ * different updates. See the course, chapter « Synchronisation ».
  */
 
 #define MEMORY_PATH "/shm_name"
@@ -54,14 +57,15 @@ void handle_error(const char *message) {
 }
 
 /**
- * Unlinks the shared memory when receiving the SIGINT signal.
+ * Requests the end of the main loop when receiving the SIGINT signal
+ * (the shared memory is then unlinked by main()).
  */
 void handle_sigint(int signum) {
     (void) signum;
     stop_requested = 1;
 }
 
-int main(int argc, char *argv[]) {
+int main(void) {
     int memory_descriptor;
     int value;
     size_t memory_size;
@@ -72,21 +76,24 @@ int main(int argc, char *argv[]) {
 
     memset(&action, '\0', sizeof(action));
     action.sa_handler = &handle_sigint;
-
-    sigaction(SIGINT, &action, NULL);
+    sigemptyset(&action.sa_mask);
+    if (sigaction(SIGINT, &action, NULL) == -1) {
+        perror("sigaction");
+        exit(EXIT_FAILURE);
+    }
 
     memory_descriptor = shm_open(
             MEMORY_PATH,
             O_CREAT | O_RDWR,
-            S_IRWXU | S_IRWXG);
+            0600);
     if (memory_descriptor < 0) {
-        handle_error("Error [shm_open()]: ");
+        handle_error("Error [shm_open()]");
     }
 
     fprintf(stderr, "Shared memory object %s has been created\n", MEMORY_PATH);
 
     if (ftruncate(memory_descriptor, memory_size) == -1) {
-        handle_error("Error [ftruncate()]: ");
+        handle_error("Error [ftruncate()]");
     }
 
     memory = (struct memory_t *) mmap(
@@ -97,7 +104,7 @@ int main(int argc, char *argv[]) {
             memory_descriptor,
             0);
     if (memory == MAP_FAILED) {
-        handle_error("Error [mmap()]: ");;
+        handle_error("Error [mmap()]");
     }
     fprintf(stderr, "Memory of %zu bytes allocated.\n", memory_size);
 

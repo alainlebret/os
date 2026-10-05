@@ -26,7 +26,7 @@
  *
  * A simple program that clones a process using the fork() primitive, and
  * where the parent process dies before his child. The child process becomes
- * orphean.
+ * an orphan and is adopted by init (or by a subreaper).
  */
 
 #define DURATION 20
@@ -49,8 +49,8 @@ void handle_fatal_error_and_exit(const char *msg) {
  * process orphaned.
  */
 void manage_parent(void) {
-    printf("Parent process (PID %d)\n", getpid());
-	exit(EXIT_SUCCESS); /* Explicit exit to simulate the parent dying */
+    printf("Parent process (PID %ld)\n", (long) getpid());
+    exit(EXIT_SUCCESS); /* Explicit exit to simulate the parent dying */
 }
 
 /**
@@ -60,13 +60,13 @@ void manage_parent(void) {
  * parent.
  */
 void manage_child(void) {
-    printf("Child process (PID %d)\n", getpid());
+    printf("Child process (PID %ld)\n", (long) getpid());
     printf("Child will be blocked during %d seconds...\n", DURATION);
 
     sleep(DURATION);
 
     printf("Child has finished to sleep.\n");
-    printf("The PID of my parent is %d. I am an orphean.\n", getppid());
+    printf("The PID of my parent is %ld. I am an orphan.\n", (long) getppid());
 }
 
 int main(void) {
@@ -74,7 +74,7 @@ int main(void) {
 
     pid = fork();
     if (pid == -1) {
-        handle_fatal_error_and_exit("Error [fork()]: ");
+        handle_fatal_error_and_exit("Error [fork()]");
     }
 
     if (pid > 0) {

@@ -16,13 +16,14 @@
  * limitations under the License.
  */
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
+#include <stdlib.h>    /* exit() */
 #include <unistd.h>    /* fork() */
-#include <sys/types.h> /* pid_t and mkfifo() */
+#include <sys/types.h> /* pid_t */
 #include <sys/stat.h>  /* mkfifo() */
 #include <ctype.h>
 #include <fcntl.h>
 #include <string.h>
+#include <errno.h>
 
 /**
  * @file mkfifo_producer.c
@@ -48,8 +49,9 @@ void handle_fatal_error(const char *msg) {
  * @return The pipe identifier.
  */
 int create_pipe(const char *name, mode_t mode) {
-    if (mkfifo(name, mode) == -1) {
-        handle_fatal_error("Error [mkfifo()]: ");
+    /* EEXIST: the pipe already exists (previous run), we can use it */
+    if (mkfifo(name, mode) == -1 && errno != EEXIST) {
+        handle_fatal_error("Error [mkfifo()]");
     }
     return 0; /* If mkfifo is successful */
 }
@@ -62,7 +64,7 @@ int create_pipe(const char *name, mode_t mode) {
 int open_pipe(const char *name) {
     int pd = open(name, O_WRONLY);
     if (pd == -1) {
-        handle_fatal_error("Error [open()]: ");
+        handle_fatal_error("Error [open()]");
     }
     return pd;
 }
@@ -73,7 +75,8 @@ int main(void) {
 
     /*
      * Create a new pipe named "testfifo" with read/write permissions for owner,
-     * and with read permissions for group and others.
+     * and with read permissions for group and others. open() blocks until
+     * the consumer opens the pipe for reading.
      */
     create_pipe("testfifo", S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
     int pd = open_pipe("testfifo");
@@ -84,8 +87,7 @@ int main(void) {
     }
 
     close(pd);
-    /* Consider if unlink("testfifo"); is appropriate here */
-    /* unlink("testfifo"); */
+    /* The consumer removes the name with unlink() once the message is read */
 
     return EXIT_SUCCESS;
 }

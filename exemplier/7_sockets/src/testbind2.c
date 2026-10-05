@@ -15,70 +15,76 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <stdlib.h>
+#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 /**
- * @file testgethostbyname.c
- * @brief Demonstrates resolving a hostname to its IP address(es) using getaddrinfo.
+ * @file testbind2.c
+ * @brief Demonstrates creating and binding a TCP/IP stream socket to a
+ * specific host.
  *
- * This program takes a hostname as a command line argument and resolves it
- * to its corresponding IP address(es).
+ * The host name (or address) given on the command line is resolved with
+ * getaddrinfo() (gethostbyname() was removed from POSIX in 2008). A stream
+ * socket is then created and bound, on port 5001, to the first address that
+ * works (slide « getaddrinfo() – essayer chaque adresse »).
+ *
+ * \code{.bash}
+ *   $ ./testbind2 localhost
+ *   Socket bound to localhost, port 5001
+ * \endcode
  */
 
-/**
- * @brief Resolves the given hostname and prints its IP address(es).
- * 
- * @param hostname The hostname to resolve.
- */
-void resolve_and_print(const char *hostname) {
+#define PORT "5001"
+
+int main(int argc, char *argv[]) {
     struct addrinfo hints;
     struct addrinfo *res;
     struct addrinfo *p;
-    char ipstr[INET6_ADDRSTRLEN];
-    int status;
+    int sd = -1;
+    int err;
 
-    memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_UNSPEC; /* AF_INET or AF_INET6 to force version */
-    hints.ai_socktype = SOCK_STREAM;
-
-    if ((status = getaddrinfo(hostname, NULL, &hints, &res)) != 0) {
-        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(status));
-        exit(EXIT_FAILURE);
-    }
-
-    printf("%s addresses: ", hostname);
-    for (p = res; p != NULL; p = p->ai_next) {
-        void *address = NULL;
-        if (p->ai_family == AF_INET) { /* IPv4 */
-            struct sockaddr_in *ipv4 = (struct sockaddr_in *) p->ai_addr;
-            address = &(ipv4->sin_addr);
-        } else { /* IPv6 */
-            struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *) p->ai_addr;
-            address = &(ipv6->sin6_addr);
-        }
-
-        /* Convert the IP to a string and print it: */
-        inet_ntop(p->ai_family, address, ipstr, sizeof ipstr);
-        printf("%s ", ipstr);
-    }
-    printf("\n");
-
-    freeaddrinfo(res); /* Free the linked list */
-}
-
-int main(int argc, char **argv) {
     if (argc < 2) {
         fprintf(stderr, "Usage: %s hostname\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    resolve_and_print(argv[1]);
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC;     /* IPv4 or IPv6 */
+    hints.ai_socktype = SOCK_STREAM;
+    err = getaddrinfo(argv[1], PORT, &hints, &res);
+    if (err != 0) {
+        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(err));
+        exit(EXIT_FAILURE);
+    }
+
+    /* Try each address until the socket can be bound */
+    for (p = res; p != NULL; p = p->ai_next) {
+        sd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+        if (sd == -1) {
+            continue;
+        }
+        if (bind(sd, p->ai_addr, p->ai_addrlen) == 0) {
+            break;                   /* success */
+        }
+        close(sd);
+        sd = -1;
+    }
+    freeaddrinfo(res);
+
+    if (sd == -1) {
+        fprintf(stderr, "Unable to bind a socket to %s\n", argv[1]);
+        exit(EXIT_FAILURE);
+    }
+
+    /* Here you could call listen() if needed */
+
+    printf("Socket bound to %s, port %s\n", argv[1], PORT);
+    close(sd);
 
     return EXIT_SUCCESS;
 }

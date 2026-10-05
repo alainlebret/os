@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <fcntl.h>
+#include <sys/stat.h> /* S_IRUSR, S_IWUSR */
 #include <unistd.h>
 #include <time.h>
 #include <signal.h>
@@ -31,6 +32,8 @@
  * This program fills a matrix in shared memory with random color values.
  * The matrix size is passed as a command-line argument. The program
  * uses POSIX shared memory and updates the colors at regular intervals.
+ *
+ * No synchronization: the reader may see data that is only partly updated. See the course, chapter « Synchronisation ».
  */
 
 #define MAX_MATRIX_SIZE 800
@@ -43,6 +46,7 @@ volatile sig_atomic_t keep_running = 1;
  * @param sig Signal number.
  */
 void handle_sigint(int sig) {
+    (void) sig;
     keep_running = 0;
 }
 
@@ -61,8 +65,8 @@ int main(int argc, char *argv[]) {
 
     /* Convert the argument to an integer */
     MATRIX_SIZE = atoi(argv[1]);
-    if (MATRIX_SIZE > MAX_MATRIX_SIZE) {
-        fprintf(stderr, "Matrix size should not exceed %d\n", MAX_MATRIX_SIZE);
+    if (MATRIX_SIZE <= 0 || MATRIX_SIZE > MAX_MATRIX_SIZE) {
+        fprintf(stderr, "Matrix size should be between 1 and %d\n", MAX_MATRIX_SIZE);
         exit(EXIT_FAILURE);
     }
 
@@ -71,7 +75,11 @@ int main(int argc, char *argv[]) {
     /* Set up the structure for signal handling */
     memset(&action, '\0', sizeof(action));
     action.sa_handler = &handle_sigint;
-    sigaction(SIGINT, &action, NULL);
+    sigemptyset(&action.sa_mask);
+    if (sigaction(SIGINT, &action, NULL) == -1) {
+        perror("sigaction");
+        exit(EXIT_FAILURE);
+    }
 
     /* Open a shared memory segment */
     shm_fd = shm_open("/matrix", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
@@ -93,6 +101,8 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    struct timespec delay = { 0, 500000000L }; /* 500 ms */
+
     /* Initialize the random number generator */
     srand(time(NULL));
 
@@ -105,7 +115,7 @@ int main(int argc, char *argv[]) {
                 ptr[(i * MATRIX_SIZE + j) * 3 + 2] = rand() % 256; /* Blue */
             }
         }
-        usleep(500000); /* Wait for 500 ms */
+        nanosleep(&delay, NULL); /* Wait for 500 ms (usleep() is no longer POSIX) */
     }
 
     /* Detach the shared memory segment */

@@ -48,10 +48,11 @@
 #define NBR_SEMAPHORES  2
 
 /**
- * Handles a fatal error. It displays a message, then exits.
+ * Handles a fatal error. It displays the message followed by the reason
+ * given by errno (perror()), then exits.
  */
 void handle_fatal_error(const char *message) {
-    fprintf(stderr, "%s", message);
+    perror(message);
     exit(EXIT_FAILURE);
 }
 
@@ -65,26 +66,30 @@ int initialize_semaphores(void) {
     /* permission 0600 = lecture/modification by user */
     if ((semid = semget(IPC_PRIVATE, NBR_SEMAPHORES, IPC_CREAT | 0600))
         < 0) {
-        handle_fatal_error("Error [semget()]: ");
+        handle_fatal_error("Error [semget()]");
     }
 
+    /* POSIX passes the 4th argument of semctl(SETVAL) as a union semun
+       (field val), which the program must define itself on Linux; passing
+       an int works on the usual ABIs (Linux, macOS), as here. */
     if (semctl(semid, BUFFER_SPACE, SETVAL, BUFFER_SIZE) < 0) {
-        handle_fatal_error("Error first [semctrl()]: ");
+        handle_fatal_error("Error first [semctrl()]");
     }
 
     if (semctl(semid, BUFFER_USED, SETVAL, 0) < 0) {
-        handle_fatal_error("Error second [semctrl()]: ");
+        handle_fatal_error("Error second [semctrl()]");
     }
 
     return semid;
 }
 
 /**
- * Performs a P() operation ("wait") on a semaphore.
+ * Performs a P() operation ("wait") on a System V semaphore.
+ * Not named sem_wait(): that name belongs to POSIX semaphores (<semaphore.h>).
  * @param semid Identifier of the group of two semaphores.
  * @param index Index of the semaphore in the group.
  */
-void sem_wait(int semid, int index) {
+void P(int semid, int index) {
     struct sembuf sops[1];
 
     sops[0].sem_num = index;
@@ -92,7 +97,7 @@ void sem_wait(int semid, int index) {
     sops[0].sem_flg = 0;
 
     if (semop(semid, sops, 1) < 0) {
-        handle_fatal_error("Error using P(): ");
+        handle_fatal_error("Error using P()");
     }
 }
 
@@ -101,7 +106,7 @@ void sem_wait(int semid, int index) {
  * @param semid Identifier of the group of two semaphores.
  * @param index Index of the semaphore in the group.
  */
-void sem_signal(int semid, int index) {
+void V(int semid, int index) {
     struct sembuf sops[1];
 
     sops[0].sem_num = index;
@@ -109,7 +114,7 @@ void sem_signal(int semid, int index) {
     sops[0].sem_flg = 0;
 
     if (semop(semid, sops, 1) < 0) {
-        handle_fatal_error("Error using V(): ");
+        handle_fatal_error("Error using V()");
     }
 }
 
@@ -119,14 +124,15 @@ void sem_signal(int semid, int index) {
 void write_memory(int *buffer, int *in, int *out, int semid) {
     int i;
 
+    (void) out;  /* only used by the consumer */
     for (i = 0; i < ITERATIONS; i++) {
-        sem_wait(semid, BUFFER_SPACE);  /* P() -- wait */
+        P(semid, BUFFER_SPACE);  /* P() -- wait */
 
         buffer[*in] = i * i;
         *in = (*in + 1) % BUFFER_SIZE;
         printf("Parent: initial value %2d before writing in the buffer\n", i);
 
-        sem_signal(semid, BUFFER_USED); /* V() -- signal */
+        V(semid, BUFFER_USED); /* V() -- signal */
 
         if ((i % 4) == 0) {
             sleep(1); /* slow production */
@@ -142,13 +148,13 @@ void manage_parent(int *buffer, int *in, int *out, int semid) {
     pid_t child;
     int status;
 
-    printf("Parent process (PID %d)\n", getpid());
+    printf("Parent process (PID %ld)\n", (long) getpid());
     write_memory(buffer, in, out, semid);
     printf("Parent: end of production.\n");
 
     child = wait(&status);
     if (WIFEXITED(status)) {
-        printf("Parent: child %d has finished (code %d)\n", child,
+        printf("Parent: child %ld has finished (code %d)\n", (long) child,
                WEXITSTATUS(status));
     }
 }
@@ -160,14 +166,15 @@ void read_memory(int *buffer, int *in, int *out, int semid) {
     int i;
     int value;
 
+    (void) in;  /* only used by the producer */
     for (i = 0; i < ITERATIONS; i++) {
-        sem_wait(semid, BUFFER_USED);  /* P() -- wait */
+        P(semid, BUFFER_USED);  /* P() -- wait */
 
         value = buffer[*out];
         *out = (*out + 1) % BUFFER_SIZE;
         printf("Child: element %2d == %2d read from the buffer.\n", i, value);
 
-        sem_signal(semid, BUFFER_SPACE); /* V() -- signal */
+        V(semid, BUFFER_SPACE); /* V() -- signal */
 
         if ((i % 3) == 1) {
             sleep(1); /* slow consuming */
@@ -179,7 +186,7 @@ void read_memory(int *buffer, int *in, int *out, int semid) {
  * Manages the child process that reads all data from shared memory.
  */
 void manage_child(int *buffer, int *in, int *out, int semid) {
-    printf("Child process (PID %d)\n", getpid());
+    printf("Child process (PID %ld)\n", (long) getpid());
     read_memory(buffer, in, out, semid);
     printf("Child: memory has been totally consumed.\n");
 }
@@ -197,8 +204,8 @@ void *create_shared_memory(void) {
                                -1, /* the shared memory do not use a file */
                                0);  /* ignored: set when using a file */
 
-    if (shared_memory == (void *) -1) {
-        handle_fatal_error("Error [mmap()]: ");
+    if (shared_memory == MAP_FAILED) {
+        handle_fatal_error("Error [mmap()]");
     }
     return shared_memory;
 }
@@ -224,8 +231,8 @@ int main(void) {
      */
 
     buffer = (int *) shared_memory;
-    in = (int *) shared_memory + BUFFER_SIZE * INTEGER_SIZE;
-    out = (int *) shared_memory + (BUFFER_SIZE + 1) * INTEGER_SIZE;
+    in = buffer + BUFFER_SIZE;       /* pointer arithmetic counts in ints, */
+    out = buffer + BUFFER_SIZE + 1;  /* not in bytes */
 
     *in = *out = 0;          /* starting index */
 
@@ -233,19 +240,17 @@ int main(void) {
 
     pid = fork();
     if (pid == -1) {
-        handle_fatal_error("Error [fork()]: ");
+        handle_fatal_error("Error [fork()]");
     }
     if (pid == 0) {
         manage_child(buffer, in, out, semaphores);
     } else {
-        manage_parent(buffer, in, out, semaphores);
+        manage_parent(buffer, in, out, semaphores); /* waits for the child */
 
-        if (wait(NULL) > 0) {
-            if (semctl(semaphores, 0, IPC_RMID) < 0) {
-                handle_fatal_error("Error when trying to remove semaphores. ");
-            }
-            printf("Semaphores have been removed.\n");
+        if (semctl(semaphores, 0, IPC_RMID) < 0) {
+            handle_fatal_error("Error when trying to remove semaphores");
         }
+        printf("Semaphores have been removed.\n");
     }
 
     return EXIT_SUCCESS;

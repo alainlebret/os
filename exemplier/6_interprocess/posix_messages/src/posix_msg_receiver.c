@@ -83,7 +83,10 @@ int main(int argc, char *argv[]) {
         start_time = hour.tv_sec * 1000000L + hour.tv_usec;
 
         do {
-            mq_receive(mq, buffer, size, NULL);
+            if (mq_receive(mq, buffer, size, NULL) == -1) {
+                perror("mq_receive"); /* otherwise the buffer is not a date */
+                exit(EXIT_FAILURE);
+            }
 
             gettimeofday(&hour, NULL);
             current_time = hour.tv_sec * 1000000L + hour.tv_usec;

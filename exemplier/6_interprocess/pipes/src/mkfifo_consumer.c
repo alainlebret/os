@@ -16,9 +16,9 @@
  * limitations under the License.
  */
 #include <stdio.h>     /* printf() */
-#include <stdlib.h>    /* exit() and execl()*/
+#include <stdlib.h>    /* exit() */
 #include <unistd.h>    /* pour fork() */
-#include <sys/types.h> /* pid_t and mkfifo() */
+#include <sys/types.h> /* pid_t */
 #include <sys/stat.h>  /* mkfifo() */
 #include <ctype.h>
 #include <fcntl.h>
@@ -51,7 +51,7 @@ int open_pipe(const char *name) {
 
     pd = open(name, O_RDONLY);
     if (pd == -1) {
-        handle_fatal_error("Error [open()]: ");
+        handle_fatal_error("Error [open()]");
     }
     return pd;
 }
@@ -63,20 +63,19 @@ int main(void) {
 
     pd = open_pipe("testfifo");
 
-    message_length = read(pd, buffer, BUFFER_SIZE - 1); /* -1 to leave space for null terminator */
-
+    printf("\nRead message from the pipe...\n");
+    /* A read may return only part of the message: read until 0 (EOF) */
+    while ((message_length = read(pd, buffer, BUFFER_SIZE - 1)) > 0) {
+        buffer[message_length] = '\0'; /* space kept for null terminator */
+        printf("%s", buffer);
+    }
+    printf("\n");
     if (message_length == -1) {
-        handle_fatal_error("Error [read()]: ");
-    } else if (message_length > 0) {
-        printf("\nRead message from the pipe...\n");
-        printf("%s\n", buffer);
-    } else {
-        printf("Named pipe is empty.\n");
+        handle_fatal_error("Error [read()]");
     }
 
     close(pd);
-    /* Consider if unlink("./testfifo"); is appropriate here */
-    /* unlink("./testfifo"); */
+    unlink("testfifo"); /* removes the name of the pipe (like rm) */
 
     return EXIT_SUCCESS;
 }

@@ -31,15 +31,18 @@
  * inspection of its memory mapping. Use the following command to check 
  * memory usage:
  * \code{bash}
- * cat /proc/<PID>/maps
+ * cat /proc/<PID>/maps     (Linux; on macOS: vmmap <PID>)
  * \endcode
  * 
  * Use Ctrl-C to gracefully exit the program.
  */
 
 void handle_signal(int sig) {
-    printf("\nSignal %d received. Exiting now...\n", sig);
-    exit(EXIT_SUCCESS);
+    /* Only async-signal-safe functions here: write() and _exit() */
+    const char msg[] = "\nSignal received, exiting now...\n";
+    (void) sig;
+    write(STDOUT_FILENO, msg, sizeof(msg) - 1);
+    _exit(EXIT_SUCCESS);
 }
 
 int main(void) {
@@ -58,7 +61,7 @@ int main(void) {
         exit(EXIT_FAILURE);
     }
 
-    printf("Process with PID %d is calculating square roots. Check memory mapping with `cat /proc/%d/maps`\n", getpid(), getpid());
+    printf("Process with PID %ld is calculating square roots. Check memory mapping with `cat /proc/%ld/maps`\n", (long) getpid(), (long) getpid());
 
     while (1) {
         number = random();
