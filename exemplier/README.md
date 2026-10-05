@@ -21,7 +21,9 @@ Ce dépôt contient une collection d'exemples de programmation système Unix en 
 Pour utiliser ces exemples, assurez-vous de disposer des outils et environnements nécessaires. La plupart des exemples nécessitent un compilateur C, comme GCC, et un environnement Unix-like. Suivez ces étapes pour exécuter les exemples :
 
 - Clonez le dépôt sur votre machine locale.
-- Pour produire l'ensemble des exécutables, lancez la commande `make` à la racine du dépôt. Vous pouvez aussi naviguez vers le sous-répertoire de l'exemple que vous souhaitez exécuter et lancer `make`.
+- Pour produire l'ensemble des exécutables, lancez la commande `make` à la racine du dépôt. Vous pouvez aussi naviguer vers le sous-répertoire de l'exemple que vous souhaitez exécuter et lancer `make`.
+- Les programmes graphiques (`moving_window`, `color_*`, `message_viewer`) demandent GTK 3 (`pkg-config gtk+-3.0`) : sans GTK, `make` les ignore en le signalant et construit tous les autres.
+- Quelques exemples sont propres à Linux (`timer_create()`, `sem_init()`…) : ils le disent dans leur en-tête et dans le README de leur dossier.
 
 ## Licence
 
@@ -50,6 +52,8 @@ To use these examples, ensure you have the necessary tools and environments. Mos
 - Clone the repository to your local machine.
 - Navigate to the subdirectory of the example you want to run.
 - Compile the source code using `make`.
+- The graphical programs (`moving_window`, `color_*`, `message_viewer`) need GTK 3 (`pkg-config gtk+-3.0`): without GTK, `make` skips them with a message and builds all the others.
+- A few examples are Linux only (`timer_create()`, `sem_init()`…): their header and the README of their directory say so.
 
 ## License
 
