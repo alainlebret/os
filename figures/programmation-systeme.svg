@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" width="1200" height="600" viewBox="0 0 1200 600">
+<metadata>
+  <rdf:RDF>
+    <rdf:Description rdf:about="">
+      <dc:creator>Alain Lebret</dc:creator>
+      <dc:rights>© 2026 Alain Lebret — ENSICAEN</dc:rights>
+      <dc:source>Cours Systèmes d'exploitation — programmation système POSIX</dc:source>
+    </rdf:Description>
+  </rdf:RDF>
+</metadata>
+  <rect width="100%" height="100%" fill="white" />
+  <defs>
+    <marker id="fleche" viewBox="0 0 10 8" refX="10" refY="4" markerWidth="12" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0,0 L10,4 L0,8 z" fill="#000" />
+    </marker>
+    <pattern id="hachures" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="8" height="8" fill="white" />
+      <line x1="0" y1="0" x2="0" y2="8" stroke="#9a9a9a" stroke-width="3" />
+    </pattern>
+  </defs>
+
+  <g font-family="SF Pro Text, Helvetica, Arial, sans-serif" fill="#000">
+
+    <!-- Noyau -->
+    <rect x="0" y="380" width="1200" height="220" fill="#e6e6e6" />
+    <line x1="0" y1="380" x2="1200" y2="380" stroke="#000" stroke-width="2" stroke-dasharray="8 5" />
+    <text x="24" y="38" font-size="17" font-weight="bold">espace utilisateur</text>
+    <text x="24" y="584" font-size="17" font-weight="bold">noyau</text>
+    <text x="1176" y="400" font-size="14" font-style="italic" text-anchor="end">frontière franchie par les appels système</text>
+
+    <!-- Processus A et B (fork) -->
+    <circle cx="150" cy="150" r="44" fill="white" stroke="#000" stroke-width="2.5" />
+    <text x="150" y="157" font-size="22" font-weight="bold" text-anchor="middle">A</text>
+    <circle cx="340" cy="150" r="44" fill="white" stroke="#000" stroke-width="2.5" />
+    <text x="340" y="157" font-size="22" font-weight="bold" text-anchor="middle">B</text>
+    <path d="M190,128 Q245,95 300,128" fill="none" stroke="#000" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#fleche)" />
+    <text x="245" y="96" font-size="15" text-anchor="middle" font-family="SF Mono, Menlo, monospace">fork()</text>
+
+    <!-- Processus C : trois threads -->
+    <rect x="560" y="104" width="150" height="92" rx="14" fill="white" stroke="#000" stroke-width="2.5" />
+    <text x="635" y="96" font-size="22" font-weight="bold" text-anchor="middle">C</text>
+    <g fill="none" stroke="#000" stroke-width="2">
+      <path d="M590,118 q8,10 0,20 q-8,10 0,20 q8,10 0,20" />
+      <path d="M635,118 q8,10 0,20 q-8,10 0,20 q8,10 0,20" />
+      <path d="M680,118 q8,10 0,20 q-8,10 0,20 q8,10 0,20" />
+    </g>
+    <text x="722" y="155" font-size="14" text-anchor="start">3 threads</text>
+
+    <!-- Processus D -->
+    <circle cx="960" cy="150" r="44" fill="white" stroke="#000" stroke-width="2.5" />
+    <text x="960" y="157" font-size="22" font-weight="bold" text-anchor="middle">D</text>
+
+    <!-- Mémoire partagée, projetée chez B et C -->
+    <rect x="410" y="250" width="110" height="56" rx="4" fill="url(#hachures)" stroke="#000" stroke-width="2.5" />
+    <text x="465" y="330" font-size="14" text-anchor="middle">mémoire partagée</text>
+    <g stroke="#000" stroke-width="2" fill="none">
+      <line x1="365" y1="186" x2="425" y2="250" />
+      <line x1="590" y1="196" x2="505" y2="250" />
+    </g>
+    <text x="465" y="242" font-size="14" text-anchor="middle" font-family="SF Mono, Menlo, monospace">mmap()</text>
+
+    <!-- Objets du noyau -->
+    <!-- fichier -->
+    <path d="M90,430 h44 l16,16 v62 h-60 z" fill="white" stroke="#000" stroke-width="2.5" />
+    <path d="M134,430 v16 h16" fill="none" stroke="#000" stroke-width="2" />
+    <text x="120" y="534" font-size="15" text-anchor="middle">fichier</text>
+    <!-- tube -->
+    <g stroke="#000" stroke-width="2.5">
+      <rect x="250" y="452" width="90" height="40" fill="white" />
+      <ellipse cx="250" cy="472" rx="10" ry="20" fill="white" />
+      <ellipse cx="340" cy="472" rx="10" ry="20" fill="#bdbdbd" />
+    </g>
+    <text x="295" y="534" font-size="15" text-anchor="middle">tube</text>
+    <!-- sémaphore -->
+    <circle cx="500" cy="472" r="30" fill="white" stroke="#000" stroke-width="2.5" />
+    <circle cx="486" cy="472" r="5.5" fill="#000" />
+    <circle cx="500" cy="472" r="5.5" fill="#000" />
+    <circle cx="514" cy="472" r="5.5" fill="none" stroke="#000" stroke-width="2" />
+    <text x="500" y="534" font-size="15" text-anchor="middle">sémaphore</text>
+    <!-- file de messages -->
+    <g fill="white" stroke="#000" stroke-width="2.5">
+      <rect x="700" y="456" width="34" height="34" />
+      <rect x="742" y="456" width="34" height="34" />
+      <rect x="784" y="456" width="34" height="34" />
+    </g>
+    <text x="759" y="534" font-size="15" text-anchor="middle">file de messages</text>
+    <!-- socket -->
+    <circle cx="1010" cy="472" r="24" fill="white" stroke="#000" stroke-width="2.5" />
+    <circle cx="1010" cy="472" r="8" fill="#000" />
+    <text x="1010" y="534" font-size="15" text-anchor="middle">socket</text>
+    <line x1="1034" y1="472" x2="1150" y2="472" stroke="#000" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#fleche)" />
+    <text x="1150" y="456" font-size="15" text-anchor="end">réseau</text>
+
+    <!-- Appels système : flèches traversant la frontière -->
+    <g stroke="#000" stroke-width="2" fill="none">
+      <!-- A <-> fichier -->
+      <line x1="140" y1="194" x2="125" y2="428" marker-end="url(#fleche)" />
+      <!-- A -> tube -> B -->
+      <line x1="170" y1="190" x2="248" y2="450" marker-end="url(#fleche)" />
+      <line x1="345" y1="452" x2="342" y2="196" marker-end="url(#fleche)" />
+      <!-- B, C <-> sémaphore -->
+      <line x1="318" y1="188" x2="476" y2="450" stroke-dasharray="6 5" />
+      <line x1="600" y1="196" x2="514" y2="440" stroke-dasharray="6 5" />
+      <!-- C -> file -> D -->
+      <line x1="680" y1="196" x2="718" y2="454" marker-end="url(#fleche)" />
+      <line x1="806" y1="454" x2="932" y2="184" marker-end="url(#fleche)" />
+      <!-- D <-> socket -->
+      <line x1="972" y1="192" x2="1004" y2="446" marker-end="url(#fleche)" />
+    </g>
+    <g font-size="14" font-family="SF Mono, Menlo, monospace">
+      <text x="54" y="300">open()</text>
+      <text x="54" y="318">read()</text>
+      <text x="212" y="300" text-anchor="start">write()</text>
+      <text x="334" y="322" text-anchor="end">read()</text>
+      <text x="542" y="466" text-anchor="start">sem_wait()</text>
+      <text x="542" y="484" text-anchor="start">sem_post()</text>
+      <text x="706" y="300">mq_send()</text>
+      <text x="870" y="300">mq_receive()</text>
+      <text x="996" y="300">send()</text>
+      <text x="996" y="318">recv()</text>
+    </g>
+
+    <!-- Signal : du noyau vers D -->
+    <path d="M1112,378 L1092,300 L1116,290 L1094,214 L1006,168" fill="none" stroke="#000" stroke-width="2.5" marker-end="url(#fleche)" />
+    <text x="1124" y="250" font-size="15" text-anchor="start" font-weight="bold">signal</text>
+    <text x="1124" y="268" font-size="14" text-anchor="start" font-family="SF Mono, Menlo, monospace">kill()</text>
+  </g>
+</svg>

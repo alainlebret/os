@@ -1,4 +1,4 @@
-<p align="center"><img src="figures/screenshot.jpg" alt="Interprocess communication using named pipes" title="Interprocess communication using named pipes" width="800"></p>
+<p align="center"><img src="figures/programmation-systeme.svg" alt="Processus de l'espace utilisateur et objets du noyau (fichier, tube, sémaphore, file de messages, socket, signal), reliés par leurs appels système / User-space processes and kernel objects, linked by their system calls" title="Programmation système POSIX / POSIX system programming" width="900"></p>
 
 ## Systèmes d'exploitation
 
